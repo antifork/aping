@@ -8,11 +8,6 @@
  * 
  * All rights reserved.
  * 
- * Linux           : gcc -lpthread -o proxed proxed.c
- * OpenBSD 2.9|3.0 : gcc -pthread -o proxed proxed.c
- * Freebsd 4.4     : gcc -pthread -o proxed proxed.c
- *
- * 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
