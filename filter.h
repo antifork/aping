@@ -62,14 +62,21 @@
 #define ICMP_IP_src(p)  ((p)->icmp->icmp_ip.ip_src.s_addr)
 #define ICMP_IP_dst(p)  ((p)->icmp->icmp_ip.ip_dst.s_addr)
 
-#define ICMP_TCP_sport(p) ((short *)(p)->data) 
-#define ICMP_TCP_dport(p) ((short *)(p)->data[0+sizeof(short)])
+#define ICMP_TCP_sport(p) (*(short*)((p)->data+0+(p)->icmp->icmp_ip.ip_hl*4)) 
+#define ICMP_TCP_dport(p) (*(short*)((p)->data+2+(p)->icmp->icmp_ip.ip_hl*4)) 
+#define ICMP_TPC_ns(p)	  (*(u_int32_t*)((p)->data+4+(p)->icmp->icmp_ip.ip_hl*4))
 
-#define ICMP_ICMP_type(p) ((p)->data)
-#define ICMP_ICMP_code(p) ((p)->data[1])
-#define ICMP_ICMP_sum(p)  ((short *)(p)->data[2])
-#define ICMP_ICMP_id(p)   ((short *)(p)->data[4])
-#define ICMP_ICMP_seq(p)  ((short *)(p)->data[6])
+#define ICMP_UDP_sport(p)  (*(short*)((p)->data+0+(p)->icmp->icmp_ip.ip_hl*4))
+#define ICMP_UDP_dport(p)  (*(short*)((p)->data+2+(p)->icmp->icmp_ip.ip_hl*4))
+#define ICMP_UDP_len(p)    (*(short*)((p)->data+4+(p)->icmp->icmp_ip.ip_hl*4))
+#define ICMP_UDP_chksum(p) (*(short*)((p)->data+6+(p)->icmp->icmp_ip.ip_hl*4))
+
+#define ICMP_ICMP_type(p) ((p)->data[0+ ((p)->icmp->icmp_ip.ip_hl*4)])
+#define ICMP_ICMP_code(p) ((p)->data[1+ ((p)->icmp->icmp_ip.ip_hl*4)])
+
+#define ICMP_ICMP_sum(p)  (*(short*)((p)->data+2+(p)->icmp->icmp_ip.ip_hl*4)) 
+#define ICMP_ICMP_id(p)   (*(short*)((p)->data+4+(p)->icmp->icmp_ip.ip_hl*4)) 
+#define ICMP_ICMP_seq(p)  (*(short*)((p)->data+6+(p)->icmp->icmp_ip.ip_hl*4)) 
 
 #define TVAL_sec(p)	((p)->icmp_tstamp_tval->tv_sec)
 #define TVAL_usec(p)	((p)->icmp_tstamp_tval->tv_usec)
