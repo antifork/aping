@@ -312,7 +312,7 @@ main (argc, argv)
 
     /* Catch signal */
 
-    signal (SIGINT, ctrlc);
+    signal (SIGINT,  SIG_IGN);
     signal (SIGTSTP, SIG_IGN);
     signal (SIGQUIT, SIG_IGN);
 
@@ -336,9 +336,9 @@ main (argc, argv)
 
     tty = termios_p;
 
-    tty.c_lflag &= ~(ECHO | ECHOK| ICANON | ISIG);
+    tty.c_lflag &= ~(ECHO | ECHOK| ICANON | ISIG); /* FIXME: ~ISIG bit ignores signals' keyboard */
 
-    tty.c_cc[VMIN]  = 0; 
+    tty.c_cc[VMIN]  = 1; 
     tty.c_cc[VTIME] = 1;
 
     tcsetattr (0, TCSANOW, &tty);
@@ -363,15 +363,14 @@ main (argc, argv)
 	exit (1);
     }
 
+    pthread_cancel (pd_rcv);
+
     wait_time = (n_tome ? 100 + rtt_mean + 2 * ISQRT (rtt_sqre - rtt_mean * rtt_mean) : 2000);
+    loss = 100 - PER_CENT (n_tome, n_sent);
 
     PUTS ("--- sleeping %d ms (RTT+2 sigma) ---\n", wait_time);
 
     usleep (wait_time * 1000);
-
-    pthread_cancel (pd_rcv);
-
-    loss = 100 - PER_CENT (n_tome, n_sent);
 
     PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));
 

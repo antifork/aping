@@ -69,6 +69,8 @@ keystroke ()
 
     for(;;)
        {
+	pthread_testcancel();
+
 	c=getc(stdin);
 
 	switch (c) {

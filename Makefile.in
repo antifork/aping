@@ -91,8 +91,8 @@ install:
 	$(INSTALL) -c -m 0755 -g bin aping @bindir@ 
 	cd plugin && make install
 clean:
-	rm -Rf *~ *.{bak,o} aping  
+	rm -Rf *~ *.bak *.o aping  
 	cd plugin && make clean
 distclean:
-	rm -Rf *~ *.{bak,o,cache,log} aping config.status config.h version.h Makefile
+	rm -Rf *~ *.bak *.o *.cache *.log aping config.status config.h version.h Makefile
 	cd plugin && make distclean
