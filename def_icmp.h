@@ -34,15 +34,40 @@
 #ifndef HAVE_ICMP_DEF
 #define HAVE_ICMP_DEF 
 
-char *icmp_type_str[32] =
-{ "echo", NULL, NULL, "unreach", "squench", "redirect", NULL, "r_route",
-  "echo_RQ", "routeradver", "routersolicit", "t_xceed", "paramprb", "tstamp",
-  "tstamp_rp", "info_RQ", "info_rp", "mask_RQ", "mask_rp",
+char *icmp_type_str[256] =
+{
+   [0]=  "echo", 
+   [3]=  "unreach", 
+   [4]=  "squench", 
+   [5]=  "redirect", 
+   [6]=  "alternate",
+   [8]=  "echo_RQ", 
+   [9]=  "router", 
+   [10]= "router", 
+   [11]= "t_xceed", 
+   [12]= "error", 
+   [13]= "tstamp",
+   [14]= "tstamp_rp", 
+   [15]= "info_RQ", 
+   [16]= "info_rp", 
+   [17]= "mask_RQ", 
+   [18]= "mask_rp",
+   [30]= "traceroute",
+   [31]= "datagram",
+   [32]= "mobile",
+
+   [35]= "mobile",
+   [36]= "mobile",
+
+   [37]= "domain-name",
+   [38]= "domain-name",
+  
+   [40]= "security"
 };
 
-#define str_code(a,b,s) [a*32+b] s
+#define str_code(a,b,s) [a*256+b] s
 
-char *icmp_code_str[32*32] =
+char *icmp_code_str[256*256] =
 {
 str_code(3, 0, "net unreachable"),
 str_code(3, 1, "host unreachable"),
@@ -66,15 +91,32 @@ str_code(5, 1, "redirect datagr. for host"),
 str_code(5, 2, "redirect datagr. for tos and net"),
 str_code(5, 3, "redirect datagr. for tos and host"),
 str_code(9, 0, "router advertisement"),
+str_code(10,0, "router selection"),
 str_code(11,0, "ttl exceeded in transit"),
 str_code(11,1, "fragment reassembly exceeded"),
 str_code(12,0, "pointer indicates the error"),
+str_code(12,1, "missing option"),
+str_code(12,2, "bad lenght"),
 str_code(13,0, "timestamp"),
 str_code(14,0, "timestamp reply"),
 str_code(15,0, "information request"),
 str_code(16,0, "information reply"),
 str_code(17,0, "mask request"),
 str_code(18,0, "mask reply"),
+str_code(30,0, "traceroute-forwarded"),
+str_code(30,1, "packet-discarded"),
+str_code(31,0, "datagram-conversion-error"),
+str_code(32,0, "mobile-host-redirect"),
+str_code(35,0, "mobile-registration-request"),
+str_code(36,0, "mobile-registration-reply"),
+str_code(37,0, "domain-name-request"),
+str_code(38,0, "domain-name-reply"),
+str_code(40,0, "bad-spi"),
+str_code(40,1, "authentication-failed"),
+str_code(40,2, "decompression-failed"),
+str_code(40,3, "decryption-failed"),
+str_code(40,4, "need-authentication"),
+str_code(40,5, "need-authorization"),
 
 };
 

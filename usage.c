@@ -41,6 +41,9 @@
 #include "bandwidth.h"
 #include "version.h"
 
+extern char *icmp_type_str[256];
+extern char *icmp_code_str[256*256];
+
 void
 usage (char *name, int type)
 {
@@ -88,23 +91,38 @@ usage (char *name, int type)
                       "   IPTOS_MINCOST             0x02\n");
 	     break;
 	 case USAGE_ICMP_TYPE:
-	     fprintf (stderr, "Summary of Message Types (reference rfc792)\n"
-		      "   -t  0  echo reply\n"
-		      "   -t  3  destination unreachable\n"
-		      "   -t  4  source quench (packet lost, slow down)\n"
-		      "   -t  5  redirect (change route)\n"
-		      "   -t  8  echo request (default)\n"
-                      "   -t  9  router advertisement\n" 
-                      "   -t 10  router solicitation\n"
-                      "   -t 11  time exceeded\n" 
-                      "   -t 12  parameter problem\n" 
-                      "   -t 13  timestamp\n" 
-                      "   -t 14  timestamp reply\n" 
-                      "   -t 15  information request\n" 
-                      "   -t 16  information reply\n"
-                      "   -t 17  address mask request\n"
-                      "   -t 18  address mask reply\n");
+	     {
+                int i;
+
+                fprintf (stderr, "Summary of Message Types:\n");
+
+		for (i=0;i<256;i++)
+		{
+		   if ( icmp_type_str[i] != NULL )
+			printf("   -t %2d  %s\n",i,icmp_type_str[i]); 
+
+		}             	
+             }
+
 	     break;
+         case USAGE_ICMP_CODE:
+             {
+                int i;
+                int j;
+ 
+                fprintf (stderr, "Summary of Message Codes:\n");
+             
+                for (i=0;i<256;i++)
+		for (j=0;j<256;j++)
+                {
+                   if( icmp_code_str[i*256+j] != NULL )
+                        printf("   -t %2d -k %2d  %s\n",i,j,icmp_code_str[i*256+j]);
+               
+                }
+             }
+             
+             break;
+
 	 case USAGE_BANDWIDTH:
 		{
 		int i=1;

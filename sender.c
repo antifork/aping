@@ -64,7 +64,7 @@
 #include "global.h"
 
 
-extern char  *icmp_type_str[24];
+extern char  *icmp_type_str[256];
 
 int           true = 1;
 

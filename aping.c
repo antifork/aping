@@ -251,6 +251,9 @@ main (argc, argv)
 		 break;
 
 	     case 'k':
+                 if (!strcmp ("help", optarg))
+                     usage (optarg, USAGE_ICMP_CODE);
+
 		 SET (icmp_code);
 		 icmp_code = ATOA (optarg);
 		 break;

@@ -1,0 +1,253 @@
+
+ICMP TYPE NUMBERS
+
+(last updated 2001 August 27)
+
+The Internet Control Message Protocol (ICMP) has many messages that
+are identified by a "type" field.
+
+Type	Name					Reference
+----	-------------------------		---------
+  0	Echo Reply				 [RFC792]
+  1	Unassigned				    [JBP]
+  2	Unassigned				    [JBP]
+  3	Destination Unreachable			 [RFC792]
+  4	Source Quench			 	 [RFC792]
+  5	Redirect				 [RFC792]
+  6	Alternate Host Address			    [JBP]
+  7	Unassigned				    [JBP]
+  8	Echo					 [RFC792]
+  9	Router Advertisement			[RFC1256]
+ 10	Router Solicitation			[RFC1256]
+ 11	Time Exceeded				 [RFC792]
+ 12	Parameter Problem			 [RFC792]
+ 13	Timestamp				 [RFC792]
+ 14	Timestamp Reply				 [RFC792]
+ 15	Information Request			 [RFC792]
+ 16	Information Reply			 [RFC792]
+ 17	Address Mask Request                     [RFC950]
+ 18	Address Mask Reply			 [RFC950]
+ 19	Reserved (for Security)			   [Solo]
+ 20-29	Reserved (for Robustness Experiment)	    [ZSu]
+ 30	Traceroute				[RFC1393]
+ 31	Datagram Conversion Error		[RFC1475]
+ 32     Mobile Host Redirect              [David Johnson]
+ 33     IPv6 Where-Are-You                 [Bill Simpson]
+ 34     IPv6 I-Am-Here                     [Bill Simpson]
+ 35     Mobile Registration Request        [Bill Simpson]
+ 36     Mobile Registration Reply          [Bill Simpson]
+ 37     Domain Name Request                     [Simpson]
+ 38     Domain Name Reply                       [Simpson]
+ 39     SKIP                                    [Markson]
+ 40     Photuris                                [RFC2521]
+ 41-255 Reserved				    [JBP]
+
+Many of these ICMP types have a "code" field.  Here we list the types
+again with their assigned code fields.
+
+Type    Name                                    Reference
+----    -------------------------               ---------
+  0     Echo Reply                               [RFC792]
+
+        Codes
+            0  No Code
+
+  1     Unassigned                                  [JBP]
+
+  2     Unassigned                                  [JBP]
+
+  3     Destination Unreachable                  [RFC792]
+
+	Codes
+	    0  Net Unreachable
+	    1  Host Unreachable
+            2  Protocol Unreachable
+            3  Port Unreachable
+            4  Fragmentation Needed and Don't Fragment was Set
+            5  Source Route Failed
+            6  Destination Network Unknown
+            7  Destination Host Unknown
+            8  Source Host Isolated
+            9  Communication with Destination Network is
+               Administratively Prohibited
+           10  Communication with Destination Host is
+               Administratively Prohibited
+           11  Destination Network Unreachable for Type of Service
+           12  Destination Host Unreachable for Type of Service
+           13  Communication Administratively Prohibited      [RFC1812]
+           14  Host Precedence Violation                      [RFC1812]
+           15  Precedence cutoff in effect                    [RFC1812]
+
+
+  4     Source Quench                            [RFC792]
+        Codes
+            0  No Code
+
+  5     Redirect                                 [RFC792]
+
+        Codes
+            0  Redirect Datagram for the Network (or subnet)
+            1  Redirect Datagram for the Host
+            2  Redirect Datagram for the Type of Service and Network
+            3  Redirect Datagram for the Type of Service and Host
+
+  6     Alternate Host Address                      [JBP]
+
+        Codes
+            0  Alternate Address for Host
+
+  7     Unassigned                                  [JBP]
+
+  8     Echo                                     [RFC792]
+
+        Codes
+            0  No Code
+
+  9     Router Advertisement                    [RFC1256]
+
+        Codes
+            0  Normal router advertisement      
+           16  Does not route common traffic    [RFC2002]
+
+
+ 10     Router Selection                        [RFC1256]
+
+        Codes
+            0  No Code
+
+ 11     Time Exceeded                            [RFC792]
+
+        Codes
+            0  Time to Live exceeded in Transit
+            1  Fragment Reassembly Time Exceeded
+
+ 12     Parameter Problem                        [RFC792]
+
+        Codes
+            0  Pointer indicates the error
+            1  Missing a Required Option        [RFC1108]
+            2  Bad Length
+
+
+ 13     Timestamp                                [RFC792]
+
+        Codes
+            0  No Code
+
+ 14     Timestamp Reply                          [RFC792]
+
+        Codes
+            0  No Code
+
+ 15     Information Request                      [RFC792]
+
+        Codes
+            0  No Code
+
+ 16     Information Reply                        [RFC792]
+
+        Codes
+            0  No Code
+
+ 17     Address Mask Request                     [RFC950]
+
+        Codes
+            0  No Code
+
+ 18     Address Mask Reply                       [RFC950]
+
+        Codes
+            0  No Code
+
+ 19     Reserved (for Security)                    [Solo]
+
+ 20-29  Reserved (for Robustness Experiment)        [ZSu]
+
+ 30     Traceroute                              [RFC1393]
+
+ 31     Datagram Conversion Error               [RFC1475]
+
+ 32     Mobile Host Redirect              [David Johnson]
+
+ 33     IPv6 Where-Are-You                 [Bill Simpson]
+
+ 34     IPv6 I-Am-Here                     [Bill Simpson]
+
+ 35     Mobile Registration Request        [Bill Simpson]
+
+ 36     Mobile Registration Reply          [Bill Simpson]
+
+ 39     SKIP                                    [Markson]
+
+ 40     Photuris                                [RFC2521]
+
+	Codes
+            0 = Bad SPI
+            1 = Authentication Failed
+            2 = Decompression Failed
+            3 = Decryption Failed
+            4 = Need Authentication
+            5 = Need Authorization
+
+
+REFERENCES
+----------
+
+[RFC792] Postel, J., "Internet Control Message Protocol", STD 5,
+         RFC 792, USC/Information Sciences Institute, September 1981. 
+
+[RFC950] Mogul, J., and J. Postel, "Internet Standard Subnetting
+         Procedure", STD 5, RFC 950, Stanford, USC/Information
+         Sciences Institute, August 1985.  
+
+[RFC1108] Kent, S., "U.S. Department of Defense Security Options for
+          the Internet Protocol", RFC 1108, November 1991.
+
+[RFC1256] Deering, S., Editor, "ICMP Router Discovery Messages", RFC
+          1256, Xerox PARC, September 1991.
+
+[RFC1393] Malkin, G., "Traceroute Using an IP Option", RFC 1393,
+          Xylogics, Inc., January 1993. 
+
+[RFC1475] Ullmann, R., "TP/IX: The Next Internet", RFC 1475, Process
+          Software Corporation, June 1993. 
+
+[RFC1812] Baker, F., "Requirements for IP Version 4 Routers", RFC
+          1812, Cisco Systems, June 1995.
+
+[RFC2002] C. Perkins, Editor, "IP Mobility Support", RFC 2002,
+          October 1996.
+
+[RFC2521] P. Karn and W. Simpson, "ICMP Security Failures Messages",
+          RFC 2521, March 1999.
+
+
+
+PEOPLE
+------
+
+[JBP] Jon Postel, <postel@isi.edu>, September 1995.
+
+[David Johnson]
+
+[Markson] Tom Markson, <markson@osmosys.incog.com>, September 1995.
+
+[Simpson]  Bill Simpson, <Bill.Simpson@um.cc.umich.edu>, October 1995.
+
+[Solo]
+
+[ZSu] Zaw-Sing Su <ZSu@TSCA.ISTC.SRI.COM>
+
+[]
+
+
+
+
+
+
+
+
+
+
+
+

@@ -42,7 +42,7 @@
 #include "global.h"
 #include "def_icmp.h"
 
-int           icmp_parent[32] = { 8, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, 13, 0, 15, 0, 17, -1, -1 };
+int icmp_parent[32] = { 8, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, 13, 0, 15, 0, 17, -1, -1 };
 
 
 struct pcap_pkthdr pcaphdr;
@@ -51,9 +51,9 @@ struct timeval *timestamp;
 packet        pkt;
 
 
-void          (*icmp_dissect_vector[32]) (packet *) =
+void  (*icmp_dissect_vector[256]) (packet *) =
 {
-dissect_echo_reply,
+        dissect_echo_reply,
 	NULL,
 	NULL,
 	dissect_destination_unreachable,
@@ -65,7 +65,14 @@ dissect_echo_reply,
 	dissect_router_advertisement,
 	dissect_router_solicitation,
 	dissect_time_exceeded,
-	dissect_parameter_problem, dissect_timestamp, dissect_timestamp_reply, dissect_information_request, dissect_information_reply, dissect_address_mask_request, dissect_address_mask_reply};
+	dissect_parameter_problem, 
+        dissect_timestamp, 
+	dissect_timestamp_reply, 
+	dissect_information_request, 
+	dissect_information_reply, 
+	dissect_address_mask_request, 
+	dissect_address_mask_reply
+};
 
 
 #include "filter.h"
@@ -331,13 +338,13 @@ process_pack (packet * p)
 
     /* type */
 
-    PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0x1f]);
+    PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0xff]);
 
     /* code */
 
-    if (icmp_code_str[((ICMP_type (p) & 0x1f) << 5) + (ICMP_code (p) & 0x1f)] != NULL)
+    if (icmp_code_str[((ICMP_type (p) & 0xff) << 5) + (ICMP_code (p) & 0xff)] != NULL)
 	{
-	    PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[((ICMP_type (p) & 0x1f) << 5) + (ICMP_code (p) & 0x1f)]);
+	    PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[((ICMP_type (p) & 0xff) << 5) + (ICMP_code (p) & 0xff)]);
 	}
     else
 	{
@@ -388,9 +395,9 @@ process_pack (packet * p)
 
     /* verbose == 2 */
 
-    if (icmp_dissect_vector[ICMP_type (p) & 0x1f] != NULL)
+    if (icmp_dissect_vector[ICMP_type (p) & 0xff] != NULL)
 	{
-	    (*icmp_dissect_vector[ICMP_type (p) & 0x1f]) (p);
+	    (*icmp_dissect_vector[ICMP_type (p) & 0xff]) (p);
 	}
 
   end:
