@@ -46,6 +46,8 @@
 
 #define NROUTES         9 /* number of record route slots */
 
+#define MAX_CHILD	32	
+
 #define ICON_SEND	0
 #define ICON_DUP	2
 #define ICON_ZOMBIE	3

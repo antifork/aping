@@ -39,6 +39,8 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#include <signal.h>
+
 #include "typedef.h"
 #include "prototype.h"
 
@@ -77,7 +79,13 @@ plugin_init(char *name)
 
 		break;
 	default:
-		pd_plugin[pd_pindex++]= pid;
+		if ( pd_pindex < MAX_CHILD )
+			pd_plugin[pd_pindex++]= pid;
+		else
+			{
+			kill ( pid, SIGUSR1 );
+			FATAL("too many child");			
+			}
 		break;
 	}
   

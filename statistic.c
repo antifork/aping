@@ -241,7 +241,7 @@ TTL_PREDICTOR (unsigned char x)
           `--->(-)-----(*)----->| 2step |--+--->|  FIR  |---> burst(t)
                 ^   |   ^       ._______.  |    ._______.
                 |   |   |          ^       |
-               [T]--'   |           `------'
+               [T]--'   |           `--[T]-'
                         |
                     _________
                     pack_size
@@ -265,14 +265,19 @@ twostep_predictor(long raw, long pen_time )
 
 }
 
+
 /*
- *  low pass filter 
+ *
+ *  low pass filter: h(n)= 100 e^(-n*4/3)*{ u(n)-u(n-3) } 
+ *                       = d(n)*100 + d(n-1)*26 + d(n-3)*6 
+ *   
  */
 
-#define C0 100
-#define C1 36
-#define C2 10
-#define FIR(a,b,c) (a* C0+b* C1+c* C2)/(C0+C1+C2)
+#define h0 100    /* n=0 */ 
+#define h1 26     /* n=1 */
+#define h2 6      /* n=2 */
+
+#define FIR(a,b,c) (a* h0+b* h1+c* h2)/(h0+h1+h2)
 
 double
 onestep_FIR (double n)

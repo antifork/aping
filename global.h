@@ -128,7 +128,7 @@ EXTERN char ifname [16];
 EXTERN pthread_t       pd_rcv;
 EXTERN pthread_t       pd_snd;
 
-EXTERN long            pd_plugin[32];
+EXTERN long            pd_plugin[MAX_CHILD];
 EXTERN long	       pd_pindex;
 
 EXTERN pthread_mutex_t pd_mutex; 
