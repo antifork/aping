@@ -61,7 +61,7 @@ char *icmp_type_str[256] =
 
    [37]= "domain-name",
    [38]= "domain-name",
-  
+   [39]= "skip",  
    [40]= "security"
 };
 
@@ -91,6 +91,7 @@ str_code(5, 1, "redirect datagr. for host"),
 str_code(5, 2, "redirect datagr. for tos and net"),
 str_code(5, 3, "redirect datagr. for tos and host"),
 str_code(9, 0, "router advertisement"),
+str_code(9,16, "does not route common traffic"),
 str_code(10,0, "router selection"),
 str_code(11,0, "ttl exceeded in transit"),
 str_code(11,1, "fragment reassembly exceeded"),

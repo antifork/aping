@@ -32,17 +32,21 @@
  */
 
 
-#include <stdio.h>
-
+#include "header.h"
 #include "aping.h"
+
 #include "typedef.h"
 #include "prototype.h"
 
-#include "bandwidth.h"
+#include "macro.h"
 #include "version.h"
 
-extern char *icmp_type_str[256];
-extern char *icmp_code_str[256*256];
+#include "bandwidth.h"
+
+#include "global.h"
+
+extern char  *icmp_type_str[256];
+extern char  *icmp_code_str[256 * 256];
 
 void
 usage (char *name, int type)
@@ -53,7 +57,7 @@ usage (char *name, int type)
 
 	 case USAGE_CLASSIC:
 	     fprintf (stderr,
-		"usage: %s [options] host args...\n"
+		      "usage: %s [options] host args...\n"
 		      " Layer ip\n"
 		      "   -S  ip                    src ip\n"
 		      "   -D  ip                    dst ip\n"
@@ -62,77 +66,89 @@ usage (char *name, int type)
 		      "   -M                        set TTL++ modulation\n"
 		      "   -Id id                    set base ip_id\n"
 		      "   -Ii                       set incremental ip_id\n"
-                      "   -Ir                       set random ip_id\n"
+		      "   -Ir                       set random ip_id\n"
 		      "   -R                        set record route ip_opt\n"
 		      " Layer icmp\n"
 		      "   -t  type args...        * set icmp type\n"
 		      "   -k  code                * set icmp code\n"
 		      " Others\n"
-                      "   -i  msec                  set wait msec (default 1000)\n"
-                      "   -p                        set pattern \"\"\n"
+		      "   -i  msec                  set wait msec (default 1000)\n"
+		      "   -p                        set pattern \"\"\n"
 		      "   -e  ifname                set default device\n"
 		      "   -P                        set promisc-mode\n"
 		      "   -s  level               * set sniff level\n"
-                      "   -z  size                  set packetsize\n"
-                      "   -c                        count\n"
-                      "   -d                        don't fragment bit\n"
-                      "   -n                        don't resolve hostname\n" 
-                      "   -r                        don't route\n"
-                      "   -f                        print differential id\n"
-                      "   -v                        print version\n" 
-                      "   -h                        print this help\n" 
-		      "   -b                      * print link list\n", name); 
+		      "   -z  size                  set packetsize\n"
+		      "   -c                        count\n"
+		      "   -d                        don't fragment bit\n"
+		      "   -n                        don't resolve hostname\n"
+		      "   -r                        don't route\n"
+		      "   -f                        print differential id\n"
+		      "   -v                        print version\n" 
+		      "   -h                        print this help\n" 
+                      "   -b                      * print link list\n", name);
 	     break;
 	 case USAGE_TOS:
-	     fprintf (stderr, "Actual Tos implementation:\n" 
-                      "   IPTOS_LOWDELAY            0x10\n" 
-                      "   IPTOS_THROUGHPUT          0x08\n" 
-                      "   IPTOS_RELIABILITY         0x04\n" 
-                      "   IPTOS_MINCOST             0x02\n");
+	     fprintf (stderr, 
+			"Actual Tos implementation:\n"
+			"   IPTOS_LOWDELAY            0x10\n" 
+			"   IPTOS_THROUGHPUT          0x08\n" 
+			"   IPTOS_RELIABILITY         0x04\n" 
+			"   IPTOS_MINCOST             0x02\n");
 	     break;
 	 case USAGE_ICMP_TYPE:
 	     {
-                int i;
+		 int           i;
 
-                fprintf (stderr, "Summary of Message Types:\n");
+		 fprintf (stderr, "Summary of Message Types:\n");
 
-		for (i=0;i<256;i++)
-		{
-		   if ( icmp_type_str[i] != NULL )
-			printf("   -t %2d  %s\n",i,icmp_type_str[i]); 
+		 for (i = 0; i < 256; i++)
+		     {
+			 if (icmp_type_str[i] != NULL)
+			     printf ("   -t %2d  %s\n", i, icmp_type_str[i]);
 
-		}             	
-             }
+		     }
+	     }
 
 	     break;
-         case USAGE_ICMP_CODE:
-             {
-                int i;
-                int j;
- 
-                fprintf (stderr, "Summary of Message Codes:\n");
-             
-                for (i=0;i<256;i++)
-		for (j=0;j<256;j++)
-                {
-                   if( icmp_code_str[i*256+j] != NULL )
-                        printf("   -t %2d -k %2d  %s\n",i,j,icmp_code_str[i*256+j]);
-               
-                }
-             }
-             
-             break;
+	 case USAGE_ICMP_CODE:
+	     {
+		 int           i;
+		 int           j;
+
+		 fprintf (stderr, "Summary of Message Codes:\n");
+
+		 if (options.icmp_type)
+		     {
+			 i = icmp_type;
+			 for (j = 0; j < 256; j++)
+			     {
+				 if (icmp_code_str[i * 256 + j] != NULL)
+				     printf ("(%s) -k %2d  %s\n", icmp_type_str[i], j, icmp_code_str[i * 256 + j]);
+
+			     }
+		     }
+		 else
+		     for (i = 0; i < 256; i++)
+			 for (j = 0; j < 256; j++)
+			     {
+				 if (icmp_code_str[i * 256 + j] != NULL)
+				     printf ("   -t %2d -k %2d  %s\n", i, j, icmp_code_str[i * 256 + j]);
+
+			     }
+	     }
+
+	     break;
 
 	 case USAGE_BANDWIDTH:
-		{
-		int i=1;
+	     {
+		 int           i = 1;
 
-		fprintf (stderr, "List of known link:\n" );
+		 fprintf (stderr, "List of known link:\n");
 
-		while ( link_vector[i].type != NULL )
-			fprintf (stderr, "   %s\n",link_vector[i++].type);
-	
-		}
+		 while (link_vector[i].type != NULL)
+		     fprintf (stderr, "   %s\n", link_vector[i++].type);
+
+	     }
 	     break;
 
 	}

@@ -65,6 +65,7 @@
 
 
 extern char  *icmp_type_str[256];
+extern char  *icmp_code_str[256*256];
 
 int           true = 1;
 
@@ -244,8 +245,12 @@ sender (argv)
 
     load_layers (buffer, &pkt);
 
-    PUTS ("PING %s (%s): icmp=%ld(%s)\n", host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type]);
-
+    if ( icmp_code_str[icmp_type*256+icmp_code] != NULL )
+       PUTS ("PING %s (%s): icmp=%ld(%s) code=%ld(%s)\n", \
+       host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type], icmp_code, icmp_code_str[icmp_type*256+icmp_code]);
+    else
+       PUTS ("PING %s (%s): icmp=%ld(%s)\n", \
+       host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type]);     
 
     while (!count || (n_sent < count))
 	{
