@@ -31,6 +31,9 @@
  * 
  */
 
+#ifndef DISSECT_H
+#define DISSECT_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -64,3 +67,5 @@
 
 #include "macro.h"
 #include "filter.h"
+
+#endif /* DISSECT_H */

@@ -31,8 +31,8 @@
  * 
  */
 
-#ifndef ARGSCHECK_H_
-#define ARGSCHECK_H_
+#ifndef ARGSCHECK_H
+#define ARGSCHECK_H
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdarg.h>

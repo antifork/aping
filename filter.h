@@ -32,6 +32,8 @@
  */
 
 /* internals */
+#ifndef FILTER_H
+#define FILTER_H
 
 #define IP_ver(p)	((p)->ip->ip_v)
 #define IP_hl(p)        ((p)->ip->ip_hl)
@@ -128,4 +130,5 @@
 
 
 #include "user-filter.h"
- 
+
+#endif /* FILTER_H */

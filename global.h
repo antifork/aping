@@ -193,4 +193,4 @@ EXTERN char *protocols[256] INIT( = {
 }) ;
 
 #undef EXTERN
-#undef SETUP
+#undef INIT 

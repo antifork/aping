@@ -31,6 +31,8 @@
  * 
  */
 
+#ifndef HEADER_H
+#define HEADER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,3 +71,4 @@
 #include "macro.h"
 #include "config.h"
 
+#endif /* HEADER_H */

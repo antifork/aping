@@ -32,6 +32,10 @@
  */
 
 
+
+#ifndef USER_FILTER_H
+#define USER_FILTER_H
+
 /***
 
  aping filtering rules 
@@ -60,3 +64,5 @@
          
 #define GENERIC_FILTER(x)  ((rule_0(x))||(rule_1(x))||(rule_2(x))||(rule_3(x)))
 #define REPLY_FILTER(x)    ( rule_3(x) )
+
+#endif /* USER_FILTER_H */

@@ -1,5 +1,5 @@
-#ifndef WMDATA_H_
-#define WMDATA_H_
+#ifndef WMDATA_H
+#define WMDATA_H
 
 #include <sys/types.h>
 #include <sys/ipc.h>

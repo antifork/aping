@@ -87,7 +87,7 @@ load_source_quench(packet *p, char **argv)
         ICMP_IP_sum(p)  = 0;
         ICMP_IP_sum(p)  = chksum ((u_short *)ICMP_IP(p),ICMP_IP_hl(p) << 2);
 
-        /*since bsd kernel don't give shit about 64 bits we don't care and fill with rand */
+	/* random sports */
         ICMP_TCP_sport(p) = htons(1+(int) (65535.0*rand()/(RAND_MAX+1.0)));
         ICMP_TCP_dport(p) = htons((short)(ICMP_TCP_sport(p)+0xfaded));
 

@@ -32,6 +32,9 @@
  * 
  */
 
+#ifndef FINGERPRINT_H
+#define FINGERPRINT_H
+
  typedef struct
    {
      unsigned long hash;
@@ -59,3 +62,4 @@ fprint fingerprint_vector[] = {
 {  833495333U, "router cisco"         			},
 { 0          ,  NULL 		      			}};
 
+#endif /* FINGERPRINT_H */

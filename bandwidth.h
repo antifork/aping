@@ -34,6 +34,9 @@
 /* bandwidth dissect vector */
 /* kbit/sec , descrition    */
 
+#ifndef BANDWIDTH_H
+#define BANDWIDTH_H
+
 static
 flink link_vector[] = {
 {         0, "."                     },
@@ -65,3 +68,4 @@ flink link_vector[] = {
 {  13271040, "oc-256 (13.271 gbit)"  },
 { 999999999, NULL                   }};
 
+#endif /* BANDWIDTH_H */
