@@ -29,7 +29,8 @@
 #
 
 CC          = @CC@
-CFLAGS      = @CFLAGS@ -I. 
+CFLAGS      = @CFLAGS@  
+INCLS       = @INCLS@
 LDFLAGS     = @LDFLAGS@
 LIBS        = @LIBS@  
 DEFS        = @DEFS@ @APING_DEFS@ # -DEADBUG
@@ -78,7 +79,7 @@ OBJS    = aping.o \
 	@LIBOBJS@
 
 .c.o:
-	$(CC) $(CFLAGS) $(DEFS) $(DEBUG) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLS) $(DEFS) $(DEBUG) -c $< -o $@
 
 all:  global 
 	$(CC) -o aping $(OBJS) $(LIBS) 	

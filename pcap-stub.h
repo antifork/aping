@@ -5,8 +5,6 @@
  
 #if defined(HAVE_PCAP_H)
 #include <pcap.h>
-#elif defined(HAVE_PCAP_PCAP_H)
-#include <pcap/pcap.h>
 #else
 #error "pcap.h header not installed"
 #endif

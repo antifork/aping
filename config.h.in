@@ -45,9 +45,6 @@
 /* Define to 1 if you have the <pcap-int.h> header file. */
 #undef HAVE_PCAP_INT_H
 
-/* Define to 1 if you have the <pcap/pcap.h> header file. */
-#undef HAVE_PCAP_PCAP_H
-
 /* Define to 1 if you have the `pcap_setnonblock' function. */
 #undef HAVE_PCAP_SETNONBLOCK
 

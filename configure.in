@@ -8,6 +8,9 @@ echo " aping $version"
 echo "========================"
 
 AC_SUBST(APING_DEFS)
+AC_SUBST(INCLS)
+
+INCLS="-I. "
 
 AC_CONFIG_SRCDIR([aping.c])
 AC_CONFIG_HEADER([config.h])
@@ -41,7 +44,6 @@ AC_CHECK_LIB([pcap], [pcap_open_live], [ have_pcap=yes ; LIBS="-lpcap $LIBS" ], 
 if test $have_pcap = no ; then
         AC_MSG_WARN([this os doesn't support pcap library])
         AC_MSG_WARN([contact the author reporting what happened.])
-        AC_MSG_WARN([the build can't continue])
         rm -Rf *.cache *.log
         exit
 fi
@@ -60,7 +62,9 @@ fi
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([pcap.h pcap/pcap.h pcap-int.h arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([pcap.h pcap-int.h arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
+
+AC_CHECK_HEADER(/usr/include/pcap/pcap.h, [ INCLS="$INCLS -I/usr/include/pcap" ])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -84,6 +88,7 @@ echo "  compiler   : $CC"
 echo "  CFLAGS     : $CFLAGS" 
 echo "  lib        : $LIBS"
 echo "  defs       : $DEFS"
+echo "  include    : $INCLS"
 echo "  prefix     : $prefix"
 echo "  exec_prefix: $exec_prefix"
 echo "  bindir     : $bindir"
