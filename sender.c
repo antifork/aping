@@ -31,31 +31,7 @@
  * 
  */
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-#include <signal.h>
-
-#include <pcap.h>
-#include <pthread.h>
-
-#include <string.h>
-#include <errno.h>
-
-#include <sys/time.h>
-#include <time.h>
-
-#include <sys/socket.h>
-
-#include <netinet/in_systm.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <net/if.h>
-
+#include "header.h"
 #include "typedef.h"
 #include "macro.h"
 

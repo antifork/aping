@@ -31,6 +31,7 @@
  * 
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -50,6 +51,7 @@
 #include <time.h>
 
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 
 #ifndef NETINET_IN_SYSTEM_H
 #define NETINET_IN_SYSTEM_H
@@ -65,4 +67,5 @@
 #include <netinet/ip_icmp.h>
 
 #include "macro.h"
+#include "config.h"
 

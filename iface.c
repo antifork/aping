@@ -31,23 +31,7 @@
  * 
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include <string.h>
-#include <errno.h>
-
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-#include <netinet/in.h>
-#include <net/if.h>
-#include <arpa/inet.h>
-
-#include <errno.h>
-
+#include "header.h"
 #include "macro.h"
 
 int
