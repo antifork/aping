@@ -57,6 +57,7 @@
 #include "typedef.h"
 #include "global.h"
 #include "prototype.h"
+#include "macro.h"
 
 #ifdef LRU
 #error "LRU already defined"
@@ -91,13 +92,6 @@ static lru hostbyaddr[LRU];
 #ifdef NS_HACK
 static jmp_buf gethost_jmp;
 #endif
-
-#define FATAL(f,arg...) {\
-                        fprintf(stderr,"%s:%d: ",__FILE__,__LINE__);\
-                        fprintf(stderr,f,## arg);\
-                        fputs (". exit-forced\n",stderr);\
-                        exit(1);\
-                        }
 
 /* private fuctions */
 

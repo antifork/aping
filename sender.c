@@ -39,10 +39,10 @@
 #include "prototype.h"
 #include "global.h"
 
-extern char  *icmp_type_str[64];
-extern char  *icmp_code_str[64 * 64];
+extern char *icmp_type_str[64];
+extern char *icmp_code_str[64 * 64];
 
-int           true = 1;
+int true = 1;
 
 /* 
  * icmp header lenght ( base | x<<8 )
@@ -55,7 +55,7 @@ int           true = 1;
 
 #define LEN(base,type) (base|type<<8)
 
-int           icmphdr_vector[32] = { LEN (8, 1), 0, 0, LEN (8, 2), LEN (8, 2), LEN (8, 2), 0, 0,
+int icmphdr_vector[32] = { LEN (8, 1), 0, 0, LEN (8, 2), LEN (8, 2), LEN (8, 2), 0, 0,
     LEN (8, 1), LEN (8, 4), 8, LEN (8, 2), LEN (8, 2), 20, 20, 8, 8, 12, 12
 };
 
@@ -63,24 +63,23 @@ int           icmphdr_vector[32] = { LEN (8, 1), 0, 0, LEN (8, 2), LEN (8, 2), L
 int
 sizeof_icmp (int t)
 {
-    int           ret;
-    int           tmp;
+    int ret;
+    int tmp;
 
     tmp = icmphdr_vector[t & 0x1f];
 
     ret = tmp & 0xff;
 
-    switch (tmp >> 8)
-	{
-	 case 1:
-	     ret += sizeof (struct timeval) + strlen (pattern);
-	     break;
-	 case 2:
-	     ret += (options.opt_rroute ? 60 : 20) + (64 >> 3);	/* 64 bits of original datagram */
-	     break;
-	 case 4:
-	     break;
-	}
+    switch (tmp >> 8) {
+     case 1:
+	 ret += sizeof (struct timeval) + strlen (pattern);
+	 break;
+     case 2:
+	 ret += (options.opt_rroute ? 60 : 20) + (64 >> 3);	/* 64 bits of original datagram */
+	 break;
+     case 4:
+	 break;
+    }
     return ret;
 }
 
@@ -88,7 +87,7 @@ sizeof_icmp (int t)
 void
 load_layers (char *buff, packet * pkt)
 {
-    int           off_ip;
+    int off_ip;
 
     off_ip = (options.opt_rroute ? 15 : 5) << 2;
 
@@ -105,7 +104,7 @@ load_layers (char *buff, packet * pkt)
 void
 load_ip (struct ip *ip)
 {
-    char         *ip_opt;
+    char *ip_opt;
 
     ip->ip_v = 4;
     ip->ip_hl = (options.opt_rroute ? 15 : 5);
@@ -114,26 +113,25 @@ load_ip (struct ip *ip)
     ip->ip_len = FIX ((ip->ip_hl << 2) + sizeof_icmp (icmp_type));
     ip->ip_id = htons (ip_id);
 
-    if ( options.dfrag )
-    	ip->ip_off = FIX (IP_DF);
-    else 
+    if (options.dfrag)
+	ip->ip_off = FIX (IP_DF);
+    else
 	ip->ip_off = FIX (0);
- 
+
     ip->ip_ttl = (options.ip_ttl ? ip_ttl : 255);
     ip->ip_p = IPPROTO_ICMP;	/* Transport protocol */
 
     ip->ip_src.s_addr = ip_src;
     ip->ip_dst.s_addr = ip_dst;
 
-    if (options.opt_rroute)
-	{
-	    ip_opt = (char *) ip + (5 << 2);
+    if (options.opt_rroute) {
+	ip_opt = (char *) ip + (5 << 2);
 
-	    ip_opt[IPOPT_OPTVAL] = IPOPT_RR;
-	    ip_opt[IPOPT_OLEN] = 3 + 4 * NROUTES;
-	    ip_opt[IPOPT_OFFSET] = IPOPT_MINOFF;
+	ip_opt[IPOPT_OPTVAL] = IPOPT_RR;
+	ip_opt[IPOPT_OLEN] = 3 + 4 * NROUTES;
+	ip_opt[IPOPT_OFFSET] = IPOPT_MINOFF;
 
-	}
+    }
 
     ip->ip_sum = 0;
     ip->ip_sum = chksum ((u_short *) ip, ip->ip_hl << 2);
@@ -143,25 +141,15 @@ load_ip (struct ip *ip)
 
 void
 sender (argv)
-     char        **argv;
+     char **argv;
 {
 
     struct timeval timenow;
     struct sockaddr_in saddr;
-    sigset_t      set;
-    packet        pkt;
-    int           sfd;
+    packet pkt;
+    int sfd;
 
-
-    sigemptyset (&set);
-
-    sigaddset (&set, SIGTSTP);
-    sigaddset (&set, SIGINT);
-    sigaddset (&set, SIGQUIT);
-    sigaddset (&set, SIGALRM);
-
-    pthread_sigmask (SIG_BLOCK, &set, NULL);
-
+    pthread_sigset_block (4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
@@ -189,29 +177,26 @@ sender (argv)
 
     /* We set SO_BROADCAST whenever we need this. */
 
-    if (ip_dst == (localnet | ~netmask))
-	{
-	    /* local broadcast */
-	    PUTS ("%s: broadcast addr, SO_BROADCAST option is on.\n",ifname);
-	    setsockopt (sfd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof (true));
-	}
+    if (ip_dst == (localnet | ~netmask)) {
+	/* local broadcast */
+	PUTS ("%s: broadcast addr, SO_BROADCAST option is on.\n", ifname);
+	setsockopt (sfd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof (true));
+    }
 
     /* SO_DONTROUTE ... */
 
-    if ( options.droute )
-	{
-            PUTS ("%s: SO_DONTROUTE option is on.\n",ifname);
-            setsockopt (sfd, SOL_SOCKET, SO_DONTROUTE, (char *) &true, sizeof (true));
-	}
+    if (options.droute) {
+	PUTS ("%s: SO_DONTROUTE option is on.\n", ifname);
+	setsockopt (sfd, SOL_SOCKET, SO_DONTROUTE, (char *) &true, sizeof (true));
+    }
 
-    if ( options.dfrag )
-	    PUTS ("%s: IP_DF don't frag option is on.\n",ifname);
+    if (options.dfrag)
+	PUTS ("%s: IP_DF don't frag option is on.\n", ifname);
 
-    if ( options.so_debug )
-        {
-            PUTS ("%s: SO_DEBUG option is on.\n",ifname);
-            setsockopt (sfd, SOL_SOCKET, SO_DEBUG, (char *) &true, sizeof (true));
-        }
+    if (options.so_debug) {
+	PUTS ("%s: SO_DEBUG option is on.\n", ifname);
+	setsockopt (sfd, SOL_SOCKET, SO_DEBUG, (char *) &true, sizeof (true));
+    }
 
 
     /* ip_id */
@@ -233,75 +218,54 @@ sender (argv)
     else
 	PUTS ("PING %s (%s): icmp=%ld(%s)\n", host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type]);
 
-    while (!count || (n_sent < count))
+    while (!count || (n_sent < count)) {
+
+	/* load ip header */
+
+	load_ip ((struct ip *) (pkt.ip));
+
+	/* load icmp header */
+
+	if (icmp_loader_vector[icmp_type] != NULL)
+	    (*icmp_loader_vector[icmp_type]) (&pkt, argv);
+
+
+	/* marking system timestamp for no-echo packets */
+
+	gettimeofday (&timenow, NULL);
+
+	last_sent.ts_sec = timenow.tv_sec;
+	last_sent.ts_usec = timenow.tv_usec;
+
+	switch (atomic_sendto (sfd, buffer, UNFIX (pkt.ip->ip_len), &saddr)) 
 	{
-
-	    /* load ip header */
-
-	    load_ip ((struct ip *) (pkt.ip));
-
-	    /* load icmp header */
-
-	    if (icmp_loader_vector[icmp_type] != NULL)
-		(*icmp_loader_vector[icmp_type]) (&pkt, argv);
-
-
-	    /* marking system timestamp for no-echo packets */
-
-	    gettimeofday (&timenow, NULL);
-
-	    last_sent.ts_sec = timenow.tv_sec;
-	    last_sent.ts_usec = timenow.tv_usec;
-
-	    {
-		char         *_s = buffer;
-		int           res,
-		              pos = 0;
-
-		while (UNFIX (pkt.ip->ip_len) > pos)
-		    {
-			res = sendto (sfd, _s + pos, UNFIX (pkt.ip->ip_len) - pos, 0, (struct sockaddr *) &saddr, sizeof (struct sockaddr));
-			switch (res)
-			    {
-			     case 0:
-				 PUTS ("sendto: 0 byte sent\n");
-				 break;
-			     case -1:
-				 if (errno == EINTR || errno == EAGAIN)
-				     continue;
-
-				 PUTS ("sendto: %s\n", strerror (errno));
-				 goto send_exit; 
-
-			     default:
-				 pos += res;
-			    }
-		    }
-
-		send_exit:
-	    }
-
-	    n_sent++;
-	    
-	    print_icon (0);
-
-	    /* changes */
-
-	    if (options.ip_ramp)
-		ip_ttl++;
-
-	    if (options.ip_id_incr || !options.ip_id)
-		ip_id++;
-	    else if (options.ip_id_rand)
-		ip_id = rand ();
-
-	    /* rating.. */
-
-	    usleep (tau * 1000);
-
-	    while (n_pause)
-		usleep(100);	
+	 case 0:
+	     PUTS ("sendto(): 0 byte sent.\n");
+	     break;
+	 case -1:
+	     FATAL ("sendto(): %s\n", strerror (errno));
 	}
+
+	n_sent++;
+	print_icon (0);
+
+	/* changes */
+
+	if (options.ip_ramp)
+	    ip_ttl++;
+
+	if (options.ip_id_incr || !options.ip_id)
+	    ip_id++;
+	else if (options.ip_id_rand)
+	    ip_id = rand ();
+
+	/* rating.. */
+
+	usleep (tau * 1000);
+
+	while (n_pause)
+	    usleep (1000);
+    }
 
     pthread_exit (NULL);
 

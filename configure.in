@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(aping, 2.0.0-ALPHA, Bonelli Nicola <bonelli@blackhats.it>) 
+AC_INIT([aping],[2.0.0-ALPHA],[Bonelli Nicola <bonelli@blackhats.it>]) 
 
 version=`cat ./VERSION`
 
@@ -13,7 +13,7 @@ AC_CONFIG_SRCDIR([aping.c])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_TARGET([])
 AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
@@ -39,9 +39,9 @@ AC_CHECK_PROGS(SHTOOL, shtool, ./shtool)
 AC_CHECK_LIB([pcap], [pcap_open_live], [ have_pcap=yes ; LIBS="-lpcap $LIBS" ], have_pcap=no)
 
 if test $have_pcap = no ; then
-        AC_WARN(this os doesn't support pcap library)
-        AC_WARN(contact the author reporting what happened.)
-        AC_WARN(the build can't continue)
+        AC_MSG_WARN([this os doesn't support pcap library])
+        AC_MSG_WARN([contact the author reporting what happened.])
+        AC_MSG_WARN([the build can't continue])
         rm -Rf *.cache *.log
         exit
 fi
@@ -51,16 +51,16 @@ AC_CHECK_LIB([pthread], [pthread_create], [ have_pthread=yes ; LIBS="-lpthread $
 AC_CHECK_LIB([c_r],     [pthread_create], [ have_libc_r=yes ;  LIBS="-pthread $LIBS" ], have_libc_r=no)
 
 if test $have_pthread = no && test $have_libc_r = no ; then
-        AC_WARN(this os doesn't support pthread)
-	AC_WARN(contact the author reporting what happened.)
-	AC_WARN(the build can't continue)
+        AC_MSG_WARN([this os doesn't support pthread])
+	AC_MSG_WARN([contact the author reporting what happened.])
+	AC_MSG_WARN([the build can't continue])
         rm -Rf *.cache *.log
         exit
 fi
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([pcap.h pcap-int.h arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -70,7 +70,7 @@ AC_HEADER_TIME
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([gethostbyaddr gethostbyname gettimeofday inet_ntoa memset socket strchr strdup strerror strtol])
+AC_CHECK_FUNCS([pcap_setnonblock pcap_getnonblock gethostbyaddr gethostbyname gettimeofday inet_ntoa memset socket strchr strdup strerror strtol])
 
 AC_REPLACE_FUNCS([strlcpy strlcat])
 AC_CONFIG_SUBDIRS(plugin)

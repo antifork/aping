@@ -343,25 +343,9 @@ receiver ()
 {
     const u_char *ptr;
     packet *p;
-    sigset_t set;
     pcap_t *in_pcap;
-    int fval;
-    int pcap_fd;
 
-    fval = 0;
-    pcap_fd = 0;
-
-    sigemptyset (&set);
-
-    /* masquerading signal */
-
-    sigaddset (&set, SIGTSTP);
-    sigaddset (&set, SIGINT);
-    sigaddset (&set, SIGQUIT);
-    sigaddset (&set, SIGALRM);
-
-    pthread_sigmask (SIG_BLOCK, &set, NULL);
-
+    pthread_sigset_block (4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
@@ -374,12 +358,10 @@ receiver ()
 #endif
 	FATAL (bufferr);
 
-    pcap_fd = pcap_fileno (in_pcap);
 
-#ifndef __FreeBSD__
-    fcntl (pcap_fd, F_GETFL, fval);
-    fval |= O_NONBLOCK;
-    fcntl (pcap_fd, F_SETFL, fval);
+#if !defined(__FreeBSD__)
+    if ( pcap_setnonblock(in_pcap, 1, bufferr) == -1 )
+	FATAL (bufferr);
 #endif
 
     /* set filter */

@@ -50,20 +50,11 @@
 void
 keystroke ()
 {
-    sigset_t      set;
     packet        pkt;
     int           sfd;
     int           c;
 
-    sigemptyset (&set);
-
-    sigaddset (&set, SIGTSTP);
-    sigaddset (&set, SIGINT);
-    sigaddset (&set, SIGQUIT);
-    sigaddset (&set, SIGALRM);
-
-    pthread_sigmask (SIG_BLOCK, &set, NULL);
-
+    pthread_sigset_block (4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 

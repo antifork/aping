@@ -35,23 +35,23 @@
 #ifndef MACRO_H
 #define MACRO_H
 
-#define FATAL(f,arg...) {						\
-                        fprintf(stderr,"%s:%d: ",__FILE__,__LINE__);	\
-                        fprintf(stderr,f,## arg);			\
-                        fputs (". exit-forced\n",stderr);		\
-                        exit(1);					\
-                        }
+#define FATAL(f,arg...) {                                               \
+fprintf(stderr,"%s:%d %s(): ",__FILE__,__LINE__,__FUNCTION__);          \
+fprintf(stderr,f,## arg);                                               \
+fprintf(stderr,"\n");							\
+exit(1);                                                                \
+}
 
 #define PUTS(f,arg...)	({						\
-			fprintf(stderr,f,## arg);			\
-			fflush (stderr);				\
-			})
+fprintf(stderr,f,## arg);						\
+fflush (stderr);							\
+})
 
 #ifdef  EADBUG
-#define DEBUG(s,f,arg...) ({                                              \
-                          fprintf(stderr,"%s::",s);                       \
-                          fprintf(stderr,f,## arg);                       \
-                          })
+#define DEBUG(s,f,arg...) ({    					\
+fprintf(stderr,"%s::",s);                       			\
+fprintf(stderr,f,## arg);                       			\
+})
 #else
 #define DEBUG(s,f,arg...) {} 
 #endif
