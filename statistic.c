@@ -249,7 +249,7 @@ bandwidth_predictor (packet * p)
                      |         `-.     |     }    |
                      |            `-.  |     }    |
                      |               `>| <--'     |    
-                     |             .-' |         rtt   :jitter = rtt - last_rtt 
+                     |             .-' |         rtt   jitter = rtt - last_rtt 
                      |          .-'    |          |
                      |       .-'       |          |
                      |    .-'          |          |
@@ -259,7 +259,6 @@ bandwidth_predictor (packet * p)
 
 
     local_tau    = last_rtt.ms_int + time_lost;
-
     local_tau    = magic_round (tau, local_tau);
  
     pending_time = MAX(tau/2, local_tau+ jitter/2 );   /* <- min of pending time is TAU/2 */
