@@ -5,6 +5,7 @@
  * 
  * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
  *                    Roberto Ferranti <sbirish@sbirish.net>
+ *			               <supremo80@libero.it>
  * 
  * All rights reserved.
  * 
@@ -38,20 +39,23 @@
    } fprint;
 
 fprint fingerprint_vector[] = {
-{ 1134562324U, "hping2 release"       },
-{ 3259826144U, "BSD, linux 2.2"       },
-{ 3904731629U, "openbsd, netbsd, aix" },  
-{ 2384573344U, "linux 2.4a"           },
-{ 3199159776U, "linux 2.4b"           },
-{ 3710058560U, "linux 2.4c"           },
-{  564517021U, "win98,me"	      },
-{ 1463030269U, "win98 fe"             },
-{ 3158421421U, "solaris 8"	      },
-{  801825629U, "nt4"                  },
-{ 2110941629U, "winxp,2k"             },
-{ 2323906976U, "linux 2.2 PPC"	      },
-{ 3219087789U, "netbsd PPC"           },
-{ 2323906976U, "freebsd+ppp"	      },
-{  833495333U, "router cisco"         },
-{ 0          ,  NULL 		      }};
+{ 1134562324U, "hping2 release"       			},
+{ 3259826144U, "BSD, linux 2.2(debian)" 		},
+{ 3904731629U, "openbsd, netbsd, aix" 			},  
+{ 2384573344U, "linux 2.4 (slack,redhat,mdk)"           },
+{ 3199159776U, "linux 2.4b"           			},
+{ 3710058560U, "linux 2.4 (debian woody)" 		},
+{  564517021U, "win98 fe,me"	      			},
+{ 1463030269U, "win98 se"             			},
+{ 3158421421U, "solaris 8"	      			},
+{  801825629U, "nt4"                 			},
+{    2963165U, "win 2000 Pro v.5.00"			},
+{ 2770140242U, "winxp home edition"			},
+{ 2110941629U, "winxp,2k"             			},
+{ 2323906976U, "linux 2.2 PPC"	      			},
+{ 3219087789U, "netbsd PPC"           			},
+{ 1782964480U, "freebsd 4.5-STABLE"			},
+{ 2323906976U, "freebsd+ppp"	      			},
+{  833495333U, "router cisco"         			},
+{ 0          ,  NULL 		      			}};
 
