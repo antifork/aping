@@ -38,6 +38,9 @@
 #include <errno.h>
 #include "config.h"
 
+static
+const char cvsid[]= "$Id$";
+
 #ifdef   HAVE_PCAP_INT_H
 #include <pcap-int.h>
 #else

@@ -39,6 +39,9 @@
 #include "global.h"
 #include "version.h"
 
+static
+const char cvsid[] = "$Id$";
+
 void
 plugin_init(char *name)
 {
@@ -60,13 +63,13 @@ plugin_init(char *name)
 
 	switch (pid = fork()) {
 	case -1:
-		FATAL("fork() error");
+		fatal("fork() error");
 		break;
 	case 0:
 		/* plugin child */
 
 		if (execve(loader, arg, NULL) == -1)
-			FATAL("loader error");
+			fatal("loader error");
 
 		break;
 	default:
@@ -74,7 +77,7 @@ plugin_init(char *name)
 			pd_plugin[pd_pindex++] = pid;
 		else {
 			kill(pid, SIGUSR1);
-			FATAL("too many child");
+			fatal("too many child");
 		}
 		break;
 	}
@@ -110,14 +113,14 @@ plugin_ls()
 	dfd = opendir(PLUGIN_PATH);
 
 	if (dfd == NULL)
-		FATAL("%s: directory doesn't exist. Install the package first", PLUGIN_PATH);
+		fatal("%s: directory doesn't exist. Install the package first", PLUGIN_PATH);
 
 	while ((dp = readdir(dfd)) != NULL) {
 		if (strcmp(".", dp->d_name) && strcmp("..", dp->d_name) && strstr(dp->d_name, ".so") != NULL) {
 
 			switch (pid = fork()) {
 			case -1:
-				FATAL("fork() error");
+				fatal("fork() error");
 				break;
 			case 0:
 				/* plugin child */
@@ -126,7 +129,7 @@ plugin_ls()
 				*strstr(arg[2], ".so") = '\0';
 
 				if (execve(loader, arg, NULL) == -1)
-					FATAL("loader error");
+					fatal("loader error");
 
 				break;
 			default:

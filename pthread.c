@@ -33,6 +33,9 @@
 #include "typedef.h"
 #include "prototype.h"
 
+static
+const char cvsid[] = "$Id$";
+
 int
 pthread_sigset_block(int n,...)
 {

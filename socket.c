@@ -32,8 +32,10 @@
 #include "header.h"
 #include "typedef.h"
 #include "prototype.h"
-
 #include "macro.h"
+
+static
+const char cvsid[] = "$Id$";
 
 int
 atomic_sendto(fd, _s, n, saddr)

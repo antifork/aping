@@ -44,7 +44,7 @@ datadir = @datadir@
 srcdir = @srcdir@
 shtool = @SHTOOL@
 
-OBJS = aping.o pthread.o signal.o socket.o termios.o pcap.o sender.o receiver.o \
+OBJS = aping.o pthread.o signal.o socket.o termios.o pcap.o fatal.o sender.o receiver.o \
 statistic.o fnv.o iface.o datalink.o ns-cache.o argscheck.o keystroke.o  \
 hardware.o plugin.o chksum.o usage.o dissect-destination.o dissect-echo-reply.o \
 dissect-echo.o dissect-information-reply.o dissect-information.o dissect-mask-reply.o \

@@ -34,15 +34,16 @@
 
 #include "dissect.h"
 #include "aping.h"
-
 #include "header.h"
 #include "typedef.h"
 #include "prototype.h"
-
 #include "filter.h"
 #include "bandwidth.h"
 #include "statistic.h"
 #include "global.h"
+
+static
+const char cvsid[] = "$Id$";
 
 char *
 link_type(long kb)
@@ -94,7 +95,7 @@ E(long *addr, long data, long n)
 	long counter;
 
 	if (n != -1 && n != -2 && n != 1 && n != 2) {
-		FATAL("Expectation error: E{x^n} ? n=1 | n=2\n");
+		fatal("Expectation error: E{x^n} ? n=1 | n=2\n");
 	}
 	if (n < 0) {
 		sum[-n - 1][IND(addr)] = 0;
@@ -103,7 +104,7 @@ E(long *addr, long data, long n)
 		return 0;
 	}
 	if (sum[n - 1][IND(addr)] != 0 && (cnt[n - 1][IND(addr)] & K_MASK) != ((long) addr & K_MASK)) {
-		FATAL("Expectation error: data collision\n");
+		fatal("Expectation error: data collision\n");
 	}
 	counter = cnt[n - 1][IND(addr)] & ~K_MASK;
 	counter++;

@@ -38,6 +38,9 @@
 #include "aping.h"
 #include "global.h"
 
+static
+const char cvsid[] = "$Id$";
+
 extern char *icmp_type_str[64];
 extern char *icmp_code_str[64 * 64];
 
@@ -46,8 +49,9 @@ int true = 1;
 /*
  * icmp header lenght ( base | x<<8 )
  *
- * x:1   -> base + sizeof(data) x:2   -> base + sizeof(ip_header) ( <= 60 bytes
- * ) x:4   -> base + 4*n
+ * x:1   -> base + sizeof(data)
+ * x:2   -> base + sizeof(ip_header) ( <= 60 bytes )
+ * x:4   -> base + 4*n
  *
  */
 
@@ -56,6 +60,7 @@ int true = 1;
 int icmphdr_vector[32] = {LEN(8, 1), 0, 0, LEN(8, 2), LEN(8, 2), LEN(8, 2), 0, 0,
 LEN(8, 1), LEN(8, 4), 8, LEN(8, 2), LEN(8, 2), 20, 20, 8, 8, 12, 12};
 
+
 int
 sizeof_icmp(int t)
 {
@@ -63,7 +68,6 @@ sizeof_icmp(int t)
 	int tmp;
 
 	tmp = icmphdr_vector[t & 0x1f];
-
 	ret = tmp & 0xff;
 
 	switch (tmp >> 8) {
@@ -79,6 +83,7 @@ sizeof_icmp(int t)
 	}
 	return ret;
 }
+
 
 void
 load_layers(char *buff, packet * pkt)
@@ -152,20 +157,18 @@ sender(argv)
 	last_sent.ts_usec = timenow.tv_usec - tau * 1000;
 
 	/* set icmp_id */
-
 	memset(buffer, 0, MAX_PACSIZE);
 	memset(&saddr, 0, sizeof(saddr));
 
 	/* raw socket */
-
 	if ((sfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) == -1)
-		FATAL("socket:%s", strerror(errno));
+		fatal("socket:%s", strerror(errno));
 
 	/* ip header included */
 
 #ifdef IP_HDRINCL
 	if (setsockopt(sfd, IPPROTO_IP, IP_HDRINCL, &true, sizeof(true)) == -1)
-		FATAL("IP_HDRINC: %s", strerror(errno));
+		fatal("IP_HDRINC: %s", strerror(errno));
 #endif
 
 	/* We set SO_BROADCAST whenever we need this. */
@@ -187,7 +190,6 @@ sender(argv)
 		PUTS("%s: SO_DEBUG option is on.\n", ifname);
 		setsockopt(sfd, SOL_SOCKET, SO_DEBUG, (char *) &true, sizeof(true));
 	}
-
 	/* ip_id */
 	if (!ip_id)
 		ip_id = 0xffff & rand();
@@ -202,12 +204,12 @@ sender(argv)
 	if (icmp_code_str[(icmp_type << 6) + icmp_code] != NULL)
 		PUTS("PING %s (%s): icmp=%ld(%s) code=%ld(%s)\n", host_dst, safe_inet_ntoa(ip_dst),
 		     icmp_type, icmp_type_str[icmp_type],
-		     icmp_code, icmp_code_str[(icmp_type << 6) + icmp_code]);
+		 icmp_code, icmp_code_str[(icmp_type << 6) + icmp_code]);
 	else
 		PUTS("PING %s (%s): icmp=%ld(%s)\n", host_dst, safe_inet_ntoa(ip_dst), icmp_type, icmp_type_str[icmp_type]);
 
-	ts.tv_sec = (tau/1000);
-	ts.tv_nsec= (tau%1000)*1000000;
+	ts.tv_sec = (tau / 1000);
+	ts.tv_nsec = (tau % 1000) * 1000000;
 
 	while (!count || (n_sent < count)) {
 
@@ -228,7 +230,7 @@ sender(argv)
 			PUTS("sendto(): 0 byte sent.\n");
 			break;
 		case -1:
-			FATAL("sendto(): %s\n", strerror(errno));
+			fatal("sendto(): %s\n", strerror(errno));
 		}
 
 		n_sent++;
@@ -244,11 +246,11 @@ sender(argv)
 			ip_id = rand();
 
 		/* rating.. */
-		while ( nanosleep(&ts,&tr)==-1 )
-			ts=tr;
+		while (nanosleep(&ts, &tr) == -1)
+			ts = tr;
 
 		while (n_pause)
-			nanosleep(&ts,NULL);
+			nanosleep(&ts, NULL);
 
 		pthread_testcancel();
 

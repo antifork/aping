@@ -29,10 +29,12 @@
  *
  */
 
-
 #include "header.h"
 #include "typedef.h"
 #include "prototype.h"
+
+static
+const char cvsid[] = "$Id$";
 
 extern struct termios termios_p;
 

@@ -34,18 +34,17 @@
 
 #include "header.h"
 #include "aping.h"
-
 #include "typedef.h"
 #include "prototype.h"
 #include "macro.h"
-
-
 #include "hardware.h"
 #include "global.h"
 #include "def_icmp.h"
 
-int icmp_parent[32] = {8, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, 13, 0, 15, 0, 17, -1, -1};
+static
+const char cvsid[] = "$Id$";
 
+int icmp_parent[32] = {8, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, 13, 0, 15, 0, 17, -1, -1};
 
 struct pcap_pkthdr pcaphdr;
 struct bpf_program fcode;
@@ -313,7 +312,7 @@ end_switch:
 void
 receiver()
 {
-	struct timespec tr, ts={ 0, 1000000 };
+	struct timespec tr, ts = {0, 1000000};
 	const u_char *ptr;
 	packet *p;
 	pcap_t *in_pcap;
@@ -331,25 +330,25 @@ receiver()
 #else
 	if ((in_pcap = pcap_open_live(ifname, 1024, options.promisc, 0, bufferr)) == NULL)
 #endif
-		FATAL(bufferr);
+		fatal(bufferr);
 
 #if !defined(__FreeBSD__)
 	if (pcap_setnonblock(in_pcap, 1, bufferr) == -1)
-		FATAL(bufferr);
+		fatal(bufferr);
 #endif
 
 	/* set filter */
 
 	if (pcap_compile(in_pcap, &fcode, "icmp", 0, netmask) == -1)
-		FATAL("pcap compile: %s", strerror(errno));
+		fatal("pcap compile: %s", strerror(errno));
 
 	if (pcap_setfilter(in_pcap, &fcode) == -1)
-		FATAL("pcap_setfilter: %s", strerror(errno));
+		fatal("pcap_setfilter: %s", strerror(errno));
 
 	/* set offset_dl: datalink header size */
 
 	if (sizeof_datalink(in_pcap) == -1)
-		FATAL("DLT_%s(%ld) device is not supported yet\n"
+		fatal("DLT_%s(%ld) device is not supported yet\n"
 		      "please mailto bonelli@antifork.org reporting the event.", linktype[datalink], datalink);
 
 	if (options.promisc)
@@ -363,8 +362,8 @@ receiver()
 		ptr = NULL;
 
 		/* don't eat cpu */
-                while (nanosleep(&ts,&tr)==-1)
-                	ts=tr;
+		while (nanosleep(&ts, &tr) == -1)
+			ts = tr;
 
 		while ((ptr = pcap_next(in_pcap, &pcaphdr)) != (u_char *) NULL) {
 

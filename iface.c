@@ -34,10 +34,11 @@
 #include "header.h"
 #include "typedef.h"
 #include "prototype.h"
-
 #include "macro.h"
 #include "config.h"
 
+static
+const char cvsid[] = "$Id$";
 
 int
 get_first_hop(target, source, ifname)
@@ -64,24 +65,24 @@ get_first_hop(target, source, ifname)
 	socksize = sizeof(struct sockaddr);
 
 	memset(&saddr, 0, sizeof(struct sockaddr_in));
-	memset(&ifreq_io,0, sizeof(struct ifreq));
+	memset(&ifreq_io, 0, sizeof(struct ifreq));
 
 	saddr.sin_family = AF_INET;
 	saddr.sin_addr.s_addr = target;
 	saddr.sin_port = htons(1024 | rand());
 
 	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-		FATAL(strerror(errno));
+		fatal(strerror(errno));
 
 	setsockopt(sd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof(true));
 
 	if (connect(sd, (struct sockaddr *) & saddr, sizeof(struct sockaddr_in)) == -1)
-		FATAL(strerror(errno));
+		fatal(strerror(errno));
 
 	memset(&saddr, 0, sizeof(struct sockaddr_in));
 
 	if (getsockname(sd, (struct sockaddr *) & saddr, &socksize) == -1)
-		FATAL(strerror(errno));
+		fatal(strerror(errno));
 
 	*source = saddr.sin_addr.s_addr;
 	close(sd);
@@ -98,14 +99,14 @@ get_first_hop(target, source, ifname)
 	/* dummy dgram socket for ioctl */
 
 	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-		FATAL(strerror(errno));
+		fatal(strerror(errno));
 
 	ifc.ifc_len = sizeof(buffer);
 	ifc.ifc_buf = buffer;
 
 	/* getting ifs */
 	if (ioctl(sd, SIOCGIFCONF, &ifc) < 0)
-		FATAL(strerror(errno));
+		fatal(strerror(errno));
 
 	/* line_up ifreq structure */
 
@@ -119,13 +120,13 @@ get_first_hop(target, source, ifname)
 #endif
 	{
 
-		strncpy(ifreq_io.ifr_name,ifr->ifr_name,16);
+		strncpy(ifreq_io.ifr_name, ifr->ifr_name, 16);
 
 
-                if (ioctl(sd, SIOCGIFFLAGS, &ifreq_io) < 0)
-                        FATAL("SIOCGIFFLAGS: %s", strerror(errno));
+		if (ioctl(sd, SIOCGIFFLAGS, &ifreq_io) < 0)
+			fatal("SIOCGIFFLAGS: %s", strerror(errno));
 
-                if ((ifreq_io.ifr_flags & IFF_UP) == 0)
+		if ((ifreq_io.ifr_flags & IFF_UP) == 0)
 			continue;
 
 		local = (struct sockaddr_in *) & ifr->ifr_addr;
@@ -136,12 +137,12 @@ get_first_hop(target, source, ifname)
 #ifdef __linux__
 			if ((void_alias = strchr(ifname, ':')) != NULL)
 				*void_alias = '\0';
-#endif			
+#endif
 			close(sd);
 			return 0;
 		}
 	}
-	FATAL("wasn't able to guess the ifname");
+	fatal("wasn't able to guess the ifname");
 
 	return -1;
 }
@@ -161,7 +162,7 @@ gethostbyif(char *ifname)
 	/* dummy dgram socket for ioctl */
 
 	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-		FATAL(strerror(errno));
+		fatal(strerror(errno));
 
 	ifc.ifc_len = sizeof(buffer);
 	ifc.ifc_buf = buffer;
@@ -169,7 +170,7 @@ gethostbyif(char *ifname)
 	/* getting ifs: this fills ifconf structure. */
 
 	if (ioctl(sd, SIOCGIFCONF, &ifc) < 0)
-		FATAL(strerror(errno));
+		fatal(strerror(errno));
 
 	close(sd);
 
@@ -179,7 +180,7 @@ gethostbyif(char *ifname)
 	iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
 
 	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-		FATAL(strerror(errno));
+		fatal(strerror(errno));
 
 #if defined(HAVE_SOCKADDR_SA_LEN)
 	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len)
@@ -194,7 +195,7 @@ gethostbyif(char *ifname)
 		memcpy(&ifreq_io, ifr, sizeof(ifr->ifr_name) + sizeof(struct sockaddr_in));
 
 		if (ioctl(sd, SIOCGIFFLAGS, &ifreq_io) < 0)
-			FATAL("SIOCGIFFLAGS: %s", strerror(errno));
+			fatal("SIOCGIFFLAGS: %s", strerror(errno));
 
 		if ((ifreq_io.ifr_flags & IFF_UP) == 0)
 			continue;
@@ -203,14 +204,13 @@ gethostbyif(char *ifname)
 			continue;
 
 		if (!strcmp(ifr->ifr_name, ifname)) {
-			close(sd);			/* xenion */
+			close(sd);	/* xenion */
 			return paddr->sin_addr.s_addr;
 		}
-
 	}
 
 	close(sd);
 
-	FATAL("device %s not found", ifname);
+	fatal("device %s not found", ifname);
 	return 0;
 }

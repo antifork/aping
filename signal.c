@@ -35,6 +35,9 @@
 #include <stdio.h>
 #include <signal.h>
 
+static
+const char cvsid[] = "$Id$";
+
 typedef void sigfunc(int);	/* for signal handlers */
 
 static sigfunc *

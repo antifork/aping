@@ -23,16 +23,16 @@ watermark_init(int isserver)
 
 	if (isserver) {
 		if ((s_mem_id = shmget(ARENA_KEY, sizeof(SHARED_ARENA), IPC_CREAT | IPC_EXCL | SHM_R | SHM_W | (SHM_R >> 6))) < 0) {
-			FATAL("Cannot get Shm. Server is running?\r\n");
+			fatal("Cannot get Shm. Server is running?\r\n");
 		}
 	} else {
 		if ((s_mem_id = shmget(ARENA_KEY, sizeof(SHARED_ARENA), 0)) < 0) {
-			FATAL("Cannot get Shm. Server is running?");
+			fatal("Cannot get Shm. Server is running?");
 		}
 	}
 
 	if ((pmem = shmat(s_mem_id, NULL, 0)) == (char *) -1) {
-		FATAL("shmat1");
+		fatal("shmat1");
 	}
 	if (isserver) {
 		memset(pmem, 0, sizeof(SHARED_ARENA));
@@ -97,7 +97,7 @@ watermark_delete()
 {
 	int s_mem_id;
 	if ((s_mem_id = shmget(ARENA_KEY, sizeof(SHARED_ARENA), SHM_R | SHM_W)) < 0) {
-		FATAL("Cannot get block\r\n");
+		fatal("Cannot get block\r\n");
 	}
 	shmctl(s_mem_id, IPC_RMID, 0);
 	printf("Shared memory block removed\r\n");

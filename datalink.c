@@ -39,6 +39,9 @@
 #include "hardware.h"
 #include "bpf.h"
 
+static
+const char cvsid[] = "$Id$";
+
 extern int offset_dl;
 extern int datalink;
 
@@ -54,7 +57,7 @@ sizeof_datalink(pcap_t * pd)
 	int dtl;
 
 	if ((dtl = pcap_datalink(pd)) < 0)
-		FATAL("no datalink info: %s", pcap_geterr(pd));
+		fatal("no datalink info: %s", pcap_geterr(pd));
 
 	switch (dtl) {
 		CASE(AP_DLT_NULL, 4);
@@ -109,7 +112,7 @@ sizeof_datalink(pcap_t * pd)
 		CASE(AP_DLT_PRISM_HEADER, -1);
 		CASE(AP_DLT_AIRONET_HEADER, -1);
 	default:
-		FATAL("unknown datalink type DTL_?=%d", dtl);
+		fatal("unknown datalink type DTL_?=%d", dtl);
 		break;
 	}
 

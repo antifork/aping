@@ -1,1 +1,1 @@
--di0 -nfc1
+-di0 -nfc1 -l75 -lp -v  

@@ -35,14 +35,6 @@
 #ifndef MACRO_H
 #define MACRO_H
 
-#define FATAL(f,arg...) do {                                            \
-fprintf(stderr,"%s:%d: ",__FILE__,__LINE__);                            \
-fprintf(stderr,f,## arg);                                               \
-fprintf(stderr,"\n");                                                   \
-termios_reset();                                                        \
-exit(1);                                                                \
-} while (0)
-
 #define PUTS(f,arg...)  do {                                            \
 fprintf(stderr,f,## arg);                                               \
 fflush (stderr);                                                        \
@@ -63,12 +55,12 @@ fflush (stderr);                                                        \
 
 #define ATOMIC_TEST(a,b) do { 				\
 if ( !ATOMIC(options.a,options.b) )                 	\
-FATAL("set either of these options: %s | %s",#a,#b);    \
+fatal("set either of these options: %s | %s",#a,#b);    \
 } while (0)
 
 #define DEPEND_TEST(a,b) do { 				\
 if ( options.a && !options.b )				\
-FATAL("%s option require %s",#a,#b);			\
+fatal("%s option require %s",#a,#b);			\
 } while (0) 
 
 #define SET_VAL(var,val) do {              		\

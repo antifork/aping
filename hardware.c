@@ -35,11 +35,16 @@
 #include "header.h"
 #include "typedef.h"
 #include "prototype.h"
-
 #include "global.h"
 #include "hardware.h"
 
-static char lu_hex[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+static
+const char cvsid[] = "$Id$";
+
+static char hex[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+#define nib_h(x)	( (x>>4) & 0x0f )
+#define nib_l(x)  	( x & 0x0f )
 
 char *
 getmacfrom6b(char *hmac, char *mac)
@@ -48,8 +53,8 @@ getmacfrom6b(char *hmac, char *mac)
 	int i = 0;
 
 	while (i < 6) {
-		*_mac++ = lu_hex[(hmac[i] >> 4) & 0xf];
-		*_mac++ = lu_hex[(hmac[i++]) & 0xf];
+		*_mac++ = hex[nib_h(hmac[i])];
+		*_mac++ = hex[nib_l(hmac[i++])];
 		*_mac++ = ':';
 	}
 	*--_mac = '\0';
@@ -91,5 +96,4 @@ getmacfromdatalink(char *dl, int type)
 	dl += offset;
 
 	return (getmacfrom6b(dl, mac));
-
 }

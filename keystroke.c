@@ -34,10 +34,8 @@
 
 #include "header.h"
 #include "aping.h"
-
 #include "typedef.h"
 #include "prototype.h"
-
 #include "macro.h"
 #include "statistic.h"
 #include "global.h"
@@ -46,6 +44,9 @@
 #include <termios.h>
 #include <unistd.h>
 
+static
+const char cvsid[] = "$Id$";
+
 
 void
 keystroke()
@@ -53,7 +54,6 @@ keystroke()
 	int c;
 
 	DEBUG("start\n");
-
 	pthread_sigset_block(4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);

@@ -48,13 +48,18 @@
 #include "global.h"
 #include "maturity.h"
 
-#define ID "$Id$";
+static
+const char cvsid[] = "$Id$";
 
 extern char pcap_version[];
 extern int allow_reverse;
 
+static
 char icon_set[] = "->DZL>";
 
+/*
+ * print icon
+ */
 __inline void
 print_icon(int t)
 {
@@ -63,6 +68,9 @@ print_icon(int t)
 }
 
 
+/*
+ * ctr+c handler
+ */
 void
 ctrlc(i)
 	int i;
@@ -76,6 +84,10 @@ ctrlc(i)
 	pthread_cancel(pd_snd);
 }
 
+
+/*
+ * discard plugin
+ */
 void
 discard_plugin()
 {
@@ -84,13 +96,15 @@ discard_plugin()
 	for (; k < MIN(pd_pindex, MAX_CHILD); k++) {
 		kill(pd_plugin[k], SIGUSR1);
 	}
-
 }
 
+
+/*
+ * load defaults
+ */
 void
 defaults()
 {
-
 	struct rlimit core;
 	int i;
 
@@ -126,6 +140,9 @@ defaults()
 }
 
 
+/*
+ * print report
+ */
 void
 report()
 {
@@ -137,7 +154,7 @@ report()
 	PUTS("--- sleeping %d ms (RTT+2 sigma) ---\n", sleep_time);
 	usleep(sleep_time * 1000);
 	PUTS("\n--- %s aping statistics ---\n", safe_inet_ntoa(ip_dst));
-       
+
 	loss = 100 - PER_CENT(n_tome, n_sent);
 
 	if (loss < 0)
@@ -149,10 +166,13 @@ report()
 	if (n_tome)
 		PUTS("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", rtt_min, rtt_mean,
 		     ISQRT(rtt_sqre - rtt_mean * rtt_mean), rtt_max);
-
 }
 
 
+
+/*
+ * aping
+ */
 int
 main(argc, argv)
 	int argc;
@@ -168,20 +188,20 @@ main(argc, argv)
 
 	atexit(discard_plugin);
 
-	/* Security */
-
+	/* security */
 	if (getuid() != geteuid())
-		FATAL("aping doesn't run with +s bit set");
+		fatal("aping doesn't run with +s bit set");
 
 	if (getuid() != 0)
-		FATAL("aping must run as root");
+		fatal("aping must run as root");
 
 	if (argc < 2)
-		FATAL("no arguments given");
+		fatal("no arguments given");
 
 	if (argv[1][0] == '-' && argv[1][1] == '-')
-		FATAL("%s doesn't support --long-options.\ntype %s -h instead", argv[0], argv[0]);
+		fatal("%s doesn't support --long-options.\ntype %s -h instead", argv[0], argv[0]);
 
+	/* parse options */
 	while ((es = getopt(argc, argv, "DS:O:T:MRI:t:k:i:c:p:e:Pz:l:dnrvhbys")) != EOF)
 		switch (es) {
 		case 'S':
@@ -207,8 +227,7 @@ main(argc, argv)
 			break;
 		case 'I':
 			if (argv[optind] == NULL && *optarg == 'd')
-				FATAL("option requires an argument -Id int");
-
+				fatal("option requires an argument -Id int");
 			switch (*optarg) {
 			case 'd':
 				SET(ip_id);
@@ -221,7 +240,7 @@ main(argc, argv)
 				SET(ip_id_rand);
 				break;
 			default:
-				FATAL("invalid option -I%c", *optarg);
+				fatal("invalid option -I%c", *optarg);
 				break;
 			}
 			break;
@@ -316,18 +335,17 @@ main(argc, argv)
 	if (options.ip_src) {
 		ip_src = gethostbyname_cache(host_src);
 		if (ip_src == -1)
-			FATAL("bad source host");
+			fatal("bad source host");
 	}
-
 	/* destination.. */
 	if (*argv != NULL) {
 		host_dst = strdup(*argv);
 		ip_dst = gethostbyname_cache(*argv);
 		if (ip_dst == -1)
-			FATAL("bad destination host.");
+			fatal("bad destination host.");
 
 	} else if (!options.sniff)
-		FATAL("no destination given");
+		fatal("no destination given");
 
 	if (!options.ip_src) {
 		if (!options.ifname)
@@ -336,16 +354,15 @@ main(argc, argv)
 			ip_src = gethostbyif(ifname);
 
 	}
-
 	/* get localnet/netmask */
 	if (pcap_lookupnet(ifname, &localnet, &netmask, bufferr) == -1)
-		FATAL(bufferr);
+		fatal(bufferr);
 
 	if (pthread_create(&pd_rcv, NULL, (void *) receiver, NULL) != 0)
-		FATAL("pthread_create(): %s", strerror(errno));
+		fatal("pthread_create(): %s", strerror(errno));
 
 	if (pthread_create(&pd_key, NULL, (void *) keystroke, NULL) != 0)
-		FATAL("pthread_create(): %s", strerror(errno));
+		fatal("pthread_create(): %s", strerror(errno));
 
 	/* Catch signal */
 	ssignal(SIGINT, SIG_IGN);
@@ -358,7 +375,7 @@ main(argc, argv)
 
 	if (!options.sniff) {
 		if (pthread_create(&pd_snd, NULL, (void *) sender, argv) != 0)
-			FATAL("pthread_create(): %s", strerror(errno));
+			fatal("pthread_create(): %s", strerror(errno));
 
 		/* waiting for pd_snd exit/cancel */
 		pthread_join(pd_snd, NULL);
@@ -372,10 +389,12 @@ main(argc, argv)
 		PUTS("done.\n");
 		exit(0);
 	}
-
 	signal(SIGTSTP, SIG_DFL);
 	signal(SIGINT, SIG_DFL);
-	//pthread_cancel(pd_rcv);
+
+#if 0
+	pthread_cancel(pd_rcv);
+#endif
 	report();
 	exit(0);
 }

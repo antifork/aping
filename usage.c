@@ -41,6 +41,8 @@
 #include "aping.h"
 #include "prototype.h"
 
+static
+const char cvsid[] = "$Id$";
 
 extern char *icmp_type_str[64];
 extern char *icmp_code_str[64 * 64];
@@ -58,31 +60,31 @@ usage(char *name, int type)
 			"   -S  ip                    src ip\n"
 			"   -O  tos                 * set tos\n"
 			"   -T  ttl                   set time to live\n"
-			"   -M                        set TTL++ modulation\n"
+		    	"   -M                        set TTL++ modulation\n"
 			"   -Id id                    set base ip_id\n"
-		      "   -Ii                       set incremental ip_id\n"
+		   	"   -Ii                       set incremental ip_id\n"
 			"   -Ir                       set random ip_id\n"
-		    "   -R                        set record route ip_opt\n"
-			"   -D                        don't fragment bit\n"
+		 	"   -R                        set record route ip_opt\n"
+		      	"   -D                        don't fragment bit\n"
 			" Layer icmp\n"
 			"   -t  type args...        * set icmp type\n"
 			"   -k  code                * set icmp code\n"
 			" Others\n"
-		"   -i  msec                  set wait msec (default 1000)\n"
+			"   -i  msec                  set wait msec (default 1000)\n"
 			"   -p                        set pattern \"\"\n"
-			"   -e  ifname                set default device\n"
+		      	"   -e  ifname                set default device\n"
 			"   -P                        set promisc-mode\n"
 			"   -s                        set sniff-mode\n"
 			"   -z  size                  set packetsize\n"
 			"   -c                        count\n"
-			"   -d                        set SO_DEBUG option\n"
-		     "   -n                        don't resolve hostname\n"
+		     	"   -d                        set SO_DEBUG option\n"
+		  	"   -n                        don't resolve hostname\n"
 			"   -r                        don't route\n"
-		      "   -b                        force broadcast frame\n"
+		   	"   -b                        force broadcast frame\n"
 			"   -v                        print version\n"
 			"   -h                        print this help\n"
-		     "   -l plugin                 load plugin (-ls list)\n"
-		    "   -y                      * print link list\n", name);
+		  	"   -l plugin                 load plugin (-ls list)\n"
+		 	"   -y                      * print link list\n", name);
 		break;
 	case USAGE_TOS:
 		fprintf(stderr,
@@ -99,14 +101,14 @@ usage(char *name, int type)
 			fprintf(stderr, "Summary of message types and current implementation:\n");
 			fprintf(stderr, "\nlegenda: [_]= not implemented   [i]= incomplete\n"
 				"         [a] = alpha            [b]= beta          [*]= done\n\n"
-			  "         [T][R] T= trasmitter, R= receiver\n\n");
+			"         [T][R] T= trasmitter, R= receiver\n\n");
 			for (i = 0; i < 64; i++) {
-				if (icmp_type_str[i] != NULL)
-					printf("         [%c][%c] -t %2d  %s\n",
-					       maturity_level[i][0],
-					       maturity_level[i][1],
-					       i, icmp_type_str[i]);
-
+				if (icmp_type_str[i] == NULL)
+					continue;
+				printf("         [%c][%c] -t %2d  %s\n",
+					maturity_level[i][0],
+					maturity_level[i][1],
+					i, icmp_type_str[i]);
 			}
 		}
 
@@ -121,19 +123,20 @@ usage(char *name, int type)
 				i = icmp_type;
 				printf(" for icmp=%d(%s):\n\n", i, icmp_type_str[i]);
 				for (j = 0; j < 64; j++) {
-					if (icmp_code_str[INDEX(i, j)] != NULL)
-						printf("   -k %2d  %s\n", j, icmp_code_str[INDEX(i, j)]);
+					if (icmp_code_str[INDEX(i, j)] == NULL)
+						continue;
+					printf("   -k %2d  %s\n", j, icmp_code_str[INDEX(i, j)]);
 
 				}
 			} else {
-
 				printf(":\n\n");
 				for (i = 0; i < 64; i++)
-					for (j = 0; j < 64; j++) {
-						if (icmp_code_str[INDEX(i, j)] != NULL)
-							printf("   -t %2d -k %2d  %s\n", i, j, icmp_code_str[INDEX(i, j)]);
+				for (j = 0; j < 64; j++) {
+					if (icmp_code_str[INDEX(i, j)] == NULL)
+						continue;
+					printf("   -t %2d -k %2d  %s\n", i, j, icmp_code_str[INDEX(i, j)]);
 
-					}
+				}
 			}
 		}
 
@@ -144,14 +147,11 @@ usage(char *name, int type)
 			int i = 1;
 
 			fprintf(stderr, "List of known link:\n");
-
 			while (link_vector[i].type != NULL)
 				fprintf(stderr, "   %s\n", link_vector[i++].type);
 
 		}
 		break;
-
 	}
 	exit(0);
-
 }
