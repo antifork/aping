@@ -265,19 +265,12 @@ print_RR(char *opt)
 
 	 hop = (long *)(opt+3); /* hop pointer */ 
 
-         PUTS("RR: ");
 
 	 for(i=1; i < (opt[IPOPT_OFFSET]>>2); i++ ) 	
 		{
-
-		PUTS("%s(%s)\n", gethostbyaddr_lru(hop[i-1]),multi_inet_ntoa(hop[i-1]));	
-		PUTS("     ");
-
+		PUTS("\rRR:  %s(%s)\n", gethostbyaddr_lru(hop[i-1]),multi_inet_ntoa(hop[i-1]));	
 		}
 
-		PUTS("\n");
-
-		// PUTS("%s(%s)\n", gethostbyaddr_lru(ip_src),multi_inet_ntoa(ip_src));
 
 	}
 }
