@@ -45,10 +45,10 @@ all: $(PLUGIN) @LIBOBJS@
 	$(CC) $(CFLAGS) $(DEFS) $(DEBUG) -c $< -o $@
 
 clean:
-	rm -Rf *~ *.bak $(PLUGIN) 
+	rm -Rf *~ *.bak *.o loader 
 
 distclean:
-	rm -Rf *~ *.bak $(PLUGIN) config.status config.h version.h *.cache *.log Makefile
+	rm -Rf *~ *.bak *.o loader config.status config.h version.h *.cache *.log Makefile
 
 install:
 	$(INSTALL) -c -m 0755 $(PLUGIN) @datadir@/aping
