@@ -37,14 +37,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <signal.h>
 
 #include "config.h"
-
-/* plugin headers */ 
-
-#include "../header.h"
-#include "../plugin.h"
 
 void
 dummy_exit()
@@ -57,21 +52,10 @@ void
 dummy_init()
 {
 
-	sigset_t      set;
-
-    	PI_SIGNAL_INIT(&set);
-	PI_PTHREAD_INIT(dummy);
+	/* body */
 
         printf("[dummy::init]\n");
 
-	pthread_cleanup_push(dummy_exit,NULL);
-	{
-		/* body */
-
-		for (;;) sleep(1);
-
-
-	}
-	pthread_cleanup_pop(0xdead);
+	for (;;) sleep(1);
 
 }

@@ -41,8 +41,6 @@ if test $have_pthread = no && test $have_libc_r = no ; then
         exit
 fi
 
-AC_CHECK_LIB([dl], [dlopen])
-
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])

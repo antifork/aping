@@ -39,10 +39,6 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-#include <pthread.h>
-
-#include <dlfcn.h>
-
 #include "typedef.h"
 #include "prototype.h"
 
@@ -50,54 +46,40 @@
 #include "global.h"
 #include "version.h"
 
-/* Thanks to ettercap's authors */
-#ifdef __OpenBSD__
-// The below define is a lie since we are really doing RTLD_LAZY since the
-// system doesn't support RTLD_NOW.
-   #define RTLD_NOW DL_LAZY
-#endif
-
-long   (*plugin) (void);
-
 void
 plugin_init(char *name)
 {
-  char sy[80];
-  char so[80]; 
+  char loader[80];
+  char *arg   [4];
 
-  void *handle;
+  int  pid;
 
-  if ( name == NULL )
-	FATAL("err: null plugin!");
+  loader[0]='\0';
 
-  so[0]='\0';
+  arg[0]   = "loader";
+  arg[1]   = name;
+  arg[2]   = NULL;
 
-  sy[0]='_';
-  sy[1]='\0';
+  strcat (loader,PLUGIN_PATH);
+  strcat (loader,"/");
+  strncat(loader,"loader",80-8-sizeof(PLUGIN_PATH));  
 
-  strcat (so,PLUGIN_PATH);
-  strcat (so,"/");
-  strncat(so,name,80-4-sizeof(PLUGIN_PATH));
-  strcat (so,".so");
+  switch (pid = fork ())
+	{
+	case -1:
+		FATAL("fork() error");
+		break;
+	case  0:
+		/* plugin child */
+		
+		if ( execve (loader, arg, NULL)== -1 )
+			FATAL("loader error");
 
-  strncat (sy,name,79-6);
-  strcat  (sy,"_init");
-
-  PUTS("loading %s\n",so);
-
-  handle = dlopen (so, RTLD_NOW);
-
-  if (!handle) 
-  	FATAL(dlerror()); 
-   
-  #if defined(__OpenBSD__)
-   plugin = dlsym(handle, sy);
-  #else                             
-   plugin = dlsym(handle, sy+1);
-  #endif
-
-  pthread_create (&pd_plugin[pd_pindex++], NULL, (void *)plugin, NULL);
-
+		break;
+	default:
+		pd_plugin[pd_pindex++]= pid;
+		break;
+	}
   
 }
 
@@ -117,7 +99,7 @@ plugin_ls()
   while ( (dp = readdir (dfd)) != NULL)
 	{
 
-	if ( strcmp(".",dp->d_name ) && strcmp("..",dp->d_name ) ) 
+	if ( strcmp(".",dp->d_name ) && strcmp("..",dp->d_name ) && strcmp("loader",dp->d_name )) 
 		{
 		PUTS("%s ",dp->d_name);
 		}

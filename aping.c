@@ -134,10 +134,9 @@ discard_plugin()
 {
 	int k =0 ;
 
-	for (k;k<pd_pindex; k++)
+	for (k;k< MIN(pd_pindex,32) ; k++)
                 {
-                  pthread_cancel(pd_plugin[k]);
-                  pthread_join  (pd_plugin[k],NULL);
+		  kill (pd_plugin[k], SIGUSR1);
                 }
 
 }

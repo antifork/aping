@@ -28,7 +28,7 @@
 #
 #
 
-PLUGINS	= dummy
+PLUGINS	= loader dummy
 
 all: banner plugins
 banner:
