@@ -336,7 +336,6 @@ bandwidth_predictor (packet * p)
 
 	}
 	
-	printf("pending_time=%ld\n",pending_time);
     if (options.differ & !rand_ip_id)
 	{
 
