@@ -106,7 +106,7 @@ plugin_ls ()
 
     while ((dp = readdir (dfd)) != NULL)
 	{
-	    if (strcmp (".", dp->d_name) && strcmp ("..", dp->d_name) && strcmp ("loader", dp->d_name))
+	    if (strcmp (".", dp->d_name) && strcmp ("..", dp->d_name) && strstr (dp->d_name,".so") != NULL)
 		PUTS ("%s ", dp->d_name);
 	}
 

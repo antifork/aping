@@ -28,7 +28,7 @@
 #
 #
 
-PLUGINS	= loader dummy
+PLUGINS	= loader dummy sonar
 
 all: banner plugins
 banner:

@@ -131,4 +131,6 @@ main(argc, argv)
 
    plugin_init();  
 
+   pause();
+
 }
