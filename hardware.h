@@ -37,14 +37,6 @@
 #define MAC_SRC		0
 #define MAC_DST		1
 
-#define AP_IF_UNKNOWN   0
-#define AP_IF_ETHER	1
-#define AP_IF_TOKEN	2
-#define AP_IF_FDDI	3
-#define AP_IF_80211	4
-#define AP_IF_PPP	5	
-#define AP_IF_SLIP	6
-
 #define ETHER_ADDR_LEN	   6
 #define ISO88025_ADDR_LEN  6
 

@@ -70,24 +70,21 @@ getmacfromdatalink (char *dl, int type)
 
     switch (datalink) {
 
-     case AP_IF_ETHER:
+     case AP_DLT_EN10MB:
+     case AP_DLT_EN3MB:
 	 if (type == MAC_DST)
 	     offset = 0;
 	 else
 	     offset = 6;
 	 break;
-
-     case AP_IF_TOKEN:
-     case AP_IF_FDDI:
+     case AP_DLT_IEEE802:
+     case AP_DLT_FDDI:
 	 if (type == MAC_DST)
 	     offset = 2;
 	 else
 	     offset = 8;
-
 	 break;
-     case AP_IF_80211:
-     case AP_IF_PPP:
-	 // FIXME
+	 // FIXME: add other interface type   
 	 break;
 
     }

@@ -35,14 +35,15 @@
 #include  <pcap.h>
 #include "macro.h"
 #include "hardware.h"
+#include "bpf.h"
 
 extern int offset_dl;
 extern int datalink;
 
-#define CASE(x,size,type) {	\
+#define CASE(x,y) {		\
 case (x):			\
-offset_dl=(size);		\
-datalink =(type);		\
+offset_dl=(y);			\
+datalink =(x);			\
 break;}
 
 int
@@ -55,91 +56,51 @@ sizeof_datalink (pcap_t * pd)
 
     switch (dtl) {
 
-	 CASE (DLT_NULL, 4, AP_IF_UNKNOWN);
-	 CASE (DLT_EN10MB, 14, AP_IF_ETHER);
-#ifdef DLT_EN3MB
-	 CASE (DLT_EN3MB, 14, AP_IF_UNKNOWN);
-#endif
-#ifdef DLT_AX25
-	 CASE (DLT_AX25, -1, AP_IF_UNKNOWN);
-#endif
-#ifdef DLT_PRONET
-	 CASE (DLT_PRONET, -1, AP_IF_UNKNOWN);
-#endif
-#ifdef DLT_CHAOS
-	 CASE (DLT_CHAOS, -1, AP_IF_UNKNOWN);
-#endif
-
-	 CASE (DLT_IEEE802, 22, AP_IF_TOKEN);
-	 CASE (DLT_ARCNET, -1, AP_IF_UNKNOWN);
-
-     case DLT_SLIP:
-#ifdef DLT_SLIP_BSDOS
-     case DLT_SLIP_BSDOS:
-#endif
-	 datalink = AP_IF_SLIP;
-#if (FREEBSD || OPENBSD || NETBSD || BSDI)
-	 offset_dl = 16;
+	 CASE (AP_DLT_NULL,4);
+	 CASE (AP_DLT_EN10MB,14);
+	 CASE (AP_DLT_EN3MB,14);
+	 CASE (AP_DLT_AX25,-1);
+	 CASE (AP_DLT_PRONET,-1);
+	 CASE (AP_DLT_CHAOS,-1);
+	 CASE (AP_DLT_IEEE802,22);
+	 CASE (AP_DLT_ARCNET,-1);
+#if defined (__FreeBSD__) || defined (__OpenBSD__) || defined (__NetBSD__) || defined (__BSDI__) 
+	 CASE (AP_DLT_SLIP,16);
 #else
-	 offset_dl = 24;	/* Anyone use this??? */
+	 CASE (AP_DLT_SLIP,24);
 #endif
 
-     case DLT_PPP:
-#ifdef DLT_PPP_BSDOS
-     case DLT_PPP_BSDOS:
-#endif
-#if defined ( __FreeBSD__ ) || defined (__OpenBSD__) || defined(__NetBSD__)
-	 offset_dl = 4;
-	 datalink = AP_IF_PPP;
+#if defined (__FreeBSD__) || defined (__OpenBSD__) || defined (__NetBSD__)
+	 CASE (AP_DLT_PPP,4);
+#elif defined (__solaris__)
+	 CASE (AP_DLT_PPP,8);
 #else
-#if defined (__solaris__)
-	 offset_dl = 8;
-	 datalink = AP_IF_PPP;
-#else
-	 offset_dl = 24;
-	 datalink = AP_IF_PPP;
+	 CASE (AP_DLT_PPP,24);
 #endif
-#endif
-	 break;
-
-	 CASE (DLT_FDDI, 24, AP_IF_FDDI);
-
-#ifdef DLT_ATM_RFC1483
-	 CASE (DLT_ATM_RFC1483, 8, AP_IF_UNKNOWN);
-#endif
-#ifdef DLT_RAW
-	 CASE (DLT_RAW, 0, AP_IF_UNKNOWN);
-#endif
-
-#ifdef DLT_IEEE802_11
-	 CASE (DLT_IEEE802_11, 30, AP_IF_UNKNOWN);
-#endif
-
-#ifdef  DLT_LOOP
-	 CASE (DLT_LOOP, 4, AP_IF_UNKNOWN);
-#endif
-
-#ifdef DLT_ENC
-	 CASE (DLT_ENC, 12, AP_IF_UNKNOWN);
-#endif
-
-#ifdef DLT_LINUX_SLL
-	 CASE (DLT_LINUX_SLL, 16, AP_IF_PPP);
-#endif
-
-#ifdef DLT_PRISM_HEADER
-	 CASE (DLT_PRISM_HEADER, 30, AP_IF_UNKNOWN);
-	 break;
-#endif
-#ifdef DLT_AIRONET_HEADER
-	 CASE (DLT_AIRONET_HEADER, 30, AP_IF_UNKNOWN);
-	 break;
-#endif
+	 CASE (AP_DLT_FDDI,24);
+	 CASE (AP_DLT_ATM_RFC1483,8);
+	 CASE (AP_DLT_RAW,0);
+	 CASE (AP_DLT_SLIP_BSDOS,16);
+	 CASE (AP_DLT_PPP_BSDOS,4);
+	 CASE (AP_DLT_ATM_CLIP,-1);
+	 CASE (AP_DLT_PPP_SERIAL,-1);
+	 CASE (AP_DLT_PPP_ETHER,-1);
+	 CASE (AP_DLT_C_HDLC,-1);
+	 CASE (AP_DLT_IEEE802_11,30);
+	 CASE (AP_DLT_LOOP,4);
+	 CASE (AP_DLT_LINUX_SLL,16);
+	 CASE (AP_DLT_LTALK,-1);
+	 CASE (AP_DLT_ECONET,-1);
+	 CASE (AP_DLT_IPFILTER,-1);
+	 CASE (AP_DLT_PFLOG,-1);
+	 CASE (AP_DLT_CISCO_IOS,-1);
+	 CASE (AP_DLT_PRISM_HEADER,30);
+	 CASE (AP_DLT_AIRONET_HEADER,30);
 
      default:
 	 FATAL ("unknown datalink type DTL_?=%d", dtl);
 	 break;
     }
 
-    return 0;
+    return offset_dl;
 }

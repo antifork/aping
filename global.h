@@ -184,13 +184,38 @@ EXTERN void  (*icmp_dissect_vector[64]) (packet *) INIT (=
 	[40]=dissect_security
 });
 
-EXTERN char *linktype[16]   INIT( = {
-	[AP_IF_UNKNOWN]= "unknown",
-	[AP_IF_ETHER  ]= "ethernet",
-	[AP_IF_TOKEN  ]= "tokenring",
-	[AP_IF_FDDI   ]= "fddi",
-	[AP_IF_80211  ]= "802.11 wireless",
-	[AP_IF_PPP    ]= "ppp" } );
+#include "bpf.h"
+
+EXTERN char *linktype[128]   INIT( = {
+[AP_DLT_NULL]="NULL",
+[AP_DLT_EN10MB]="EN10MB",
+[AP_DLT_EN3MB]="EN3MB",
+[AP_DLT_AX25]="AX25",
+[AP_DLT_PRONET]="PRONET",
+[AP_DLT_CHAOS]="CHAOS",
+[AP_DLT_IEEE802]="IEEE802",
+[AP_DLT_ARCNET]="ARCNET",
+[AP_DLT_SLIP]="SLIP",
+[AP_DLT_PPP]="PPP",
+[AP_DLT_FDDI]="FDDI",
+[AP_DLT_ATM_RFC1483]="ATM_RFC1483",
+[AP_DLT_RAW]="RAW",
+[AP_DLT_SLIP_BSDOS]="SLIP_BSDOS",
+[AP_DLT_PPP_BSDOS]="PPP_BSDOS",
+[AP_DLT_ATM_CLIP]="ATM_CLIP",
+[AP_DLT_PPP_SERIAL]="PPP_SERIAL",
+[AP_DLT_PPP_ETHER]="PPP_ETHER",
+[AP_DLT_C_HDLC]="C_HDLC",
+[AP_DLT_IEEE802_11]="IEEE802_11",
+[AP_DLT_LOOP]="LOOP",
+[AP_DLT_LINUX_SLL]="LINUX_SLL",
+[AP_DLT_LTALK]="LTALK",
+[AP_DLT_ECONET]="ECONET",
+[AP_DLT_IPFILTER]="IPFILTER",
+[AP_DLT_PFLOG]="PFLOG",
+[AP_DLT_CISCO_IOS]="CISCO_IOS",
+[AP_DLT_PRISM_HEADER]="PRISM_HEADER",
+[AP_DLT_AIRONET_HEADER]="AIRONET_HEADER" } );
 
 EXTERN char *protocols[256] INIT( = {
 [0]="ip", [1]="icmp", [2]="igmp", [3]="ggp", [4]="ipencap",

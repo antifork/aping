@@ -375,7 +375,8 @@ receiver ()
     /* set offset_dl: datalink header size */
 
     if (sizeof_datalink (in_pcap) == -1)
-	FATAL("sizeof_datalink() unknown interface...\n");
+	FATAL(	"the interface DLT_%s(%d) has not been configured yet to work with aping...\n"
+		"please mailto bonelli@blackhats.it reporting the event.",linktype[datalink],datalink);
 
     if (options.promisc)
 	PUTS ("<PROMISC>");
