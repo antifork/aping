@@ -28,70 +28,37 @@
 #
 #
 
-CC          = @CC@ @optimize_def@
-CFLAGS      = @CFLAGS@  
-CPPFLAGS    = @CPPFLAGS@
-INCLS       = -I. @INCLS@
-LDFLAGS     = @LDFLAGS@
-LIBS        = @LIBS@  
-DEFS        = @DEFS@ -DEADBUG
-INSTALL     = @INSTALL@
-
-prefix      = @prefix@
+CC = @CC@ @optimize_def@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+INCLS = @INCLS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+DEFS = @DEFS@ -DEADBUG
+INSTALL = @INSTALL@
+prefix = @prefix@
 exec_prefix = @exec_prefix@
-bindir      = @bindir@
-mandir      = @mandir@
-datadir     = @datadir@
-srcdir      = @srcdir@
-shtool      = @SHTOOL@
+bindir = @bindir@
+mandir = @mandir@
+datadir = @datadir@
+srcdir = @srcdir@
+shtool = @SHTOOL@
 
-OBJS    = aping.o \
-        pthread.o \
-	signal.o \
-        socket.o \
-        termios.o \
-        pcap.o \
-        sender.o \
-        receiver.o \
-        statistic.o \
-	fnv.o \
-	iface.o \
-	datalink.o \
-	ns-cache.o \
-	argscheck.o \
-	keystroke.o  \
-	hardware.o \
-	plugin.o \
-	chksum.o usage.o \
-	dissect-destination.o \
-	dissect-echo-reply.o \
-	dissect-echo.o \
-	dissect-information-reply.o \
-	dissect-information.o \
-	dissect-mask-reply.o \
-	dissect-mask.o \
-	dissect-parameter-problem.o \
-	dissect-redirect.o \
-	dissect-router-advertisement.o \
-	dissect-router-solicitation.o \
-	dissect-source-quench.o \
-	dissect-time-exceeded.o \
-	dissect-timestamp-reply.o \
-	dissect-timestamp.o \
-	dissect-security.o \
-	@LIBOBJS@
-
+OBJS = aping.o pthread.o signal.o socket.o termios.o pcap.o sender.o receiver.o \
+statistic.o fnv.o iface.o datalink.o ns-cache.o argscheck.o keystroke.o  \
+hardware.o plugin.o chksum.o usage.o dissect-destination.o dissect-echo-reply.o \
+dissect-echo.o dissect-information-reply.o dissect-information.o dissect-mask-reply.o \
+dissect-mask.o dissect-parameter-problem.o dissect-redirect.o dissect-router-advertisement.o \
+dissect-router-solicitation.o dissect-source-quench.o dissect-time-exceeded.o \
+dissect-timestamp-reply.o dissect-timestamp.o dissect-security.o @LIBOBJS@
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(DEBUG) $(INCLS) -c $< -o $@
-
 all:  global 
 	$(CC) -o aping $(OBJS) $(LIBS) 	
 	@cd plugin && make
 
 global: version.h $(OBJS)
-
 version.o: version.h
-
 version.h: VERSION
 	@rm -f $@
 	@sed -e 's/.*/#define VERSION "&"/' VERSION > $@

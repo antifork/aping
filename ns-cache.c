@@ -1,6 +1,6 @@
 /* $Id$ */
 /*
- * $awgn: ns-cache.c,v 1.4 2002/09/30 17:37:54 awgn Exp $
+ * $awgn: ns-cache.c,v 1.5 2002/09/30 17:37:54 awgn Exp $
  *
  * Copyright (c) 2002 Nicola Bonelli <bonelli@blackhats.it>
  *
@@ -99,6 +99,10 @@ struct entry {
 	char *host;
 	short yday;
 };
+
+#if defined (_USE_PTHREAD)
+static pthread_mutex_t safe_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 static char *sf[SAFE_BUFFERS];	/* used to return __safe_buffer */
 
@@ -284,12 +288,20 @@ __insert_hostbyaddr(const char *h, const nbo addr)
 char *
 __safe_buffer(char *new)
 {
-	static int i;
-	i++;
+	static int index;
+	char *ret;
 
-	free(sf[i & SAFE_MASK]);
-	sf[i & SAFE_MASK] = strdup(new);
-	return (sf[i & SAFE_MASK]);
+#if defined (_USE_PTHREAD)
+	pthread_mutex_lock(&safe_mutex);
+#endif
+	index++;
+	free(sf[index & SAFE_MASK]);
+	ret = sf[index & SAFE_MASK] = strdup(new);
+
+#if defined (_USE_PTHREAD)
+	pthread_mutex_unlock(&safe_mutex);
+#endif
+	return (ret);
 }
 
 /*

@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([aping],[2.0.0-ALPHA],[Bonelli Nicola <bonelli@blackhats.it>])
+AC_INIT([aping],[ALPHA],[Bonelli Nicola <bonelli@blackhats.it>])
 AC_CONFIG_SRCDIR([aping.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -12,13 +12,15 @@ echo " aping $version"
 echo "========================"
 
 # Checks for programs.
-AC_CANONICAL_TARGET([])
+AC_CANONICAL_HOST
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_CHECK_PROGS(SHTOOL, shtool, ./shtool)
 
 # Check and set OS specific parameters.
+
+CFLAGS=""
 
 case "$host_os" in
 #aix4.*)    optimize_def="-O2"
@@ -38,9 +40,9 @@ hpux*)      CPPFLAGS="-D_REENTRANT $CPPFLAGS";;
 #irix*)     optimize_def="-O2"
 #           CPPFLAGS="-D_SGI_MP_SOURCE $CPPFLAGS";;
 linux*)     optimize_def="-O2"
-            CFLAGS="-D_GNU_SOURCE"
+            CFLAGS="-D_GNU_SOURCE $CFLAGS"
             CPPFLAGS="-D_REENTRANT -D_USE_NSHACK $CPPFLAGS"
-            LIBS="-pthread";;
+            LIBS="-lpthread";;
 #mpeix*)    CPPFLAGS="-D_POSIX_SOURCE -D_SOCKET_SOURCE $CPPFLAGS"
 #           LIBS="-lsocket -lsvipc $LIBS";;
 #osf*)      CPPFLAGS="-D_REENTRANT $CPPFLAGS";;
@@ -49,7 +51,7 @@ linux*)     optimize_def="-O2"
 #sco*)      CC=${CC-"cc -belf"}
 #           LIBS="-lsocket -lnsl $LIBS";;
 solaris*)   CPPFLAGS="-D_REENTRANT -D_PTHREADS $CPPFLAGS";;
-*) 	    AC_MSG_ERROR($target_os is NOT SUPPORTED YET);;
+*) 	    AC_MSG_ERROR($target_os is not supported yet);;
 esac
 
 # Checks for libraries.
@@ -60,21 +62,14 @@ if test $have_pcap = no ; then
         AC_MSG_ERROR([this os doesn't support pcap library])
 fi
 
-#AC_CHECK_LIB([pthread], [pthread_create], [ have_pthread=yes ; LIBS="-lpthread $LIBS" ], have_pthread=no)
-#AC_CHECK_LIB([c_r],     [pthread_create], [ have_libc_r=yes ;  LIBS="-pthread $LIBS" ], have_libc_r=no)
-#if test $have_pthread = no && test $have_libc_r = no ; then
-#	rm -Rf *.cache *.log
-#        AC_MSG_ERROR([this os doesn't support pthread])
-#fi
-
 # Checks for header files.
 
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS([pcap-int.h arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h termios.h unistd.h])
-
 AC_PCAP_HEADER_CHECK(INCLS)
+AC_CHECK_HEADERS([pcap-int.h arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h termios.h unistd.h])
+INCLS="-I. $INCLS"
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -96,17 +91,19 @@ AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
 ln -f -s header.h dissect.h
-
-echo ""
 echo "The aping package has been configured with the following options:"
-echo "  compiler   : $CC"
-echo "  CFLAGS     : $CFLAGS"
-echo "  CPPFLAGS   : $CPPFLAGS"
-echo "  lib        : $LIBS"
-echo "  defs       : $DEFS"
-echo "  include    : $INCLS"
-echo "  prefix     : $prefix"
-echo "  exec_prefix: $exec_prefix"
-echo "  bindir     : $bindir"
-echo "  mandir     : $mandir"
-echo "  datadir    : $datadir"
+echo "  compiler      : $CC"
+echo "  optimize_def  : $optimize_def"
+echo "  host_cpu      : $host_cpu"
+echo "  host_vendor   : $host_vendor"
+echo "  host_os       : $host_os"
+echo "  CFLAGS        : $CFLAGS"
+echo "  CPPFLAGS      : $CPPFLAGS"
+echo "  lib           : $LIBS"
+echo "  defs          : $DEFS"
+echo "  include       : $INCLS"
+echo "  prefix        : $prefix"
+echo "  exec_prefix   : $exec_prefix"
+echo "  bindir        : $bindir"
+echo "  mandir        : $mandir"
+echo "  datadir       : $datadir"
