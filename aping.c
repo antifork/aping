@@ -391,10 +391,13 @@ main (argc, argv)
           loss = 100 - PER_CENT (n_tome, n_sent);
 
           PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));
-          PUTS ("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);
-
+          
+          if(loss<0)
+          	PUTS ("%ld packets transmitted, %ld packets received (forked responses found)\n", n_sent, n_tome);
+	  else 
+		PUTS ("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);   
           if (n_tome)
-          PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n",
+           PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n",
 		rtt_min,rtt_mean,ISQRT(rtt_sqre-rtt_mean*rtt_mean ),rtt_max);
         }
 
