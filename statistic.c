@@ -190,10 +190,10 @@ TTL_PREDICTOR (unsigned char x)
      b(t) is a stocastic process whose autocorrelation function can be 
           thought like this:
 
-     Rb(rtt) = |1-rtt/T| rect (rtt/(2T))  ( triangolar autocorrelation )
+     Rb(tau) = |1-tau/T| rect (tau/(2T))  ( triangolar autocorrelation )
 
 
-            Rb            
+          Rb(tau)            
             ^
             |
             |                                              ___                 
@@ -212,7 +212,7 @@ TTL_PREDICTOR (unsigned char x)
      n(t) is a stocastic model, indipened from the first one, whose IO 
           characteristic has the following graph:
 
-            E                                        Fn
+            N                                        Fn
             ^                                        ^ 
             |                                        |
             |                                        |
