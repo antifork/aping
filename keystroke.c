@@ -72,7 +72,6 @@ keystroke ()
     int           sfd;
     int             c;
 
-    
     sigemptyset (&set);
 
     sigaddset (&set, SIGTSTP);
