@@ -76,6 +76,7 @@ version.o: version.h
 version.h: VERSION
 	@rm -f $@
 	@sed -e 's/.*/#define VERSION "&"/' VERSION > $@
+	@echo "#define PLUGIN_PATH  \"@datadir@/aping\"" >> $@  
 	@echo -n "% program: aping " ; cat VERSION ; 
 install:
 	$(INSTALL) -c -m 0755 -g bin aping @bindir@ 
@@ -83,4 +84,4 @@ clean:
 	rm -Rf *~ aping *.o 
 
 distclean:
-	rm -Rf *~ aping *.o config.h version.h *.cache *.log Makefile
+	rm -Rf *~ aping *.o config.status config.h version.h *.cache *.log Makefile
