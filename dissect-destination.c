@@ -20,16 +20,22 @@ Destination Unreachable Message
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |      Internet Header + 64 bits of Original Data Datagram      |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      0 = net unreachable;
+      1 = host unreachable;
+      2 = protocol unreachable;
+      3 = port unreachable;
+      4 = fragmentation needed and DF set;
+      5 = source route failed.
 
 */
 
 void
 load_destination_unreachable(packet *p, char **argv)
 {
-	/* redirect_type , tos,icmp_src_ip, icmp_dest_ip */
+	/* unreachable_type , tos,icmp_src_ip, icmp_dest_ip */
 	checkargs(argv,4,ARG_NUM,ARG_NUM,ARG_IP,ARG_IP,ARG_IP);
 
-	ICMP_type(p)= ICMP_REDIRECT;
+	ICMP_type(p)= ICMP_UNREACH;
 	ICMP_code(p)= ((int)strtol(argv[0], (char **)NULL, 10))%4;
 
 	ICMP_IP_ver(p)  = 4; 
