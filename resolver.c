@@ -196,7 +196,7 @@ gethostbyname_lru (const char *host)
 	    if ((addr.s_addr = inet_addr (host)) == -1)
 		{
 		    if (!(host_ent = gethostbyname (host)))
-			FATAL ("gethostbyname_lru err:%s", strerror (errno));
+			FATAL ("gethostbyname_lru(%s) err", host);
 
 		    bcopy (host_ent->h_addr, (char *) &addr.s_addr, host_ent->h_length);
 		}
