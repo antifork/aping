@@ -169,7 +169,7 @@ EXTERN void  (*icmp_dissect_vector[64]) (packet *) INIT (=
 	[40]=dissect_security
 });
 
-EXTERN char *protocols[64] INIT( = {
+EXTERN char *protocols[256] INIT( = {
 [0]="ip", [1]="icmp", [2]="igmp", [3]="ggp", [4]="ipencap",
 [5]="st", [6]="tcp", [7]="ucl", [8]="egp", [9]="igp",
 [10]="bbn-rcc-mon", [11]="nvp-ii", [12]="pup", [13]="argus", [14]="emcon",
