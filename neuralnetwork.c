@@ -479,7 +479,7 @@ int save_nn(NN*nn,char*filename)
 
 
 #ifdef TRY_NN
-int main() /* hello world */
+int main(int zz,char**zzz) /* hello world */
 {
 	u_32 p_in_layers[6]={256,128,64,32,8,2};
         /* 32768 + 12288 2496 312 +72 24 8 = 47968*/
