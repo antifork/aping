@@ -1,5 +1,5 @@
 /* $Id$ */
-/*	$OpenBSD: strlcat.c,v 1.1 1998/07/01 01:29:45 millert Exp $	*/
+/* $OpenBSD: strlcat.c,v 1.1 1998/07/01 01:29:45 millert Exp $	 */
 
 /*
  * Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
@@ -30,7 +30,7 @@
 
 #if defined(LIBC_SCCS) && !defined(lint)
 static char *rcsid = "$OpenBSD: strlcat.c,v 1.1 1998/07/01 01:29:45 millert Exp $";
-#endif /* LIBC_SCCS and not lint */
+#endif				/* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
 #include <string.h>
@@ -41,7 +41,8 @@ static char *rcsid = "$OpenBSD: strlcat.c,v 1.1 1998/07/01 01:29:45 millert Exp 
  * will be copied.  Always NUL terminates (unless siz == 0).
  * Returns strlen(src); if retval >= siz, truncation occurred.
  */
-size_t strlcat(dst, src, siz)
+size_t 
+strlcat(dst, src, siz)
 	char *dst;
 	const char *src;
 	size_t siz;
@@ -58,7 +59,7 @@ size_t strlcat(dst, src, siz)
 	n -= dlen;
 
 	if (n == 0)
-		return(dlen + strlen(s));
+		return (dlen + strlen(s));
 	while (*s != '\0') {
 		if (n != 1) {
 			*d++ = *s;
@@ -68,5 +69,5 @@ size_t strlcat(dst, src, siz)
 	}
 	*d = '\0';
 
-	return(dlen + (s - src));	/* count does not include NUL */
+	return (dlen + (s - src));	/* count does not include NUL */
 }

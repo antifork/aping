@@ -22,10 +22,10 @@ AC_CHECK_PROGS(SHTOOL, shtool, ./shtool)
 
 case "$target_os" in
 *linux*)
-    APING_DEFS="-DNS_HACK"
+    APING_DEFS="-D__USE_NSHACK"
     ;;
 *freebsd*)
-    APING_DEFS="-DNS_HACK"
+    APING_DEFS="-D__USE_NSHACK"
     ;;
 *openbsd*)
     ;;
@@ -44,6 +44,11 @@ else
 fi
 
 # Checks for libraries.
+# Solaris
+
+AC_CHECK_LIB([socket], [socket])
+AC_CHECK_LIB([nsl], [gethostbyname])
+
 AC_CHECK_LIB([pcap], [pcap_open_live], [ have_pcap=yes ; LIBS="-lpcap $LIBS" ], have_pcap=no)
 if test $have_pcap = no ; then
 	rm -Rf *.cache *.log

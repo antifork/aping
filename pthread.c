@@ -3,9 +3,9 @@
  *
  * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
  *                    Roberto Ferranti <sbirish@sbirish.net>
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met: 1. Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,8 +25,8 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- * 
- * 
+ *
+ *
  */
 
 #include "header.h"
@@ -34,40 +34,38 @@
 #include "prototype.h"
 
 int
-pthread_sigset_block (int n, ...)
+pthread_sigset_block(int n,...)
 {
-    sigset_t set;
-    va_list ap;
-    int signum;
+	sigset_t set;
+	va_list ap;
+	int signum;
 
-    sigemptyset (&set);
-    va_start (ap, n);
+	sigemptyset(&set);
+	va_start(ap, n);
 
-    for (; n != 0; n--) {
-	signum = va_arg (ap, int);
-	sigaddset (&set, signum);
-    }
+	for (; n != 0; n--) {
+		signum = va_arg(ap, int);
+		sigaddset(&set, signum);
+	}
 
-    return(pthread_sigmask (SIG_BLOCK, &set, NULL));
-
+	return (pthread_sigmask(SIG_BLOCK, &set, NULL));
 }
 
 
 int
-pthread_sigset_unblock (int n, ...)
+pthread_sigset_unblock(int n,...)
 {
-    sigset_t set;
-    va_list ap;
-    int signum;
+	sigset_t set;
+	va_list ap;
+	int signum;
 
-    sigemptyset (&set);
-    va_start (ap, n);
+	sigemptyset(&set);
+	va_start(ap, n);
 
-    for (; n != 0; n--) {
-	signum = va_arg (ap, int);
-	sigaddset (&set, signum);
-    }
+	for (; n != 0; n--) {
+		signum = va_arg(ap, int);
+		sigaddset(&set, signum);
+	}
 
-    return(pthread_sigmask (SIG_UNBLOCK, &set, NULL));
-
+	return (pthread_sigmask(SIG_UNBLOCK, &set, NULL));
 }

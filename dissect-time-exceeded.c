@@ -1,13 +1,13 @@
 /*
  * $Id$
- * 
+ *
  * New aping.
- * 
+ *
  * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
  *                    Roberto Ferranti <sbirish@sbirish.net>
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met: 1. Redistributions of source code must retain the above copyright
@@ -15,7 +15,7 @@
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,11 +27,11 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- * 
- * 
+ *
+ *
  */
 
-/* ICMP_TIME_EXCEEDED 
+/* ICMP_TIME_EXCEEDED
 
    Time Exceeded Message
 
@@ -47,8 +47,8 @@
 
 
 */
- 
-#include "dissect.h" 
+
+#include "dissect.h"
 #include "aping.h"
 
 #include "typedef.h"
@@ -59,19 +59,19 @@ static int _dissect_type = ICMP_TIMXCEED;
 #include "maturity.h"
 
 void
-load_time_exceeded(packet *p, char **argv)
+load_time_exceeded(packet * p, char **argv)
 {
-        /* maturity level */
-        SET_LOADER_LEVEL('_');
+	/* maturity level */
+	SET_LOADER_LEVEL('_');
 }
 
 void
-dissect_time_exceeded(packet *p)
+dissect_time_exceeded(packet * p)
 {
 
-        /* maturity level */
-        SET_DISSECT_LEVEL('*');
+	/* maturity level */
+	SET_DISSECT_LEVEL('*');
 
-        PRINT_IPH_64bit(p);
+	PRINT_IPH_64bit(p);
 	PUTS("\n");
 }

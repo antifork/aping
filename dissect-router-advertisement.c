@@ -1,6 +1,6 @@
 /* icmp router advertisement */
- 
-#include "dissect.h" 
+
+#include "dissect.h"
 #include "aping.h"
 
 #include "typedef.h"
@@ -12,16 +12,16 @@ static int _dissect_type = ICMP_ROUTERADVERT;
 
 
 void
-load_router_advertisement(packet *p, char **argv)
+load_router_advertisement(packet * p, char **argv)
 {
-        /* maturity level */
-        SET_LOADER_LEVEL('_');
+	/* maturity level */
+	SET_LOADER_LEVEL('_');
 }
 
 void
-dissect_router_advertisement(packet *p)
+dissect_router_advertisement(packet * p)
 {
-        /* maturity level */
-        SET_DISSECT_LEVEL('_');
+	/* maturity level */
+	SET_DISSECT_LEVEL('_');
 
 }

@@ -51,7 +51,7 @@ OBJS    = aping.o \
 	fnv.o \
 	iface.o \
 	datalink.o \
-	resolver.o \
+	ns-cache.o \
 	argscheck.o \
 	keystroke.o  \
 	hardware.o \

@@ -2,12 +2,12 @@
  * $Id$
  *
  * New aping.
- * 
+ *
  * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
  *                    Roberto Ferranti <sbirish@sbirish.net>
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met: 1. Redistributions of source code must retain the above copyright
@@ -15,7 +15,7 @@
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,8 +27,8 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- * 
- * 
+ *
+ *
  */
 
 #include "header.h"
@@ -40,181 +40,167 @@
 
 
 int
-get_first_hop (target, source, ifname)
-     long target;
-     long *source;
-     char *ifname;
+get_first_hop(target, source, ifname)
+	long target;
+	long *source;
+	char *ifname;
 {
-    char buffer[10240];
-    struct sockaddr_in saddr;
+	char buffer[10240];
+	struct sockaddr_in saddr;
 
 #ifdef __linux__
-    char *void_alias = NULL;
+	char *void_alias = NULL;
 #endif
-    struct ifreq *ifr,
-       *iflast;
-    struct ifconf ifc;
-    struct sockaddr_in *local;
-    u_long ipif;
-    int socksize;
-    int true;
-    int sd;
+	struct ifreq *ifr, *iflast;
+	struct ifconf ifc;
+	struct sockaddr_in *local;
+	u_long ipif;
+	int socksize;
+	int true;
+	int sd;
 
-    sd = 0;
-    true = 1;
-    socksize = sizeof (struct sockaddr);
+	sd = 0;
+	true = 1;
+	socksize = sizeof(struct sockaddr);
 
-    memset (&saddr, 0, sizeof (struct sockaddr_in));
+	memset(&saddr, 0, sizeof(struct sockaddr_in));
 
-    saddr.sin_family = AF_INET;
-    saddr.sin_addr.s_addr = target;
+	saddr.sin_family = AF_INET;
+	saddr.sin_addr.s_addr = target;
+	saddr.sin_port = htons(1024 | rand());
 
-    saddr.sin_port = htons (1024 | rand ());
+	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+		FATAL(strerror(errno));
 
-    if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)
-	FATAL (strerror (errno));
+	setsockopt(sd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof(true));
 
-    setsockopt (sd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof (true));
+	if (connect(sd, (struct sockaddr *) & saddr, sizeof(struct sockaddr_in)) == -1)
+		FATAL(strerror(errno));
 
-    if (connect (sd, (struct sockaddr *) &saddr, sizeof (struct sockaddr_in)) == -1)
-	FATAL (strerror (errno));
+	memset(&saddr, 0, sizeof(struct sockaddr_in));
 
-    memset (&saddr, 0, sizeof (struct sockaddr_in));
+	if (getsockname(sd, (struct sockaddr *) & saddr, &socksize) == -1)
+		FATAL(strerror(errno));
 
-    if (getsockname (sd, (struct sockaddr *) &saddr, &socksize) == -1)
-	FATAL (strerror (errno));
+	*source = saddr.sin_addr.s_addr;
+	close(sd);
 
-    *source = saddr.sin_addr.s_addr;
+	if (*source == target) {
+		unsigned long loopback;
 
-    close (sd);
+		loopback = (unsigned long) inet_addr("127.0.0.1");
+		memcpy(&saddr.sin_addr, &loopback, sizeof(struct in_addr));
+	}
+	memset(buffer, 0, 10240);
 
-    if (*source == target) {
-	unsigned long loopback;
+	ipif = saddr.sin_addr.s_addr;
+	/* dummy dgram socket for ioctl */
 
-	loopback = (unsigned long) inet_addr ("127.0.0.1");
-	memcpy (&saddr.sin_addr, &loopback, sizeof (struct in_addr));
-    }
+	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+		FATAL(strerror(errno));
 
-    memset (buffer, 0, 10240);
+	ifc.ifc_len = sizeof(buffer);
+	ifc.ifc_buf = buffer;
 
-    ipif = saddr.sin_addr.s_addr;
+	/* getting ifs */
+	if (ioctl(sd, SIOCGIFCONF, &ifc) < 0)
+		FATAL(strerror(errno));
 
-    /* dummy dgram socket for ioctl */
+	close(sd);
 
-    if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)
-	FATAL (strerror (errno));
+	/* line_up ifreq structure */
 
-    ifc.ifc_len = sizeof (buffer);
-    ifc.ifc_buf = buffer;
-
-    /* getting ifs */
-
-    if (ioctl (sd, SIOCGIFCONF, &ifc) < 0)
-	FATAL (strerror (errno));
-
-    close (sd);
-
-    /* line_up ifreq structure */
-
-    ifr = (struct ifreq *) buffer;
-    iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
+	ifr = (struct ifreq *) buffer;
+	iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
 
 #if defined (HAVE_SOCKADDR_SA_LEN)
-    for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + ifr->ifr_addr.sa_len)
+	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len)
 #else
-    for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in))
+	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + sizeof(struct sockaddr_in))
 #endif
-    {
+	{
+		if (*(char *) ifr == 0)
+			continue;
 
-	if (*(char *) ifr == 0)
-	    continue;
-
-	local = (struct sockaddr_in *) &ifr->ifr_addr;
-
-	if (ipif == local->sin_addr.s_addr) {
-	    strncpy (ifname, ifr->ifr_name, 16);
-/* alias */
+		local = (struct sockaddr_in *) & ifr->ifr_addr;
+		if (ipif == local->sin_addr.s_addr) {
+			strncpy(ifname, ifr->ifr_name, 16);
+			/* alias */
 #ifdef __linux__
-	    if ((void_alias = strchr (ifname, ':')) != NULL)
-		*void_alias = '\0';
+			if ((void_alias = strchr(ifname, ':')) != NULL)
+				*void_alias = '\0';
 #endif
-	    return 0;
+			return 0;
+		}
 	}
-    }
-    FATAL ("wasn't able to guess the ifname");
+	FATAL("wasn't able to guess the ifname");
 
-    return -1;
+	return -1;
 }
 
 long
-gethostbyif (char *ifname)
+gethostbyif(char *ifname)
 {
-
-    char buffer[10240];
-    int sd;
-    struct ifreq *ifr,
-       *iflast,
-        ifreq_io;
-    struct ifconf ifc;
-    struct sockaddr_in *paddr;
+	char buffer[10240];
+	int sd;
+	struct ifreq *ifr, *iflast, ifreq_io;
+	struct ifconf ifc;
+	struct sockaddr_in *paddr;
 
 
-    memset (buffer, 0, 10240);
+	memset(buffer, 0, 10240);
 
-    /* dummy dgram socket for ioctl */
+	/* dummy dgram socket for ioctl */
 
-    if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)
-	FATAL (strerror (errno));
+	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+		FATAL(strerror(errno));
 
-    ifc.ifc_len = sizeof (buffer);
-    ifc.ifc_buf = buffer;
+	ifc.ifc_len = sizeof(buffer);
+	ifc.ifc_buf = buffer;
 
-    /* getting ifs: this fills ifconf structure. */
+	/* getting ifs: this fills ifconf structure. */
 
-    if (ioctl (sd, SIOCGIFCONF, &ifc) < 0)
-	FATAL (strerror (errno));
+	if (ioctl(sd, SIOCGIFCONF, &ifc) < 0)
+		FATAL(strerror(errno));
 
-    close (sd);
+	close(sd);
 
-    /* line_up ifreq structure */
+	/* line_up ifreq structure */
 
-    ifr = (struct ifreq *) buffer;
-    iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
+	ifr = (struct ifreq *) buffer;
+	iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
 
-    if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)
-	FATAL (strerror (errno));
+	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+		FATAL(strerror(errno));
 
 #if defined(HAVE_SOCKADDR_SA_LEN)
-    for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + ifr->ifr_addr.sa_len)
+	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len)
 #else
-    for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in))
+	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + sizeof(struct sockaddr_in))
 #endif
-    {
+	{
+		if (*(char *) ifr == 0)
+			continue;
 
-	if (*(char *) ifr == 0)
-	    continue;
+		paddr = (struct sockaddr_in *) & ifr->ifr_addr;
+		memcpy(&ifreq_io, ifr, sizeof(ifr->ifr_name) + sizeof(struct sockaddr_in));
 
-	paddr = (struct sockaddr_in *) &ifr->ifr_addr;
+		if (ioctl(sd, SIOCGIFFLAGS, &ifreq_io) < 0)
+			FATAL("SIOCGIFFLAGS: %s", strerror(errno));
 
-	memcpy (&ifreq_io, ifr, sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in));
+		if ((ifreq_io.ifr_flags & IFF_UP) == 0)
+			continue;
 
-	if (ioctl (sd, SIOCGIFFLAGS, &ifreq_io) < 0)
-	    FATAL ("SIOCGIFFLAGS: %s", strerror (errno));
+		if (ifr->ifr_addr.sa_family != AF_INET)
+			continue;
 
-	if ((ifreq_io.ifr_flags & IFF_UP) == 0)
-	    continue;
+		if (!strcmp(ifr->ifr_name, ifname))
+			return paddr->sin_addr.s_addr;
 
-	if (ifr->ifr_addr.sa_family != AF_INET)
-	    continue;
+	}
 
-	if (!strcmp (ifr->ifr_name, ifname))
-	    return paddr->sin_addr.s_addr;
+	close(sd);
 
-    }
-
-    close (sd);
-
-    FATAL ("device %s not found", ifname);
-
-    return 0;
+	FATAL("device %s not found", ifname);
+	return 0;
 }

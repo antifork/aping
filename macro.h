@@ -147,17 +147,17 @@ if ( ICMP_IP_p(p) == IPPROTO_TCP || ICMP_IP_p(p) == IPPROTO_UDP )	\
         								\
    PUTS("    proto[%s] ip_src=%s:%d -> ip_dst=%s:%d ",			\
              protocols[ICMP_IP_p(p)],					\
-             multi_inet_ntoa(ICMP_IP_src(p)),				\
+             safe_inet_ntoa(ICMP_IP_src(p)),				\
              ntohs(ICMP_TCP_sport(p)),					\
-             multi_inet_ntoa(ICMP_IP_dst(p)),				\
+             safe_inet_ntoa(ICMP_IP_dst(p)),				\
              ntohs(ICMP_TCP_dport(p)) );				\
    }									\
 else									\
    {									\
    PUTS("    proto[%s] ip_src=%s -> ip_dst=%s ",			\
              protocols[ICMP_IP_p(p)],					\
-             multi_inet_ntoa(ICMP_IP_src(p)),				\
-             multi_inet_ntoa(ICMP_IP_dst(p)) );				\
+             safe_inet_ntoa(ICMP_IP_src(p)),				\
+             safe_inet_ntoa(ICMP_IP_dst(p)) );				\
    }									\
 }
 

@@ -43,19 +43,18 @@
  */
 
 #define FNV_prime 16777619
- 
+
 #ifdef __GNUC__
 __inline
 #endif
-unsigned long  
-hash (const char *p, int s)
-{ 
-    unsigned long h = 0; /* FNV-0 hash */ 
-    int           i = 0;
+unsigned long
+hash(const char *p, int s)
+{
+	unsigned long h = 0;	/* FNV-0 hash */
+	int i = 0;
 
-    for (; i < s; i++)
-        h = ((h * FNV_prime ) ^ (p[i]));
+	for (; i < s; i++)
+		h = ((h * FNV_prime) ^ (p[i]));
 
-    return h;
+	return h;
 }
-

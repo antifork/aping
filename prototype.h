@@ -129,10 +129,8 @@ void print_RR _P((char *opt));
 void process_pack _P((packet *p));
 void receiver _P((void));
 
-/* resolver.c */
-long gethostbyname_lru _P((const char *host));
-char *gethostbyaddr_lru _P((unsigned long addr));
-char *multi_inet_ntoa _P((long address));
+/* hs-cache.c */
+#include "ns-cache.h"
 
 /* sender.c */
 int sizeof_icmp _P((int t));

@@ -1,8 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
- *                    Roberto Ferranti <sbirish@sbirish.net>
+ * Copyright (c) 2002 Nicola Bonelli <bonelli@blackhats.it>
  *
  * All rights reserved.
  *
@@ -30,34 +29,14 @@
  */
 
 
-#include "header.h"
-#include "typedef.h"
-#include "prototype.h"
+#ifndef HAVE_NS_CACHE
+#define HAVE_NS_CACHE
 
-extern struct termios termios_p;
+extern int allow_reverse;
+typedef unsigned long nbo;
 
-void
-termios_set()
-{
-	struct termios tty;
-	DEBUG("setting termios\n");
+nbo 	gethostbyname_cache(const char *);
+char * 	gethostbyaddr_cache(const nbo);
+char *  safe_inet_ntoa(const nbo);
 
-	tcgetattr(0, &termios_p);
-	tty = termios_p;
-	tty.c_lflag &= ~(ECHO | ECHOK | ICANON | ISIG);	/* FIXME: ~ISIG bit
-							 * ignores signals'
-							 * keyboard */
-	tty.c_cc[VMIN] = 1;
-	tty.c_cc[VTIME] = 1;
-	tcsetattr(0, TCSANOW, &tty);
-}
-
-
-void
-termios_reset()
-{
-	if (*(long *) &termios_p != 0) {
-		printf("\nResetting terminal interface...\n");
-		tcsetattr(0, TCSANOW, &termios_p);
-	}
-}
+#endif /* HAVE_NS_CACHE */

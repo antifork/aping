@@ -38,7 +38,7 @@
 #include <errno.h>
 #include "config.h"
 
-#ifdef   HAVE_PCAP_INT_H 
+#ifdef   HAVE_PCAP_INT_H
 #include <pcap-int.h>
 #else
 #include "pcap-int.h"
@@ -47,33 +47,33 @@
 #ifndef HAVE_PCAP_SETNONBLOCK
 
 int
-pcap_setnonblock(pcap_t *p, int nonblock, char *errbuf)
+pcap_setnonblock(pcap_t * p, int nonblock, char *errbuf)
 {
-        int fdflags;
+	int fdflags;
 
-        if (p->sf.rfile != NULL) {
-                /*
+	if (p->sf.rfile != NULL) {
+		/*
                  * This is a savefile, not a live capture file, so
                  * ignore requests to put it in non-blocking mode.
                  */
-                return (0);
-        }
-        fdflags = fcntl(p->fd, F_GETFL, 0);
-        if (fdflags == -1) {
-                snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "F_GETFL: %s",
-                    pcap_strerror(errno));
-                return (-1);
-        }
-        if (nonblock)
-                fdflags |= O_NONBLOCK;
-        else
-                fdflags &= ~O_NONBLOCK;
-        if (fcntl(p->fd, F_SETFL, fdflags) == -1) {
-                snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "F_SETFL: %s",
-                    pcap_strerror(errno));
-                return (-1);
-        }
-        return (0);
+		return (0);
+	}
+	fdflags = fcntl(p->fd, F_GETFL, 0);
+	if (fdflags == -1) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "F_GETFL: %s",
+			 pcap_strerror(errno));
+		return (-1);
+	}
+	if (nonblock)
+		fdflags |= O_NONBLOCK;
+	else
+		fdflags &= ~O_NONBLOCK;
+	if (fcntl(p->fd, F_SETFL, fdflags) == -1) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "F_SETFL: %s",
+			 pcap_strerror(errno));
+		return (-1);
+	}
+	return (0);
 }
 
 #endif
@@ -81,27 +81,27 @@ pcap_setnonblock(pcap_t *p, int nonblock, char *errbuf)
 #ifndef HAVE_PCAP_GETNONBLOCK
 
 int
-pcap_getnonblock(pcap_t *p, char *errbuf)
+pcap_getnonblock(pcap_t * p, char *errbuf)
 {
-        int fdflags;
+	int fdflags;
 
-        if (p->sf.rfile != NULL) {
-                /*
+	if (p->sf.rfile != NULL) {
+		/*
                  * This is a savefile, not a live capture file, so
                  * never say it's in non-blocking mode.
                  */
-                return (0);
-        }
-        fdflags = fcntl(p->fd, F_GETFL, 0);
-        if (fdflags == -1) {
-                snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "F_GETFL: %s",
-                    pcap_strerror(errno));
-                return (-1);
-        }
-        if (fdflags & O_NONBLOCK)
-                return (1);
-        else
-                return (0);
+		return (0);
+	}
+	fdflags = fcntl(p->fd, F_GETFL, 0);
+	if (fdflags == -1) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "F_GETFL: %s",
+			 pcap_strerror(errno));
+		return (-1);
+	}
+	if (fdflags & O_NONBLOCK)
+		return (1);
+	else
+		return (0);
 }
 
 #endif
