@@ -144,8 +144,6 @@ load_ip (struct ip *ip)
     ip->ip_ttl = (options.ip_ttl ? ip_ttl : 255);
     ip->ip_p = IPPROTO_ICMP;	/* Transport protocol */
 
-    ip->ip_sum = 0;
-
     ip->ip_src.s_addr = ip_src;
     ip->ip_dst.s_addr = ip_dst;
 
@@ -159,6 +157,7 @@ load_ip (struct ip *ip)
 
 	}
 
+    ip->ip_sum = 0;
     ip->ip_sum = chksum ((u_short *) ip, ip->ip_hl << 2);
 
 }

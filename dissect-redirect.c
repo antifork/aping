@@ -84,9 +84,11 @@ load_redirect(packet *p, char **argv)
 	ICMP_IP_off(p)  = 0;
 	ICMP_IP_ttl(p)  = 255;
 	ICMP_IP_p(p)    = IPPROTO_TCP;
-	ICMP_IP_sum(p)  = htons(1+(int) (65535.0*rand()/(RAND_MAX+1.0))); 
 	ICMP_IP_src(p)  = gethostbyname_lru(argv[3]);
 	ICMP_IP_dst(p)  = gethostbyname_lru(argv[4]);
+
+        ICMP_IP_sum(p)  = 0;
+        ICMP_IP_sum(p)  = chksum ((u_short *)ICMP_IP(p),ICMP_IP_hl(p) << 2);
 
 
 	/*since bsd kernel don't give shit about 64 bits we don't care and fill with shit */
@@ -95,7 +97,7 @@ load_redirect(packet *p, char **argv)
 
 
 	ICMP_sum(p)= 0;
-	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
+	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_REDIRECT));
 
         PUTS("\r     tos=0x%x new_gw=%s %s->%s\n", ICMP_IP_tos(p) ,argv[2],argv[3], argv[4]);
 

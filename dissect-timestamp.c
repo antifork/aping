@@ -94,7 +94,7 @@ load_timestamp (packet *p, char **argv)
   	ICMP_otime(p) = iptime();
 
   	ICMP_sum(p)   = 0;
-  	ICMP_sum(p)   = chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
+  	ICMP_sum(p)   = chksum((u_short *)p->icmp, sizeof_icmp(ICMP_TSTAMP));
 }
 
 void

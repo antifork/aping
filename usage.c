@@ -120,19 +120,26 @@ usage (char *name, int type)
 		 int           i;
 		 int           j;
 
-		 fprintf (stderr, "Summary of Message Codes:\n");
+		 fprintf (stderr, "Summary of Message Codes");
 
 		 if (options.icmp_type)
 		     {
 			 i = icmp_type;
+
+			 printf(" for icmp=%d(%s):\n\n",i,icmp_type_str[i]);	
+		
 			 for (j = 0; j < 256; j++)
 			     {
 				 if (icmp_code_str[i * 256 + j] != NULL)
-				     printf ("(%s) -k %2d  %s\n", icmp_type_str[i], j, icmp_code_str[i * 256 + j]);
+				     printf ("   -k %2d  %s\n", j, icmp_code_str[i * 256 + j]);
 
 			     }
 		     }
 		 else
+		     {
+
+		     printf(":\n\n");
+			
 		     for (i = 0; i < 256; i++)
 			 for (j = 0; j < 256; j++)
 			     {
@@ -140,6 +147,7 @@ usage (char *name, int type)
 				     printf ("   -t %2d -k %2d  %s\n", i, j, icmp_code_str[i * 256 + j]);
 
 			     }
+		      }
 	     }
 
 	     break;

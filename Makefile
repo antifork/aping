@@ -30,7 +30,7 @@
 
 CC      = gcc
 DEBUG   = # -DEADBUG 
-CFLAGS  = -O3 -funroll-loops -fomit-frame-pointer -pipe -Wall -I.  
+CFLAGS  = -O3 -funroll-loops -fomit-frame-pointer -pipe -Wall -I.
 
 LINUX   = -lpcap -lpthread 
 OPENBSD = -lpcap  -pthread
@@ -59,7 +59,7 @@ OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
 	dissect-timestamp.o 
 
 .c.o:
-	$(CC) $(CFLAGS) $(DEBUG) -c $< -o $@ 
+	$(CC) $(CFLAGS) $(DEBUG) -c $< -o $@
 all :
 	@echo "Usage: the following flavors are available:"
 	@echo "       make linux"

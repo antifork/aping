@@ -319,8 +319,8 @@ bandwidth_predictor (packet * p)
     if ( curr_tstamp )
 	{
 		/* icmp timestamp reply: 
-		   In case of ts_reply we dont need to estimate the pending_time on the target host, 
-		   since we are able to calc the deterministic value.
+		   In case of ts_reply we dont need to estimate the pending_time, 
+		   since we are able to calc a deterministic value.
 		 */
 
 		if ( curr_tstamp - last_tstamp )

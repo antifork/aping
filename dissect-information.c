@@ -67,7 +67,7 @@ load_information_request(packet *p, char **argv)
   	ICMP_seq(p) = n_sent;
 
   	ICMP_sum(p) = 0;
-  	ICMP_sum(p) = chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
+  	ICMP_sum(p) = chksum((u_short *)p->icmp, sizeof_icmp(ICMP_IREQ));
 }
 
 void

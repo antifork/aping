@@ -82,16 +82,17 @@ load_destination_unreachable(packet *p, char **argv)
 	ICMP_IP_off(p)  = 0;
 	ICMP_IP_ttl(p)  = 255;
 	ICMP_IP_p(p)    = IPPROTO_TCP;
-	ICMP_IP_sum(p)  = htons(1+(int) (65535.0*rand()/(RAND_MAX+1.0))); 
 	ICMP_IP_src(p)  = gethostbyname_lru(argv[3]);
 	ICMP_IP_dst(p)  = gethostbyname_lru(argv[4]);
+
+        ICMP_IP_sum(p)  = 0;
+        ICMP_IP_sum(p)  = chksum ((u_short *)ICMP_IP(p),ICMP_IP_hl(p) << 2);
 
 	ICMP_TCP_sport(p) = htons((short)strtol(argv[5], (char **)NULL, 10)); 
 	ICMP_TCP_dport(p) = htons((short)strtol(argv[6], (char **)NULL, 10));
 
-
 	ICMP_sum(p)= 0;
-	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
+	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_UNREACH));
 
 }
 

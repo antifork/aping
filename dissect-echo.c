@@ -79,7 +79,7 @@ load_echo (packet *p, char **argv)
   	memcpy(p->icmp_tstamp_tval, &now, sizeof(struct timeval));
 
   	ICMP_sum(p)= 0;
-  	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(_dissect_type));
+  	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
 
 }
 
