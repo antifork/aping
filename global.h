@@ -66,6 +66,7 @@ EXTERN long sniff;      /* sniff option */
 EXTERN long count;      /* max number of packets */
 EXTERN long offset_dl;
 
+EXTERN long last_route; /* last rroute signature */
 
 EXTERN TIME rtt;        
 EXTERN TIME last_rtt;

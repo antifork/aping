@@ -53,7 +53,7 @@
                  
 #define rule_0(x)        SNIFFER(x) &&  PROMISC(x)
 #define rule_1(x)        SNIFFER(x) && !PROMISC(x) && !FRME  (x)
-#define rule_2(x)        PINGER (x) &&  TOME   (x) &&  ORPHAN(x)
+#define rule_2(x)        PINGER (x) &&  TOME   (x) &&  ORPHAN(x) && RELATED(x)
 #define rule_3(x)        PINGER (x) &&  TOME   (x) &&  PARENT(x) && !( ISECHO(x) && !MYID(x) )
                                                                        
 /* done */

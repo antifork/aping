@@ -228,6 +228,61 @@ agent_dyn_id (packet * p)
 }
 
 
+#define FNV_prime 16777619
+
+static
+#ifdef __GNUC__
+__inline
+#endif
+unsigned long
+hash (const char *p, int s)
+{
+    unsigned long h = 0;
+    int           i = 0;
+
+    for (; i < s; i++)
+         h = ((h * FNV_prime ) ^ (p[i]));
+
+    return h;
+}
+
+
+void
+print_RR(char *opt)
+{
+  long *hop;
+  long  rr;
+
+  int   i;
+
+   rr = hash(opt, 40); 
+  
+   if ( last_route != rr )
+	{
+	/* new RR */
+
+	 last_route = rr;
+
+	 hop = (long *)(opt+3); /* hop pointer */ 
+
+         PUTS("RR: ");
+
+	 for(i=1; i < (opt[IPOPT_OFFSET]>>2); i++ ) 	
+		{
+
+		PUTS("%s(%s)\n", gethostbyaddr_lru(hop[i-1]),multi_inet_ntoa(hop[i-1]));	
+		PUTS("     ");
+
+		}
+
+		PUTS("\n");
+
+		// PUTS("%s(%s)\n", gethostbyaddr_lru(ip_src),multi_inet_ntoa(ip_src));
+
+	}
+}
+
+
 void
 process_pack (packet * p)
 {
@@ -238,6 +293,13 @@ process_pack (packet * p)
     saddr = gethostbyaddr_lru (IP_src (p));
     daddr = gethostbyaddr_lru (IP_dst (p));
 
+
+    /* print record_route if new */
+
+    if ( options.opt_rroute )
+    	{
+	print_RR(IP_opt(p)); 
+    	}	
 
     /* dup | zombie  */
 
@@ -449,19 +511,19 @@ receiver ()
 
 		lineup_layers ((char *)ptr, p);
 
-		if (REPLY_FILTER (p))
-		    n_tome++;
-
- 		    n_recv++;
+ 		n_recv++;
 
 
 		if (GENERIC_FILTER (p))
 		    {
 
-		if ( ICMP_HAS_TSTAMP(p))
-		time_lost =   DIFFTIME_int (TVAL_tv(p),last_ack.ts);
-		else
-	        time_lost =   DIFFTIME_int (last_sent.ts, last_ack.ts ); 
+                	if (REPLY_FILTER (p))
+                    	n_tome++;
+
+			if ( ICMP_HAS_TSTAMP(p))
+			   time_lost =   DIFFTIME_int (TVAL_tv(p),last_ack.ts);
+			else
+	        	   time_lost =   DIFFTIME_int (last_sent.ts, last_ack.ts ); 
 
 			last_ack.ts_sec  = timestamp->tv_sec;
 			last_ack.ts_usec = timestamp->tv_usec;

@@ -313,6 +313,9 @@ bandwidth_predictor (packet * p)
      */
 
 
+    if ( options.sniff )
+	return;
+
     local_tau    = last_rtt.ms_int + time_lost;
     local_tau    = magic_round (tau, local_tau);
  

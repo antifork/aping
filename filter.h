@@ -45,6 +45,8 @@
 #define IP_src(p)	((p)->ip->ip_src.s_addr)
 #define IP_dst(p)	((p)->ip->ip_dst.s_addr)
 
+#define IP_opt(p)	((char *)((p)->ip)+20)
+
 #define ICMP_type(p)    ((p)->icmp->icmp_type)
 #define ICMP_code(p)	((p)->icmp->icmp_code)
 #define ICMP_sum(p)     ((p)->icmp->icmp_cksum)
@@ -93,6 +95,14 @@
 #define PINGER(p)	 (!options.sniff )
 #define PROMISC(p)	 ( options.promisc )
 #define ORPHAN(p)        ( icmp_parent[ICMP_type(p) & 0x1f] == -1 )
+
+#define RELATED(p)       ( ICMP_IP_src(p)    == ip_src && \
+			   ICMP_IP_dst(p)    == ip_dst && \
+			   ICMP_IP_p(p)      == IPPROTO_ICMP && \
+			   ICMP_ICMP_type(p) == icmp_type && \
+			   ICMP_ICMP_code(p) == icmp_code && \
+			   ICMP_ICMP_id(p)   == myid )
+
 #define PARENT(p)        ( icmp_parent[ICMP_type(p) & 0x1f] == icmp_type )
 #define TOME(p)	 	 ( IP_dst(p) == ip_src )
 #define FRME(p)		 ( IP_src(p) == ip_src )

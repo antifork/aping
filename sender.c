@@ -145,6 +145,7 @@ load_layers (char *buff, packet * pkt)
 void
 load_ip (struct ip *ip)
 {
+    char *ip_opt;
 
     ip->ip_v = 4;
     ip->ip_hl = (options.opt_rroute ? 15 : 5);
@@ -162,6 +163,16 @@ load_ip (struct ip *ip)
 
     ip->ip_src.s_addr = ip_src;
     ip->ip_dst.s_addr = ip_dst;
+
+    if ( options.opt_rroute )
+	{
+	  ip_opt    = (char *)ip + (5<<2) ;
+
+	  ip_opt[IPOPT_OPTVAL] = IPOPT_RR;
+	  ip_opt[IPOPT_OLEN]   = 3 + 4 * NROUTES;
+	  ip_opt[IPOPT_OFFSET] = IPOPT_MINOFF; 	
+
+	}
 
     ip->ip_sum = chksum ((u_short *) ip, ip->ip_hl << 2);
 
