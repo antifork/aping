@@ -113,7 +113,7 @@ checkargs(char**argv,char minargsnum,...)
 		paramnum++;
 		args++;
 	}
-	if(paramnum<minargsnum) return -1;
+	if(paramnum<minargsnum) return 0;
  	va_start(ap, minargsnum);
 
 	for(paramnum=0;paramnum!=minargsnum;paramnum++)
@@ -125,7 +125,7 @@ checkargs(char**argv,char minargsnum,...)
 				if (!checknum(argv[paramnum]))
 				{
 					 fprintf(stderr,"argument %s is not a valid number\n",argv[paramnum]);
-					 return -1;
+					 return 0;
 				}
 			break;
 			
@@ -133,7 +133,7 @@ checkargs(char**argv,char minargsnum,...)
 				if (!checkip(argv[paramnum]))
 				{
 					 fprintf(stderr,"argument %s is not a valid ip\n",argv[paramnum]);
-					 return -1;
+					 return 0;
 				}
 			break;
 
@@ -141,7 +141,7 @@ checkargs(char**argv,char minargsnum,...)
 				if (!checkiprange(argv[paramnum]))
 				{
 					 fprintf(stderr,"argument %s is not a valid ip or ip_range\n",argv[paramnum]);
-					 return -1;
+					 return 0;
 				}
 			break;
 
@@ -149,7 +149,7 @@ checkargs(char**argv,char minargsnum,...)
 				if (!checkport(argv[paramnum]))
 				{
 					 fprintf(stderr,"argument %s is not a valid port number\n",argv[paramnum]);
-					 return -1;
+					 return 0;
 				}
 			break;
 
