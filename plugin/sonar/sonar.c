@@ -47,13 +47,17 @@
 #include "locale.h"
 #include "../plugin.h"
 
+#ifdef HAVE_SYS_SOUNDCARD_H
+#include <sys/soundcard.h>
+#else
 #ifdef HAVE_LINUX_SOUNDCARD_H
 #include <linux/soundcard.h>
 #else
 #ifdef HAVE_SOUNDCARD_H
 #include <soundcard.h>
 #else
-#error "FIXME: no OSS support found."
+#error "FIXME: OSS support not found."
+#endif
 #endif
 #endif
 

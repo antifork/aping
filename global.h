@@ -182,12 +182,12 @@ EXTERN void  (*icmp_dissect_vector[64]) (packet *) INIT (=
 });
 
 EXTERN char *linktype[16]   INIT( = {
-[AP_IF_UNKNOWN]= "unknown",
-[AP_IF_ETHER  ]= "ethernet",
-[AP_IF_TOKEN  ]= "token ring",
-[AP_IF_FDDI   ]= "fddi",
-[AP_IF_80211  ]= "802.11 wireless",
-[AP_IF_PPP    ]= "ppp" } );
+	[AP_IF_UNKNOWN]= "unknown",
+	[AP_IF_ETHER  ]= "ethernet",
+	[AP_IF_TOKEN  ]= "tokenring",
+	[AP_IF_FDDI   ]= "fddi",
+	[AP_IF_80211  ]= "802.11 wireless",
+	[AP_IF_PPP    ]= "ppp" } );
 
 EXTERN char *protocols[256] INIT( = {
 [0]="ip", [1]="icmp", [2]="igmp", [3]="ggp", [4]="ipencap",

@@ -33,9 +33,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <dlfcn.h>
-
 #include <signal.h>
 
 #include "config.h"
