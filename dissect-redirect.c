@@ -7,7 +7,6 @@
 #include "prototype.h"
 #include "global.h"
 #include "argscheck.h"
-#include "resolver.h"
 
 /*
 
@@ -32,7 +31,6 @@ Redirect Message
 void
 load_redirect(packet *p, char **argv)
 {
-	struct sockaddr src,dst,gw;
 	/* redirect_type , tos, new_gateway, icmp_src_ip, icmp_dest_ip */
 	if(!checkargs(argv,5,ARG_NUM,ARG_NUM,ARG_IP,ARG_IP,ARG_IP,ARG_IP))
 	{
@@ -40,26 +38,10 @@ load_redirect(packet *p, char **argv)
  		return;	
 	}
 
-	if(!resolve_host(argv[2],(struct sockaddr_in *)&gw))
-	{
-		fprintf(stderr,"ERROR: invalid host %s",argv[2]);
-		return;
-	}
-	if(!resolve_host(argv[3],(struct sockaddr_in *)&src))	
-	{
-		fprintf(stderr,"ERROR: invalid host %s",argv[3]);
-		return;
-	}
-	if(!resolve_host(argv[4],(struct sockaddr_in *)&dst))
-	{
-		fprintf(stderr,"ERROR: invalid host %s",argv[4]);
-		return;
-	}
-
 	ICMP_type(p)= ICMP_REDIRECT;
 	ICMP_code(p)= ((int)strtol(argv[0], (char **)NULL, 10))%4;
 
-	ICMP_gwaddr(p)=((struct sockaddr_in *) &gw)->sin_addr;
+	ICMP_gwaddr(p)= gethostbyname_lru(argv[2]);
 
 	ICMP_IP_ver(p)  = 4; 
 	ICMP_IP_hl(p)   = 5; /*no options*/
@@ -70,8 +52,8 @@ load_redirect(packet *p, char **argv)
 	ICMP_IP_ttl(p)  = 255;
 	ICMP_IP_p(p)    = IPPROTO_TCP;
 	ICMP_IP_sum(p)  = htons(1+(int) (65535.0*rand()/(RAND_MAX+1.0))); 
-	ICMP_IP_s(p)  =((struct sockaddr_in *) &src)->sin_addr;
-	ICMP_IP_d(p)  =((struct sockaddr_in *) &dst)->sin_addr;
+	ICMP_IP_src(p)  = gethostbyname_lru(argv[3]);
+	ICMP_IP_dst(p)  = gethostbyname_lru(argv[4]);
 
 
 	/*since bsd kernel don't give shit about 64 bits we don't care and fill with shit */
