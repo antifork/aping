@@ -73,6 +73,9 @@ EXTERN TIME last_rtt;
 EXTERN TIME last_ack;
 EXTERN TIME last_sent;
 
+EXTERN long last_tstamp;
+EXTERN long curr_tstamp; 
+
 EXTERN long rtt_min;
 EXTERN long rtt_max;
 EXTERN long rtt_mean;   /* E{rtt} */

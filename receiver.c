@@ -115,17 +115,19 @@ agent_timestamp (packet * p)
     switch( ICMP_type (p) )
 	{
 
-	case 0: /* echo reply */
+	case ICMP_ECHOREPLY: 
 
 		rtt.ms_int = DIFFTIME_int (timestamp->tv, TVAL_tv(p));
 		rtt.ms_frc = DIFFTIME_frc (timestamp->tv, TVAL_tv(p));
 
 		break;
 
-	case 14: /* timestamp reply */
+	case ICMP_TSTAMPREPLY: /* timestamp reply */
 
-		rtt.ms_int = (timestamp->tv_sec %(24*60*60))*1000 +timestamp->tv_usec/1000 - ntohl(ICMP_otime(p)); 
-		rtt.ms_frc = 0;
+		rtt.ms_int  = (timestamp->tv_sec %(24*60*60))*1000 +timestamp->tv_usec/1000 - ntohl(ICMP_otime(p)); 
+		rtt.ms_frc  = 0;
+
+		curr_tstamp = ntohl(ICMP_rtime(p));
 
 		break;
 
@@ -502,10 +504,18 @@ receiver ()
                 	if (REPLY_FILTER (p))
                     	n_tome++;
 
-			if ( ICMP_HAS_TSTAMP(p))
-			   time_lost =   DIFFTIME_int (TVAL_tv(p),last_ack.ts);
-			else
-	        	   time_lost =   DIFFTIME_int (last_sent.ts, last_ack.ts ); 
+			switch( ICMP_type(p))
+				{
+
+				case ICMP_ECHOREPLY:
+					time_lost =   DIFFTIME_int (TVAL_tv(p),last_ack.ts);
+					break;
+
+				default:
+					time_lost =   DIFFTIME_int (last_sent.ts, last_ack.ts );
+					break;
+
+				}
 
 			last_ack.ts_sec  = timestamp->tv_sec;
 			last_ack.ts_usec = timestamp->tv_usec;
@@ -525,7 +535,8 @@ receiver ()
 			last_id         = curr_id;
 			last_rtt.ms_int = rtt.ms_int;
 
-	
+			last_tstamp     = curr_tstamp;
+
 		    }
 	    }
       }

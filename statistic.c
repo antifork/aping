@@ -269,7 +269,7 @@ void
 bandwidth_predictor (packet * p)
 {
 
-    long  pending_time;
+    static long  pending_time;
     long  local_tau;
 
     /*
@@ -316,10 +316,25 @@ bandwidth_predictor (packet * p)
     if ( options.sniff )
 	return;
 
-    local_tau    = last_rtt.ms_int + time_lost;
-    local_tau    = magic_round (tau, local_tau);
- 
-    pending_time = MAX(tau/2, local_tau+ jitter/2 );   /* <- min of pending time is TAU/2 */
+    if ( curr_tstamp )
+	{
+		/* icmp timestamp reply: 
+		   In case of ts_reply we dont need to estimate the pending_time on the target host, 
+		   since we are able to calc the deterministic value.
+		 */
+
+		if ( curr_tstamp - last_tstamp )
+		     pending_time = curr_tstamp - last_tstamp;
+
+	} 
+    else
+	{
+    	
+	local_tau    = last_rtt.ms_int + time_lost;
+    	local_tau    = magic_round (tau, local_tau);
+    	pending_time = MAX(tau/2, local_tau+ jitter/2 );   /* <- min of pending time is TAU/2 */
+
+	}
 
     if (options.differ & !rand_ip_id)
 	{

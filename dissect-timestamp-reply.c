@@ -72,16 +72,19 @@ dissect_timestamp_reply (packet *p)
   long ttime;   
 
   long hour;
-  long mins;
+  long min;
+  long sec;
 
   rtime = ntohl(ICMP_rtime(p));
   ttime = ntohl(ICMP_ttime(p));
 
-  hour  = (rtime/( 1000 * 60 * 60 )) % 24;
-  mins  = (rtime /( 1000 * 60 )) % 60;  
+  hour  = (rtime /( 1000 * 60 * 60 )) % 24;
+  min   = (rtime /( 1000 * 60 )) % 60;  
+  sec   = (rtime /( 1000 )) % 60;
 
-  PUTS("    idle=%ld ms GTM=%ld:%ld", ttime-rtime, hour, mins);
-
+  PUTS("    idle=%ld ms time=%02ld:%02ld:%02ld GMT", ttime-rtime, hour, min,sec);
   PUTS("\n");
+
+  bandwidth_predictor(p);
 
 }
