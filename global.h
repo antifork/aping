@@ -101,6 +101,10 @@ EXTERN long out_burst;  		/* the current remote outgoing burst in kbit */
 EXTERN long max_burst;  		/* the max recorded burst ( used to predict the bandwidth) */
 EXTERN long mean_burst;
 
+EXTERN long delta;
+EXTERN long pending_time;
+EXTERN long local_tau;
+
 EXTERN long slow_start INIT(= 1); 	/* to avoid big burst during the ip_id mode switching ( cltr+\ )*/ 
 
 EXTERN long rand_ip_id; 

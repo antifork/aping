@@ -476,7 +476,7 @@ receiver ()
 
 
 			if (ICMP_HAS_SEQ (p))
-			    last_seq = ICMP_seq (p);
+			    last_seq    = ICMP_seq (p);
 
 			last_id         = curr_id;
 			last_rtt.ms_int = rtt.ms_int;

@@ -263,14 +263,9 @@ magic_round(long a, long b)
 }
 
 
-long          delta;
-
 void
 bandwidth_predictor (packet * p)
 {
-
-    static long  pending_time;
-    long  local_tau;
 
     /*
 
