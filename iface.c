@@ -35,6 +35,7 @@
 #include "macro.h"
 #include "config.h"
 
+
 int
 get_first_hop (target, source, ifname)
      long          target;

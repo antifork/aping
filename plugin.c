@@ -148,5 +148,5 @@ plugin_ls ()
 
     }
 
-    exit (1);
+    exit (0);
 }

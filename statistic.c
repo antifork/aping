@@ -94,8 +94,7 @@ E (long *addr, long data, long n)
     long counter;
 
     if (n != -1 && n != -2 && n != 1 && n != 2) {
-	fprintf (stderr, "Expectation error: E{x^n} ? n=1 | n=2\n");
-	exit (-1);
+	FATAL ("Expectation error: E{x^n} ? n=1 | n=2\n");
     }
 
     if (n < 0) {
@@ -106,8 +105,7 @@ E (long *addr, long data, long n)
     }
 
     if (sum[n - 1][IND (addr)] != 0 && (cnt[n - 1][IND (addr)] & K_MASK) != ((long) addr & K_MASK)) {
-	fprintf (stderr, "Expectation error: data collision\n");
-	exit (-1);
+	FATAL ("Expectation error: data collision\n");
     }
 
     counter = cnt[n - 1][IND (addr)] & ~K_MASK;

@@ -166,6 +166,6 @@ usage (char *name, int type)
 
 	}
 
-    exit (-1);
+    exit (0);
 
 }

@@ -375,7 +375,7 @@ receiver ()
     /* set offset_dl: datalink header size */
 
     if (sizeof_datalink (in_pcap) == -1)
-	exit (-1);
+	FATAL("sizeof_datalink() unknown interface...\n");
 
     if (options.promisc)
 	PUTS ("<PROMISC>");

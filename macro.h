@@ -39,6 +39,7 @@
 fprintf(stderr,"%s:%d %s(): ",__FILE__,__LINE__,__FUNCTION__);          \
 fprintf(stderr,f,## arg);                                               \
 fprintf(stderr,"\n");							\
+termios_reset();							\
 exit(1);                                                                \
 }
 

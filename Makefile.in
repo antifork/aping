@@ -58,6 +58,7 @@ OBJS    = aping.o \
 	pthread.o \
 	socket.o \
 	pcap.o \
+	termios.o \
 	plugin.o \
 	chksum.o usage.o \
 	dissect-destination.o \

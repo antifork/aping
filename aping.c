@@ -67,8 +67,9 @@ ctrlc (i)
      int i;
 {
     if (options.sniff) {
-	PUTS ("done.\n");
-	exit (1);
+	termios_reset();	
+	PUTS("done.\n");
+	exit (0);
 
     }
     pthread_cancel (pd_snd);
@@ -137,18 +138,39 @@ defaults ()
 }
 
 
+void
+report ()
+{
+    int sleep_time;
+    int loss;
+
+    sleep_time = (n_tome ? 100 + rtt_mean + 2 * ISQRT (rtt_sqre - rtt_mean * rtt_mean) : 2000);
+    loss = 100 - PER_CENT (n_tome, n_sent);
+
+    PUTS ("--- sleeping %d ms (RTT+2 sigma) ---\n", sleep_time);
+
+    usleep (sleep_time * 1000);
+
+    PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));
+
+    if (loss < 0)
+	PUTS ("%ld packets transmitted, %ld packets received (forked responses found)\n", n_sent, n_tome);
+    else
+	PUTS ("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);
+
+    if (n_tome)
+	PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", rtt_min, rtt_mean, ISQRT (rtt_sqre - rtt_mean * rtt_mean), rtt_max);
+
+}
+
 int
 main (argc, argv)
      int argc;
      char **argv;
 {
-    struct termios tty;
-    int loss;
     int es;
     int major;
     int minor;
-    int wait_time;
-
 
     /* set values by default */
 
@@ -287,10 +309,10 @@ main (argc, argv)
 	 case 'v':
 	     sscanf (pcap_version, "%d.%d", &major, &minor);
 	     PUTS ("aping %s (pcap version %d.%d)\n", VERSION, major, minor);
-	     exit (1);
+	     exit (0);
 	     break;
 	 case '?':
-	     exit (1);
+	     exit (-1);
 	     break;
 	 case 'h':
 	     usage (argv[0], USAGE_CLASSIC);
@@ -343,16 +365,7 @@ main (argc, argv)
 
     /* set termios properties */
 
-    tcgetattr (0, &termios_p);
-
-    tty = termios_p;
-
-    tty.c_lflag &= ~(ECHO | ECHOK | ICANON | ISIG);	/* FIXME: ~ISIG bit ignores signals' keyboard */
-
-    tty.c_cc[VMIN] = 1;
-    tty.c_cc[VTIME] = 1;
-
-    tcsetattr (0, TCSANOW, &tty);
+    termios_set ();
 
     if (!options.sniff) {
 	if (pthread_create (&pd_snd, NULL, (void *) sender, argv) != 0)
@@ -364,34 +377,19 @@ main (argc, argv)
     else
 	pthread_join (pd_rcv, NULL);
 
-    /* set saved termios */
+    /* reset termios properties */
 
-    tcsetattr (0, TCSANOW, &termios_p);
-
+    termios_reset ();
 
     if (n_sent == 0) {
 	PUTS ("done.\n");
-	exit (1);
+	exit (0);
     }
 
     pthread_cancel (pd_rcv);
 
-    wait_time = (n_tome ? 100 + rtt_mean + 2 * ISQRT (rtt_sqre - rtt_mean * rtt_mean) : 2000);
-    loss = 100 - PER_CENT (n_tome, n_sent);
+    report ();
 
-    PUTS ("--- sleeping %d ms (RTT+2 sigma) ---\n", wait_time);
+    exit (0);
 
-    usleep (wait_time * 1000);
-
-    PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));
-
-    if (loss < 0)
-	PUTS ("%ld packets transmitted, %ld packets received (forked responses found)\n", n_sent, n_tome);
-    else
-	PUTS ("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);
-
-    if (n_tome)
-	PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", rtt_min, rtt_mean, ISQRT (rtt_sqre - rtt_mean * rtt_mean), rtt_max);
-
-    exit (1);
 }
