@@ -258,10 +258,8 @@ process_pack (packet * p)
     char         *saddr;
     char         *daddr;
 
-
     saddr = gethostbyaddr_lru (IP_src (p));
     daddr = gethostbyaddr_lru (IP_dst (p));
-
 
     if (options.opt_rroute && IP_hl (p) == 15)
 	{
@@ -422,10 +420,9 @@ receiver ()
 
 	while ((ptr = pcap_next (in_pcap, &pcaphdr)) != (u_char *) NULL)
 	    {
-
 		/* timestamp of current packet */
 
-		timestamp = &(pcaphdr.ts);
+		timestamp = (struct timeval *)&(pcaphdr.ts);
 
 		lineup_layers ((char *) ptr, p);
 
@@ -477,5 +474,6 @@ receiver ()
 		last_tstamp = curr_tstamp;
 
 	    }
+
     }
 }

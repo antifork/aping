@@ -42,7 +42,7 @@ PLUGIN	= dummy
 all: $(PLUGIN)
 
 $(PLUGIN):
-	$(CC) $(CFLAGS) $(DEFS) $@.c $< -o $@.so 
+	$(CC) $(CFLAGS) $(DEFS) $@.c -o $@.so 
 
 clean:
 	rm -Rf *~ *.bak *.so

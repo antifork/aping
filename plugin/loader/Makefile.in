@@ -38,11 +38,13 @@ prefix  = @prefix@
 datadir = @datadir@ 
 
 PLUGIN	= loader.o 
-
-all: $(PLUGIN) @LIBOBJS@
+OBJS    = $(PLUGIN) @LIBOBJS@
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) $(DEBUG) -c $< -o $@
+
+all: $(OBJS)
+	$(CC) -o loader $(OBJS) $(LIBS)
 
 clean:
 	rm -Rf *~ *.bak *.o loader 
