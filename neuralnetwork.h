@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <math.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef VERBOSE
  #define NN_VERBOSE(a) \
@@ -15,19 +17,32 @@
  	printf(a,b,c);
  #define NN_VERBOSE3(a,b,c,d) \
  	printf(a,b,c,d);
+ #define NN_VERBOSE4(a,b,c,d,e) \
+ 	printf(a,b,c,d,e);
+ 	
 #else 
  #define NN_VERBOSE(a) ;
  #define NN_VERBOSE1(a,b) ;
  #define NN_VERBOSE2(a,b,c) ;
  #define NN_VERBOSE3(a,b,c,d) ;
+ #define NN_VERBOSE4(a,b,c,d,e) ; 
 #endif
+
+#define SET_ALPHA(nn,val) nn->alpha=val
+#define SET_GAIN(nn,val)  nn->gain=val
+#define SET_ETA(nn,val)   nn->eta=val
 
 #define COPY_AND_SEEK(dest,src,size) \
 		do{ \
-                        memcpy(dest,&(src),sizeof(size)); \
-                        pnn+=sizeof(size); \
+                        memcpy(dest,&(src),size); \
+                        dest+=size; \
 		}while(0)
 
+#define RESTORE_AND_SEEK(dest,src,size) \
+		do{ \
+                        memcpy(&(dest),src,size); \
+                        src+=size; \
+		}while(0)
 
 
 typedef unsigned int   u_32;
@@ -35,6 +50,7 @@ typedef unsigned short u_16;
 typedef unsigned char  u_8;
 
 struct LINK;
+
 typedef struct NEURO
 {
 	struct LINK*  fp_np;        /* forward propagation link pointer  */
@@ -58,12 +74,13 @@ typedef struct LAYER
 	struct NEURO* first;        /* first perceptron in this layer    */
 	struct LAYER* next;         /* next layer                        */
 	struct LAYER* previous;     /* previous layer                    */
-	u_32   	      size;         /* fear 4 bytes for each layer? pfui */
+	u_32   	      size;         /* size of layer in neurons          */
 }LAYER;
 
 typedef struct NN
 {
 	struct LAYER* first;
+	struct LAYER* last ;
 	u_16   size;          /* size of the net (in layers)         */
 	u_32   life;          /* life of the net                     */   
 	double alpha;         /* momentum factor                     */
@@ -74,14 +91,18 @@ typedef struct NN
 }NN;
 
 
-static u_32 eth_crc(int length, char *data);
-void* b_malloc( size_t size);
-void* b_calloc(size_t items, size_t size);
-LAYER* alloc_layer(u_32 size, u_32 psize,u_32 nsize);
-void link_layers(LAYER* a, LAYER *b);
-void layer_status(LAYER* layer);
-void free_layer(LAYER* lay_a);
-void free_nn(NN* nn);
-NN* create_nn(u_32 size,u_32*pn);
-int save_nn(NN*nn,char*filename);
+typedef void(FEEDCALLBACK)(NN*,double*,double*,double*);
+
+static u_32 eth_crc( int , char* );
+void*       b_malloc( size_t );
+void*       b_calloc( size_t , size_t );
+LAYER*      alloc_layer( u_32 , u_32 , u_32 );
+void        link_layers( LAYER* , LAYER *);
+void        status_nn( NN*, FILE*);
+void        free_layer( LAYER* );
+void        free_nn( NN* );
+NN*         create_nn( u_32 ,u_32* );
+int         save_nn( NN* ,char* );
+void     fire_nn(NN*, double* , double* , double*);
+int         feed_from_file( NN* ,char*  ,  FEEDCALLBACK* );
 #endif /* NEURAL_NETWORK_H */
