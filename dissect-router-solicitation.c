@@ -66,6 +66,6 @@ void
 dissect_router_solicitation (packet *p)
 {
         /* maturity level */
-        SET_DISSECT_LEVEL('*');
+        SET_DISSECT_LEVEL('i');
 
 }
