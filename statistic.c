@@ -441,7 +441,7 @@ bandwidth_predictor (packet * p)
     else if (rand_ip_id)
 	{
 	    /* rand_ip_id detected!!! OPENBSD| FREEBSD */
-	    PUTS ("    burst= rand(ip_id)\n");
+	    PUTS ("    burst+= rand(ip_id)\n");
 	}
 
 

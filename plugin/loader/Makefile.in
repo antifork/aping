@@ -53,5 +53,5 @@ distclean:
 	rm -Rf *~ *.bak *.o loader config.status config.h version.h *.cache *.log Makefile
 
 install:
-	$(INSTALL) -c -m 0755 $(PLUGIN) @datadir@/aping
+	$(INSTALL) -c -m 0755 loader @datadir@/aping
 

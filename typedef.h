@@ -59,6 +59,7 @@ typedef struct {
    int  pattern:1;
    int  numeric:1;
    int  droute:1;
+   int  so_debug:1;
    int  verbose:1;
    int  dfrag:1;
    int  flood:1;

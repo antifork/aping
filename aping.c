@@ -207,17 +207,12 @@ main (argc, argv)
     }
 
 
-    while ((es = getopt (argc, argv, "S:D:O:T:MRI:t:k:i:c:p:e:Pz:l:fdnrvhbs")) != EOF)
+    while ((es = getopt (argc, argv, "DS:O:T:MRI:t:k:i:c:p:e:Pz:l:dnrvhbs")) != EOF)
 	switch (es)
 	    {
 	     case 'S':
 		 SET (ip_src);
 		 host_src = strdup (optarg);
-		 break;
-
-	     case 'D':
-		 SET (ip_dst);
-		 host_dst = strdup (optarg);
 		 break;
 
 	     case 'O':
@@ -319,7 +314,7 @@ main (argc, argv)
 		 mysize = ATOA (optarg);
 		 break;
 	     case 'd':
-		 SET (dfrag);
+		 SET (so_debug);
 		 break;
 	     case 'n':
 		 SET (numeric);
@@ -327,8 +322,8 @@ main (argc, argv)
 	     case 'r':
 		 SET (droute);
 		 break;
-	     case 'f':
-		 SET (differ);
+	     case 'D':
+		 SET (dfrag);
 		 break;
 	     case 'v':
 		 sscanf (pcap_version, "%d.%d", &major, &minor);
@@ -356,9 +351,6 @@ main (argc, argv)
 
     if (options.ip_src)
 	ip_src = gethostbyname_lru (host_src);
-
-    if (options.ip_dst)
-	ip_dst = gethostbyname_lru (host_dst);
 
     /* destination.. */
 

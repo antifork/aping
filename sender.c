@@ -191,7 +191,7 @@ sender (argv)
     if (ip_dst == (localnet | ~netmask))
 	{
 	    /* local broadcast */
-	    PUTS ("broadcast addr, SO_BROADCAST option is on.\n");
+	    PUTS ("%s: broadcast addr, SO_BROADCAST option is on.\n",ifname);
 	    setsockopt (sfd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof (true));
 	}
 
@@ -199,12 +199,19 @@ sender (argv)
 
     if ( options.droute )
 	{
-            PUTS ("SO_DONTROUTE option is on.\n");
+            PUTS ("%s: SO_DONTROUTE option is on.\n",ifname);
             setsockopt (sfd, SOL_SOCKET, SO_DONTROUTE, (char *) &true, sizeof (true));
 	}
 
     if ( options.dfrag )
-	    PUTS ("IP_DF don't frag option is on.\n");
+	    PUTS ("%s: IP_DF don't frag option is on.\n",ifname);
+
+    if ( options.so_debug )
+        {
+            PUTS ("%s: SO_DEBUG option is on.\n",ifname);
+            setsockopt (sfd, SOL_SOCKET, SO_DEBUG, (char *) &true, sizeof (true));
+        }
+
 
     /* ip_id */
 
