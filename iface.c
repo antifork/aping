@@ -47,6 +47,7 @@ get_first_hop (target, source, ifname)
 {
     char buffer[10240];
     struct sockaddr_in saddr;
+
 #ifdef __linux__
     char *void_alias = NULL;
 #endif
@@ -55,11 +56,13 @@ get_first_hop (target, source, ifname)
     struct ifconf ifc;
     struct sockaddr_in *local;
     u_long ipif;
+    int socksize;
     int true;
     int sd;
 
     sd = 0;
     true = 1;
+    socksize = sizeof (struct sockaddr);
 
     memset (&saddr, 0, sizeof (struct sockaddr_in));
 
@@ -78,28 +81,24 @@ get_first_hop (target, source, ifname)
 
     memset (&saddr, 0, sizeof (struct sockaddr_in));
 
-    {
-	int socksize = 0;
-	socksize = sizeof (struct sockaddr);
+    if (getsockname (sd, (struct sockaddr *) &saddr, &socksize) == -1)
+	FATAL (strerror (errno));
 
-	if (getsockname (sd, (struct sockaddr *) &saddr, &socksize) == -1)
-	    FATAL (strerror (errno));
-
-	*source = saddr.sin_addr.s_addr;
-    }
+    *source = saddr.sin_addr.s_addr;
 
     close (sd);
 
     if (*source == target) {
 	unsigned long loopback;
-	loopback = (unsigned long)inet_addr ("127.0.0.1");
+
+	loopback = (unsigned long) inet_addr ("127.0.0.1");
 	memcpy (&saddr.sin_addr, &loopback, sizeof (struct in_addr));
     }
 
     memset (buffer, 0, 10240);
 
     ipif = saddr.sin_addr.s_addr;
- 
+
     /* dummy dgram socket for ioctl */
 
     if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)

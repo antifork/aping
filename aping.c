@@ -163,6 +163,7 @@ report ()
 
 }
 
+
 int
 main (argc, argv)
      int argc;
@@ -185,6 +186,9 @@ main (argc, argv)
 
     if (getuid () != 0)
 	FATAL ("aping must run as root");
+
+    if ( argv[1][0] == '-' && argv[1][1] == '-' )
+	FATAL ("%s doesn't support --long-options. type %s -h instead",argv[0],argv[0]);
 
     if (argc < 2)
 	FATAL ("no arguments given");

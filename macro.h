@@ -49,12 +49,13 @@ fflush (stderr);							\
 })
 
 #ifdef  EADBUG
-#define DEBUG(s,f,arg...) ({    					\
-fprintf(stderr,"%s::",s);                       			\
-fprintf(stderr,f,## arg);                       			\
+#define DEBUG(f,arg...)  ({                                             \
+fprintf(stderr,"%s:%d %s(): ",__FILE__,__LINE__,__FUNCTION__);		\
+fprintf(stderr,f,## arg);                                               \
+fflush (stderr);                                                        \
 })
 #else
-#define DEBUG(s,f,arg...) {} 
+#define DEBUG(f,arg...) {} 
 #endif
 
 #define DONT_EAT_CPU()  usleep(1);	

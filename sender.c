@@ -148,6 +148,8 @@ sender (argv)
     packet pkt;
     int sfd;
 
+    DEBUG("start\n");
+
     pthread_sigset_block (4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);

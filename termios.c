@@ -40,6 +40,8 @@ void
 termios_set ()
 {
     struct termios tty;
+   
+    DEBUG("setting termios\n");
 
     tcgetattr (0, &termios_p);
 

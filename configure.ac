@@ -20,8 +20,6 @@ AC_CHECK_PROGS(SHTOOL, shtool, ./shtool)
 
 # Check and set OS specific parameters.
 
-# checking for ns hack and pthread
-AC_MSG_CHECKING(whether to activate timeout on ns library)
 case "$target_os" in
 *linux*)
     APING_DEFS="-DNS_HACK"
@@ -31,9 +29,14 @@ case "$target_os" in
     ;;
 *openbsd*)
     ;;
-*netbsd*|*bsdi*|*)
+*)
+    AC_MSG_ERROR($target_os is NOT SUPPORTED YET);
     ;;
 esac
+
+# checking for ns hack and pthread
+AC_MSG_CHECKING(whether to activate timeout on ns library)
+
 if test -z "$APING_DEFS" ; then
         AC_MSG_RESULT(no)
 else
@@ -43,18 +46,15 @@ fi
 # Checks for libraries.
 AC_CHECK_LIB([pcap], [pcap_open_live], [ have_pcap=yes ; LIBS="-lpcap $LIBS" ], have_pcap=no)
 if test $have_pcap = no ; then
-        AC_MSG_WARN([this os doesn't support pcap library])
-        rm -Rf *.cache *.log
-        exit
+	rm -Rf *.cache *.log
+        AC_MSG_ERROR([this os doesn't support pcap library])
 fi
 
 AC_CHECK_LIB([pthread], [pthread_create], [ have_pthread=yes ; LIBS="-lpthread $LIBS" ], have_pthread=no)
 AC_CHECK_LIB([c_r],     [pthread_create], [ have_libc_r=yes ;  LIBS="-pthread $LIBS" ], have_libc_r=no)
 if test $have_pthread = no && test $have_libc_r = no ; then
-        AC_MSG_WARN([this os doesn't support pthread])
-        AC_MSG_WARN([contact the author reporting what happened.])
-        rm -Rf *.cache *.log
-        exit
+	rm -Rf *.cache *.log
+        AC_MSG_ERROR([this os doesn't support pthread])
 fi
 
 # Checks for header files.
@@ -87,6 +87,8 @@ AC_CONFIG_SUBDIRS(plugin)
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
+ln -f -s header.h dissect.h
+
 echo ""
 echo "The aping package has been configured with the following options:"
 echo "  compiler   : $CC"
@@ -99,4 +101,3 @@ echo "  exec_prefix: $exec_prefix"
 echo "  bindir     : $bindir"
 echo "  mandir     : $mandir"
 echo "  datadir    : $datadir"
-

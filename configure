@@ -2225,9 +2225,6 @@ test -n "$SHTOOL" || SHTOOL="./shtool"
 
 # Check and set OS specific parameters.
 
-# checking for ns hack and pthread
-echo "$as_me:$LINENO: checking whether to activate timeout on ns library" >&5
-echo $ECHO_N "checking whether to activate timeout on ns library... $ECHO_C" >&6
 case "$target_os" in
 *linux*)
     APING_DEFS="-DNS_HACK"
@@ -2237,9 +2234,17 @@ case "$target_os" in
     ;;
 *openbsd*)
     ;;
-*netbsd*|*bsdi*|*)
+*)
+    { { echo "$as_me:$LINENO: error: $target_os is NOT SUPPORTED YET" >&5
+echo "$as_me: error: $target_os is NOT SUPPORTED YET" >&2;}
+   { (exit 1); exit 1; }; };
     ;;
 esac
+
+# checking for ns hack and pthread
+echo "$as_me:$LINENO: checking whether to activate timeout on ns library" >&5
+echo $ECHO_N "checking whether to activate timeout on ns library... $ECHO_C" >&6
+
 if test -z "$APING_DEFS" ; then
         echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
@@ -2312,10 +2317,10 @@ else
 fi
 
 if test $have_pcap = no ; then
-        { echo "$as_me:$LINENO: WARNING: this os doesn't support pcap library" >&5
-echo "$as_me: WARNING: this os doesn't support pcap library" >&2;}
-        rm -Rf *.cache *.log
-        exit
+	rm -Rf *.cache *.log
+        { { echo "$as_me:$LINENO: error: this os doesn't support pcap library" >&5
+echo "$as_me: error: this os doesn't support pcap library" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 echo "$as_me:$LINENO: checking for pthread_create in -lpthread" >&5
@@ -2441,12 +2446,10 @@ else
 fi
 
 if test $have_pthread = no && test $have_libc_r = no ; then
-        { echo "$as_me:$LINENO: WARNING: this os doesn't support pthread" >&5
-echo "$as_me: WARNING: this os doesn't support pthread" >&2;}
-        { echo "$as_me:$LINENO: WARNING: contact the author reporting what happened." >&5
-echo "$as_me: WARNING: contact the author reporting what happened." >&2;}
-        rm -Rf *.cache *.log
-        exit
+	rm -Rf *.cache *.log
+        { { echo "$as_me:$LINENO: error: this os doesn't support pthread" >&5
+echo "$as_me: error: this os doesn't support pthread" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 # Checks for header files.
@@ -6244,6 +6247,8 @@ echo "$as_me: error: $ac_sub_configure failed for $ac_dir" >&2;}
 fi
 
 
+ln -f -s header.h dissect.h
+
 echo ""
 echo "The aping package has been configured with the following options:"
 echo "  compiler   : $CC"
@@ -6256,4 +6261,3 @@ echo "  exec_prefix: $exec_prefix"
 echo "  bindir     : $bindir"
 echo "  mandir     : $mandir"
 echo "  datadir    : $datadir"
-

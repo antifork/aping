@@ -52,6 +52,8 @@ keystroke ()
 {
     int           c;
 
+    DEBUG("start\n");
+
     pthread_sigset_block (4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
@@ -62,9 +64,7 @@ keystroke ()
 
 	c=getc(stdin);
 
-#ifdef  EADBUG
-        PUTS("key:0x%x\n",c);
-#endif
+        DEBUG("key:0x%x\n",c);
 
 	switch (c) {
 
