@@ -2,7 +2,7 @@
 /*
  * $awgn: ns-cache.c,v 1.6 2002/09/30 17:37:54 awgn Exp $
  *
- * Copyright (c) 2002 Nicola Bonelli <bonelli@blackhats.it>
+ * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
  *
  * All rights reserved.
  *

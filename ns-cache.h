@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (c) 2002 Nicola Bonelli <bonelli@blackhats.it>
+ * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
  *
  * All rights reserved.
  *

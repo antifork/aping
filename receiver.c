@@ -368,7 +368,7 @@ receiver()
 	/* set offset_dl: datalink header size */
 
 	if (sizeof_datalink(in_pcap) == -1)
-		FATAL("DLT_%s(%ld) device is not supported yet\n" "please mailto bonelli@blackhats.it reporting the event.", linktype[datalink], datalink);
+		FATAL("DLT_%s(%ld) device is not supported yet\n" "please mailto bonelli@antifork.org reporting the event.", linktype[datalink], datalink);
 
 	if (options.promisc)
 		PUTS("<PROMISC>");
