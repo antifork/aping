@@ -202,8 +202,10 @@ gethostbyif(char *ifname)
 		if (ifr->ifr_addr.sa_family != AF_INET)
 			continue;
 
-		if (!strcmp(ifr->ifr_name, ifname))
+		if (!strcmp(ifr->ifr_name, ifname)) {
+			close(sd);			/* xenion */
 			return paddr->sin_addr.s_addr;
+		}
 
 	}
 
