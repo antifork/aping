@@ -28,7 +28,7 @@
 #
 #
 
-CC = @CC@ @optimize_def@
+CC = @CC@ -g @optimize_def@
 CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
 INCLS = @INCLS@

@@ -35,62 +35,59 @@
 #ifndef MACRO_H
 #define MACRO_H
 
-#define FATAL(f,arg...) {                                               \
-fprintf(stderr,"%s:%d %s(): ",__FILE__,__LINE__,__FUNCTION__);          \
+#define FATAL(f,arg...) do {                                            \
+fprintf(stderr,"%s:%d: ",__FILE__,__LINE__);                            \
 fprintf(stderr,f,## arg);                                               \
-fprintf(stderr,"\n");							\
-termios_reset();							\
+fprintf(stderr,"\n");                                                   \
+termios_reset();                                                        \
 exit(1);                                                                \
-}
+} while (0)
 
-#define PUTS(f,arg...)	({						\
-fprintf(stderr,f,## arg);						\
-fflush (stderr);							\
-})
-
-#ifdef  EADBUG
-#define DEBUG(f,arg...)  ({                                             \
-fprintf(stderr,"%s:%d %s(): ",__FILE__,__LINE__,__FUNCTION__);		\
+#define PUTS(f,arg...)  do {                                            \
 fprintf(stderr,f,## arg);                                               \
 fflush (stderr);                                                        \
-})
+} while (0)
+
+#ifdef  EADBUG
+#define DEBUG(f,arg...) do {                                            \
+fprintf(stderr,"%s:%d: ",__FILE__,__LINE__);                            \
+fprintf(stderr,f,## arg);                                               \
+fflush (stderr);                                                        \
+} while (0)
 #else
-#define DEBUG(f,arg...) {} 
+#define DEBUG(f,arg...) do {} while (0)
 #endif
 
 #define DONT_EAT_CPU()  usleep(1);	
 
 #define ATOA(x) 	strtol(x, (char **)NULL, 0)
-
 #define ATOMIC(a,b)	( (!(a)&&(b)) || ((a)&&!(b)) || (!(a)&&!(b)) )
 
-#define ATOMIC_TEST(a,b)                                \
-{                                                       \
-if ( !ATOMIC(options.##a,options.##b) )                 \
+#define ATOMIC_TEST(a,b) do { 				\
+if ( !ATOMIC(options.a,options.b) )                 	\
 FATAL("set either of these options: %s | %s",#a,#b);    \
-}
+} while (0)
 
-#define DEPEND_TEST(a,b)				\
-{ 							\
-if ( options.##a && !options.##b )			\
+#define DEPEND_TEST(a,b) do { 				\
+if ( options.a && !options.b )				\
 FATAL("%s option require %s",#a,#b);			\
-} 
+} while (0) 
 
-#define SET_VAL(var,val) {              \
-var=val;                                \
-printf("%s=%d\n",#var,val);             \
-}
+#define SET_VAL(var,val) do {              		\
+var=val;                                		\
+printf("%s=%d\n",#var,val);             		\
+} while (0)
 
-#define SWITCH(var) {                   \
-(var) ^= 1;                             \
-printf("%s=%d\n",#var,(int)(var));      \
-}
+#define SWITCH(var) do {                  		\
+(var) ^= 1;                             		\
+printf("%s=%d\n",#var,(int)(var));      		\
+} while (0)
 
 #define INDEX(a,b) ((a<<6)+b)
 
-#define SET(x) (options.##x=1 )
-#define CLR(x) (options.##x=0 )
-#define TST(x) (options.##x==1)
+#define SET(x) (options.x=1 )
+#define CLR(x) (options.x=0 )
+#define TST(x) (options.x==1)
 
 #define PER_CENT(a,b) ( (b) == 0 ? 0 : 100*(a)/(b) )
 
@@ -141,7 +138,7 @@ g ^= bit;                       \
 g;                              \
 })
 
-#define PRINT_IPH_64bit(p)	{					\
+#define PRINT_IPH_64bit(p)  do	{					\
 if ( ICMP_IP_p(p) == IPPROTO_TCP || ICMP_IP_p(p) == IPPROTO_UDP )	\
    {									\
         								\
@@ -159,6 +156,6 @@ else									\
              safe_inet_ntoa(ICMP_IP_src(p)),				\
              safe_inet_ntoa(ICMP_IP_dst(p)) );				\
    }									\
-}
+} while (0)
 
 #endif /* MACRO_H */
