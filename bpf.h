@@ -39,6 +39,8 @@
  *
  */
 
+#include <net/bpf.h>
+
 #define AP_DLT_NULL		0	/* no link-layer encapsulation */
 #define AP_DLT_EN10MB		1	/* Ethernet (10Mb) */
 #define AP_DLT_EN3MB		2	/* Experimental Ethernet (3Mb) */
@@ -51,7 +53,16 @@
 #define AP_DLT_PPP		9	/* Point-to-point Protocol */
 #define AP_DLT_FDDI		10	/* FDDI */
 #define AP_DLT_ATM_RFC1483	11	/* LLC/SNAP encapsulated atm */
-#define AP_DLT_RAW		12	/* raw IP */
+
+#if defined(__OpenBSD__)
+#define AP_DLT_LOOP		12	/* old DLT_LOOP interface :4 byte offset */ 
+#define AP_DLT_RAW              14      /* raw IP: 0 byte offset */
+#else
+#define AP_DLT_RAW              12      /* raw IP: 0 byte offset*/
+#define AP_DLT_LOOP             108
+#endif
+
+#define AP_DLT_ENC		13
 #define AP_DLT_SLIP_BSDOS	15	/* BSD/OS Serial Line IP */
 #define AP_DLT_PPP_BSDOS	16	/* BSD/OS Point-to-point Protocol */
 #define AP_DLT_ATM_CLIP		19	/* Linux Classical-IP over ATM */
@@ -60,7 +71,6 @@
 #define AP_DLT_C_HDLC		104	/* Cisco HDLC */
 #define AP_DLT_CHDLC		DLT_C_HDLC
 #define AP_DLT_IEEE802_11	105	/* IEEE 802.11 wireless */
-#define AP_DLT_LOOP		108
 #define AP_DLT_LINUX_SLL	113
 #define AP_DLT_LTALK		114
 #define AP_DLT_ECONET		115

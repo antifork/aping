@@ -34,6 +34,7 @@
 #include "aping.h"
 #include "header.h"
 #include "typedef.h"
+#include "prototype.h"
 
 #include "global.h"
 #include "hardware.h"

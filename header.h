@@ -38,26 +38,69 @@
 #define __USE_BSD
 #endif
 
+#include "config.h"
+
+#include <sys/types.h>
+#if HAVE_SYS_WAIT_H
+# include <sys/wait.h>
+#endif
+#ifndef WEXITSTATUS
+# define WEXITSTATUS(stat_val) ((unsigned)(stat_val) >> 8)
+#endif
+#ifndef WIFEXITED
+# define WIFEXITED(stat_val) (((stat_val) & 255) == 0)
+#endif
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <sys/resource.h>
+
+#if HAVE_UNISTD_H
+# include <sys/types.h>
+# include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+
+#if STDC_HEADERS
+# include <string.h>
+#else
+# if !HAVE_STRCHR
+#  define strchr index
+#  define strrchr rindex
+# endif
+char *strchr (), *strrchr ();
+# if !HAVE_MEMCPY
+#  define memcpy(d, s, n) bcopy ((s), (d), (n))
+#  define memmove(d, s, n) bcopy ((s), (d), (n))
+# endif
+#endif
+
+#include <stdarg.h>
 #include <fcntl.h>
+
+#include <termios.h>
 
 #include <signal.h>
 
 #include <pcap.h>
 #include <pthread.h>
-#include <string.h>
-
+#include <dirent.h>
 #include <errno.h>
-
-#include <sys/time.h>
-#include <sys/resource.h>
-
 #include <time.h>
 
-#include <sys/socket.h>
-#include <sys/ioctl.h>
 
 #ifndef NETINET_IN_SYSTEM_H
 #define NETINET_IN_SYSTEM_H
@@ -67,13 +110,11 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+#include <netinet/ip_icmp.h>
 
 #include <arpa/inet.h>
 #include <net/if.h>
 
-#include <netinet/ip_icmp.h>
-
 #include "macro.h"
-#include "config.h"
 
 #endif /* HEADER_H */

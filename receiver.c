@@ -68,8 +68,7 @@ lineup_layers (char *buff, packet * pkt)
 }
 
 unsigned short
-ntohss (s)
-     unsigned short s;
+ntohss (unsigned short s)
 {
     unsigned short ret;
 
@@ -375,13 +374,13 @@ receiver ()
     /* set offset_dl: datalink header size */
 
     if (sizeof_datalink (in_pcap) == -1)
-	FATAL(	"aping has not been configured yet to work with DLT_%s(%d) device...\n"
+	FATAL(	"aping has not been configured yet to work with DLT_%s(%ld) device...\n"
 		"please mailto bonelli@blackhats.it reporting the event.",linktype[datalink],datalink);
 
     if (options.promisc)
 	PUTS ("<PROMISC>");
 
-    PUTS ("%s: [%s](%s/%s) %ld bytes of %s(%d) layer.\n", ifname, multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), multi_inet_ntoa ((long) netmask), offset_dl, linktype[datalink],datalink);
+    PUTS ("%s: [%s](%s/%s) %ld bytes of %s(%ld) layer.\n", ifname, multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), multi_inet_ntoa ((long) netmask), offset_dl, linktype[datalink],datalink);
 
     ENDLESS () {
 

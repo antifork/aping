@@ -81,8 +81,8 @@ printf("%s=%d\n",#var,val);             \
 }
 
 #define SWITCH(var) {                   \
-var ^= 1;                               \
-printf("%s=%d\n",#var,var);             \
+(var) ^= 1;                             \
+printf("%s=%d\n",#var,(int)(var));      \
 }
 
 #define INDEX(a,b) ((a<<6)+b)

@@ -35,14 +35,14 @@
 #include "dissect.h"
 #include "aping.h"
 
+#include "header.h"
 #include "typedef.h"
 #include "prototype.h"
-#include "global.h"
 
 #include "filter.h"
 #include "bandwidth.h"
 #include "statistic.h"
-
+#include "global.h"
 
 char *
 link_type (long kb)
@@ -300,7 +300,7 @@ long
 lp_FIR (long kbps, long pt)
 {
 
-    double ret;
+    double ret=0;
     long ns;
     long i;
 
@@ -421,7 +421,7 @@ bandwidth_predictor (packet * p)
 	E (&mean_burst, out_burst, 1);
 
 	PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ", out_burst, mean_burst, max_burst);
-	PUTS ("usage=%d%%(%d%%) ", PER_CENT (out_burst, max_burst), PER_CENT (mean_burst, max_burst));
+	PUTS ("usage=%d%%(%d%%) ", (int)PER_CENT (out_burst, max_burst), (int)PER_CENT (mean_burst, max_burst));
 	PUTS ("link=[%s/%s]\n", link_type (mean_burst), link_type (max_burst));
 
     }

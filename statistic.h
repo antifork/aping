@@ -39,8 +39,7 @@
 #ifndef STATISTIC_H
 #define STATISTIC_H
 
-static
-ipl_stat
+static ipl_stat
 tcpip_lenght[]= {
 {    600,       "moda tcp(generic)"  },
 {     40,       "min tcp"            },

@@ -32,6 +32,9 @@
  */
 
 #include "header.h"
+#include "typedef.h"
+#include "prototype.h"
+
 #include "macro.h"
 #include "config.h"
 
@@ -42,7 +45,16 @@ get_first_hop (target, source, ifname)
      long *source;
      char *ifname;
 {
+    char buffer[10240];
     struct sockaddr_in saddr;
+#ifdef __linux__
+    char *void_alias = NULL;
+#endif
+    struct ifreq *ifr,
+       *iflast;
+    struct ifconf ifc;
+    struct sockaddr_in *local;
+    u_long ipif;
     int true;
     int sd;
 
@@ -78,74 +90,61 @@ get_first_hop (target, source, ifname)
 
     close (sd);
 
-    if ( *source == target ) {
+    if (*source == target) {
 	in_addr_t loopback;
-	loopback = inet_addr("127.0.0.1");
-	memcpy(&saddr.sin_addr, &loopback,sizeof(struct in_addr));
+
+	loopback = inet_addr ("127.0.0.1");
+	memcpy (&saddr.sin_addr, &loopback, sizeof (struct in_addr));
     }
-	
-    {
 
-	char buffer[10240];
+    memset (buffer, 0, 10240);
 
-#ifdef __linux__
-	char *void_alias = NULL;
-#endif
-	u_long ipif = 0;
-	struct ifreq *ifr,
-	   *iflast;
-	struct ifconf ifc;
-	struct sockaddr_in *local;
+    ipif = saddr.sin_addr.s_addr;
+ 
+    /* dummy dgram socket for ioctl */
 
-	ipif = saddr.sin_addr.s_addr;
+    if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)
+	FATAL (strerror (errno));
 
-	memset (buffer, 0, 10240);
+    ifc.ifc_len = sizeof (buffer);
+    ifc.ifc_buf = buffer;
 
-	/* dummy dgram socket for ioctl */
+    /* getting ifs */
 
-	if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)
-	    FATAL (strerror (errno));
+    if (ioctl (sd, SIOCGIFCONF, &ifc) < 0)
+	FATAL (strerror (errno));
 
-	ifc.ifc_len = sizeof (buffer);
-	ifc.ifc_buf = buffer;
+    close (sd);
 
-	/* getting ifs */
+    /* line_up ifreq structure */
 
-	if (ioctl (sd, SIOCGIFCONF, &ifc) < 0)
-	    FATAL (strerror (errno));
-
-	close (sd);
-
-	/* line_up ifreq structure */
-
-	ifr = (struct ifreq *) buffer;
-	iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
+    ifr = (struct ifreq *) buffer;
+    iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
 
 #if defined (HAVE_SOCKADDR_SA_LEN)
-	for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + ifr->ifr_addr.sa_len)
+    for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + ifr->ifr_addr.sa_len)
 #else
-	for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in))
+    for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in))
 #endif
-	{
+    {
 
-	    if (*(char *) ifr == 0)
-		continue;
+	if (*(char *) ifr == 0)
+	    continue;
 
-	    local = (struct sockaddr_in *) &ifr->ifr_addr;
+	local = (struct sockaddr_in *) &ifr->ifr_addr;
 
-	    if (ipif == local->sin_addr.s_addr) {
-		strncpy (ifname, ifr->ifr_name, 16);
+	if (ipif == local->sin_addr.s_addr) {
+	    strncpy (ifname, ifr->ifr_name, 16);
 /* alias */
 #ifdef __linux__
-		if ((void_alias = strchr (ifname, ':')) != NULL)
-		    *void_alias = '\0';
+	    if ((void_alias = strchr (ifname, ':')) != NULL)
+		*void_alias = '\0';
 #endif
-		return 0;
-	    }
+	    return 0;
 	}
-	FATAL ("wasn't able to guess the ifname");
-
     }
+    FATAL ("wasn't able to guess the ifname");
+
     return -1;
 }
 

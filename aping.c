@@ -81,7 +81,7 @@ discard_plugin ()
 {
     int k = 0;
 
-    for (k; k < MIN (pd_pindex, MAX_CHILD); k++) {
+    for (; k < MIN (pd_pindex, MAX_CHILD); k++) {
 	kill (pd_plugin[k], SIGUSR1);
     }
 

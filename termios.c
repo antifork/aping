@@ -29,10 +29,10 @@
  * 
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <termios.h>
-#include <unistd.h>
+
+#include "header.h"
+#include "typedef.h"
+#include "prototype.h"
 
 extern struct termios termios_p;
 

@@ -50,8 +50,6 @@
 void
 keystroke ()
 {
-    packet        pkt;
-    int           sfd;
     int           c;
 
     pthread_sigset_block (4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
@@ -67,7 +65,7 @@ keystroke ()
 	switch (c) {
 
 	 case 3:
-	     ctrlc(); /* FIXME */
+	     ctrlc(SIGTSTP); /* FIXME */
 	     pthread_exit(NULL);
 	     break;
 

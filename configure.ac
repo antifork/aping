@@ -61,6 +61,7 @@ fi
 
 AC_HEADER_DIRENT
 AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([pcap-int.h arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h termios.h unistd.h])
 
 AC_PCAP_HEADER_CHECK(INCLS)

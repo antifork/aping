@@ -33,17 +33,8 @@
 
 
 #include "header.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <dirent.h>
-
-#include <signal.h>
-
 #include "typedef.h"
 #include "prototype.h"
-
 #include "macro.h"
 #include "global.h"
 #include "version.h"

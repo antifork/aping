@@ -33,10 +33,9 @@
 
 #include "header.h"
 #include "typedef.h"
-#include "macro.h"
-
-#include "aping.h"
 #include "prototype.h"
+#include "macro.h"
+#include "aping.h"
 #include "global.h"
 
 extern char *icmp_type_str[64];
@@ -237,7 +236,7 @@ sender (argv)
 	last_sent.ts_sec = timenow.tv_sec;
 	last_sent.ts_usec = timenow.tv_usec;
 
-	switch (atomic_sendto (sfd, buffer, UNFIX (pkt.ip->ip_len), &saddr)) 
+	switch (atomic_sendto (sfd, buffer, UNFIX (pkt.ip->ip_len), (struct sockaddr *)&saddr)) 
 	{
 	 case 0:
 	     PUTS ("sendto(): 0 byte sent.\n");

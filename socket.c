@@ -29,13 +29,9 @@
  * 
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#include <unistd.h>
-#include <errno.h>
+#include "header.h"
+#include "typedef.h"
+#include "prototype.h"
 
 #include "macro.h"
 

@@ -29,11 +29,9 @@
  * 
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <signal.h>
-#include <pthread.h>
+#include "header.h"
+#include "typedef.h"
+#include "prototype.h"
 
 int
 pthread_sigset_block (int n, ...)

@@ -32,7 +32,9 @@
  */
 
 
-#include  <pcap.h>
+#include "header.h"
+#include "typedef.h"
+#include "prototype.h"
 #include "macro.h"
 #include "hardware.h"
 #include "bpf.h"
@@ -80,11 +82,9 @@ sizeof_datalink (pcap_t * pd)
 	 CASE (AP_DLT_FDDI,21);
 	 CASE (AP_DLT_ATM_RFC1483,8);
 
-#if defined (__OpenBSD__)
-	 CASE (AP_DLT_RAW,4);		/* according to tun interface */
-#else
-	 CASE (AP_DLT_RAW,0);		/* according to nmap 3.00 */
-#endif
+	 CASE (AP_DLT_LOOP,4);		/* according to Openbsd DLT_LOOP collision: see "bpf.h" */ 
+	 CASE (AP_DLT_RAW,0);		
+
 	 CASE (AP_DLT_SLIP_BSDOS,16);
 	 CASE (AP_DLT_PPP_BSDOS,4);
 	 CASE (AP_DLT_ATM_CLIP,-1);
@@ -100,7 +100,6 @@ sizeof_datalink (pcap_t * pd)
 #endif
 	 CASE (AP_DLT_C_HDLC,-1);
 	 CASE (AP_DLT_IEEE802_11,30);
-	 CASE (AP_DLT_LOOP,4);
 	 CASE (AP_DLT_LINUX_SLL,16);
 	 CASE (AP_DLT_LTALK,-1);
 	 CASE (AP_DLT_ECONET,-1);
