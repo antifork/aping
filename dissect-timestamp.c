@@ -100,7 +100,21 @@ load_timestamp (packet *p, char **argv)
 void
 dissect_timestamp (packet *p)
 {
+        long otime;
+
+        long hour;
+        long min;
+        long sec;
+
         /* maturity level */
-        SET_DISSECT_LEVEL('_');
+        SET_DISSECT_LEVEL('a');
+
+        otime = ntohl(ICMP_otime(p));
+
+        hour  = (otime /( 1000 * 60 * 60 )) % 24;
+        min   = (otime /( 1000 * 60 )) % 60;
+        sec   = (otime /( 1000 )) % 60;
+
+        PUTS("    time=%02ld:%02ld:%02ld GMT\n", hour, min,sec);
 
 }

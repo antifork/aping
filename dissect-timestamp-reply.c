@@ -93,5 +93,7 @@ dissect_timestamp_reply (packet *p)
 
   	PUTS("    idle=%ld ms time=%02ld:%02ld:%02ld GMT\n", ttime-rtime, hour, min,sec);
 
+        if (verbose < 3) return;
+
   	bandwidth_predictor(p);
 }
