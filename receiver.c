@@ -141,7 +141,7 @@ void
 reset_ipid ()
 {
 
-    rand_ip_id = 0;
+    rand_ipid = 0;
     ipid_failure = 0;
     slow_start = 1;
 
@@ -153,12 +153,12 @@ reset_stat ()
 {
     out_burst = 0;
     max_burst = 0;
-    rand_ip_id = 0;
+    rand_ipid = 0;
     ipid_failure = 0;
     slow_start = 1;
 
     E (&mean_burst, 0, -1);
-    lp_FIR (-1, 0);
+    // lp_FIR (-1, 0);
 }
 
 
@@ -170,8 +170,8 @@ agent_ipid (packet * p)
 {
 
     if (diff_id && !(diff_id & 0xff)) {
-	/* wrong id-endian */
 
+	/* wrong id-endian */
 	ipid_failure++;
 
 	switch (ipid_failure) {
@@ -217,7 +217,7 @@ agent_dyn_id (packet * p)
 	diff_id += (1 << 16) - 1;
 
     if (diff_id > 1 << 15)
-	rand_ip_id = diff_id;
+	rand_ipid = diff_id;
 
     return;
 }
@@ -233,19 +233,20 @@ print_RR (char *opt)
 
     rr = hash (opt, 36);
 
-    if (last_route != rr) {
-	/* new RR */
-	last_route = rr;
+    if (last_route == rr)
+	return;
 
-	hop = (long *) (opt + 3);	/* hop pointer */
+/* new RR */
 
-	for (i = 1; i < MIN (9, (opt[IPOPT_OFFSET] >> 2)); i++) {
-	    {
-		PUTS ("\rRR:  %s(%s)\n", gethostbyaddr_lru (hop[i - 1]), multi_inet_ntoa (hop[i - 1]));
-	    }	
-	}
+    last_route = rr;
 
+    hop = (long *) (opt + 3);	/* hop pointer */
+
+    for (i = 1; i < MIN (9, (opt[IPOPT_OFFSET] >> 2)); i++) {
+	PUTS ("\rRR:  %s(%s)\n", gethostbyaddr_lru (hop[i - 1]), multi_inet_ntoa (hop[i - 1]));
     }
+
+    return;
 
 }
 
@@ -258,6 +259,9 @@ process_pack (packet * p)
 
     saddr = gethostbyaddr_lru (IP_src (p));
     daddr = gethostbyaddr_lru (IP_dst (p));
+
+    ip_size   = ntohs (IP_len (p));
+    icmp_size = ip_size - (IP_hl (p) << 2);
 
     if (options.opt_rroute && IP_hl (p) == 15) {
 	print_RR (IP_opt (p));
@@ -282,7 +286,7 @@ process_pack (packet * p)
 
   end_switch:
 
-    PUTS ("%db from %s", ntohs (IP_len (p)) - (IP_hl (p) << 2), saddr);
+    PUTS ("%db from %s", icmp_size , saddr);
 
     if (mac_inspection)
 	PUTS ("[%s]", getmacfromdatalink (p->dl, MAC_SRC));
@@ -327,13 +331,14 @@ process_pack (packet * p)
 	PUTS (" icmp_id=%d", ICMP_id (p));
     }
 
-    PUTS (" jitter=%ld ms time_lost=%ld ms\n", jitter, time_lost);
+    PUTS (" jitter=%ld ms waiting_time=%ld ms\n", jitter, waiting_time);
     if (detail < 3)
 	return;
 
     if (icmp_dissect_vector[ICMP_type (p) & 0x3f] != NULL) {
 	(*icmp_dissect_vector[ICMP_type (p) & 0x3f]) (p);
     }
+
     return;
 
 }
@@ -346,8 +351,8 @@ receiver ()
     packet *p;
     pcap_t *in_pcap;
 
-   
-    DEBUG("start\n");
+
+    DEBUG ("start\n");
 
     pthread_sigset_block (4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
@@ -364,7 +369,7 @@ receiver ()
 
 
 #if !defined(__FreeBSD__)
-    if ( pcap_setnonblock(in_pcap, 1, bufferr) == -1 )
+    if (pcap_setnonblock (in_pcap, 1, bufferr) == -1)
 	FATAL (bufferr);
 #endif
 
@@ -379,21 +384,22 @@ receiver ()
     /* set offset_dl: datalink header size */
 
     if (sizeof_datalink (in_pcap) == -1)
-	FATAL(	"aping has not been yet configured to work with DLT_%s(%ld) device...\n"
-		"please mailto bonelli@blackhats.it reporting the event.",linktype[datalink],datalink);
+	FATAL ("aping has not been yet configured to work with DLT_%s(%ld) device...\n" "please mailto bonelli@blackhats.it reporting the event.", linktype[datalink], datalink);
 
     if (options.promisc)
 	PUTS ("<PROMISC>");
 
-    PUTS ("%s: [%s](%s/%s) %ld bytes of %s(%ld) layer.\n", ifname, multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), multi_inet_ntoa ((long) netmask), offset_dl, linktype[datalink],datalink);
+    PUTS ("%s: [%s](%s/%s) %ld bytes of %s(%ld) layer.\n", ifname, multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), multi_inet_ntoa ((long) netmask), offset_dl, linktype[datalink],
+	  datalink);
 
-    ENDLESS () {
+    for (;;) {
 
 	DONT_EAT_CPU ();
 
 	ptr = NULL;
 
 	while ((ptr = pcap_next (in_pcap, &pcaphdr)) != (u_char *) NULL) {
+
 	    /* timestamp of current packet */
 
 	    timestamp = (struct timeval *) &(pcaphdr.ts);
@@ -413,11 +419,11 @@ receiver ()
 	    switch (ICMP_type (p)) {
 
 	     case ICMP_ECHOREPLY:
-		 time_lost = DIFFTIME_int (TVAL_tv (p), last_ack.ts);
+		 waiting_time = DIFFTIME_int (TVAL_tv (p), last_ack.ts);
 		 break;
 
 	     default:
-		 time_lost = DIFFTIME_int (last_sent.ts, last_ack.ts);
+		 waiting_time = DIFFTIME_int (last_sent.ts, last_ack.ts);
 		 break;
 
 	    }

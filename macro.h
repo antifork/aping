@@ -97,7 +97,6 @@ printf("%s=%d\n",#var,(int)(var));      \
 #define STR(a)    # a
 #define CAT(a,b)  a ## b
 #define XCAT(a,b) CAT(a,b)
-#define ENDLESS() for(;;)
 
 #if defined(__FreeBSD__)
 #define FIX(x)	 (x)

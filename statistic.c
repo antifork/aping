@@ -162,165 +162,6 @@ TTL_PREDICTOR (unsigned char x)
 
 }
 
-/*****
- 
-    A linear bandwidth predictor: a stocastic model.  
-              Bonelli Nicola <bonelli@blackhats.it>
-
-    We model the bandwidth with the following law:
-
-    raw(t) = b(t) + n(t)
-
-    where:
-                                                               ________
-     raw = raw data read by receiver...  ( raw(t) = diff_id(t)*packsize/tau )
-
-     b   = effective instantaneous bandwidth we want to predict 
-     n   = noise due to the quantization.
-
-
-     b(t) is a stocastic process whose autocorrelation function can be 
-          thought like this:
-
-     Rb(tau) = |1-tau/T| rect (tau/(2T))  ( triangolar autocorrelation )
-
-
-          Rb(tau)            
-            ^
-            |
-            |                                              ___                 
-            ^           where T is the mean of rtt. (  T = tau )
-           /|\
-          / | \
-         /  |  \
-        /   |   \
-     -------+--------> tau 
-            |    T 
-
-     This model is likehood, in the sense that for each couple of samples 
-                      ___
-     whose distance > tau the two are incorrelated.
-
-     n(t) is a stocastic model, indipendent from the first one, whose IO 
-          characteristic has the following graph:
-
-            N                                        Fn
-            ^                                        ^ 
-            |                                        |
-            |                                        |
-            |  .     .     .                    +----+----+ 
-            | /|    /|    /|                    |    |    |
-            |/ |   / |   / |                    |    |    |
-            +-----/-----/----->            -----+----+----+----->   
-            |  | /   | /                             |    packsize/2
-            |  |/    |/
-            |  '     ' 
-
-
-
-     The model we use for our 2 step linear predictor is the following:
-     _          _
-     b(t+T) = b(t)*Rb(T) + raw (t+T)* (1-Rb(T));        
-
-    
-     Implementation diagram: 
-
-
-        id(t)
-
-         |
-         |                      .-------.       .-------.
-          `--->(-)-----(*)----->| 2step |--+--->|  FIR  |---> burst(t)
-                ^   |   ^       ._______.  |    ._______.
-                |   |   |          ^       |
-               [T]--'   |           `--[T]-'
-                        |
-                    _________
-                    pack_size
-                   
-
-*****/
-
-#define TRIANGLE(x) ( (x > tau) ? 0 : tau-(x) )
-
-long
-twostep_predictor (long raw, long pen_time)
-{
-    static long b_t;
-
-    b_t = b_t * TRIANGLE (pen_time) + (raw / (1 + pen_time)) * (tau - TRIANGLE (pen_time));
-
-    b_t /= tau;
-
-    return (b_t);
-
-}
-
-
-/*
- *
- *  low pass filter: h(n)= 100 e^(-n*4/3)*{ u(n)-u(n-3) } 
- *                       = d(n)*100 + d(n-1)*26 + d(n-3)*6 
- *   
- */
-
-#define h0 100			/* n=0 */
-#define h1 26			/* n=1 */
-#define h2 6			/* n=2 */
-
-#define FIR(a,b,c) (a* h0+b* h1+c* h2)/(h0+h1+h2)
-
-double
-onestep_FIR (double n)
-{
-    static double enne[2];
-
-    double ret;
-
-    if (n < 0) {
-	/* reset */
-
-	enne[0] = 0;
-	enne[1] = 0;
-
-	return 0;
-    }
-
-    ret = FIR (n, enne[0], enne[1]);
-
-    enne[1] = enne[0];
-    enne[0] = n;
-
-    return ret;
-
-}
-
-
-long
-lp_FIR (long kbps, long pt)
-{
-
-    double ret=0;
-    long ns;
-    long i;
-
-    if (kbps < 0) {		/* reset */
-	return onestep_FIR (kbps);
-    }
-
-    ns = pt / tau;		/* how many times the onestep_fir is called  
-				 */
-    if (ns == 0)
-	ns = 1;
-
-    for (i = 0; i < ns; i++)
-	ret = onestep_FIR (kbps);
-
-    return (ret);
-
-}
-
-
 
 long
 magic_round (long a, long b)
@@ -338,11 +179,26 @@ magic_round (long a, long b)
 }
 
 
-void
-bandwidth_predictor (packet * p)
-{
+/*****
+    
+     Implementation diagram: 
 
-/*
+
+        id(t)
+
+         |
+         |                        .-------.
+          `--->(-)-----(*)------->|  FIR  |---> burst(t)
+                ^   |   ^         ._______.
+                |   |   |     
+               [T]--'   |    
+                        |
+                    _________
+                    pack_size
+                   
+
+     Temporal diagram:
+
 
                    APING           REMOTE_HOST 
                      |                 |
@@ -356,13 +212,13 @@ bandwidth_predictor (packet * p)
    |         v       |        ,--'     |     }
    |   _____________ |    ,--'         |     }
    |         ^       |,--'             |     }
- local_tau   |       |`--.             |     } 
+ real_tau    |       |`--.             |     } 
    |         |       |    `--.         |     }
    |         |       |        `-       |     }
    |         |       |                 |     }
-   |     time_lost   |                 |     }
+   |  waiting_time   |                 |     }
    |                 |`--.             |     }
-   |         |       |    `--.         |     } pen_time =(time_lost+last_rtt)+
+   |         |       |    `--.         |     } pen_time =(waiting_time+last_rtt)+
    |         |       |                 |     }            jitter/2;
    |         |       |                 |     }
    |         |       |                 |     }
@@ -380,17 +236,29 @@ bandwidth_predictor (packet * p)
                      |    .-'          |          |
                      | .-'             |          v
                      |-                |_____________
-     */
 
 
-    if (options.sniff)
+
+*****/
+
+
+void
+bandwidth_predictor (packet * p)
+{
+
+    if (options.sniff || !diff_ipid)
 	return;
+
+    if (rand_ipid != 0) {
+	/* rand_ipid ... OpenBSD|FreeBSD */
+	PUTS ("    burst+= rand(ip_id)\n");
+	return;
+    }
 
     if (curr_tstamp) {
 
-	/* icmp timestamp reply: 
-	 *  In case of ts_reply we dont need to estimate the pending_time, 
-	 *  since we are able to calc a deterministic value.
+	/*  In case of ts_reply we dont need to estimate the pending_time, 
+	 *  since it is possibile to calculate the deterministic value.
 	 */
 
 	pending_time = MAX (0, curr_tstamp - last_tstamp);
@@ -398,37 +266,24 @@ bandwidth_predictor (packet * p)
     }
     else {
 
-	local_tau = last_rtt.ms_int + time_lost;
-	local_tau = magic_round (tau, local_tau);
+	/*  pending_time estimate: MAX (tau/2, real_tau + jitter/2 )
+         */
+         
+	real_tau = last_rtt.ms_int + waiting_time;
+	real_tau = magic_round (tau, real_tau);
 
-	pending_time = MAX (tau / 2, local_tau + jitter / 2);	/* <- min of pending
-								 *    time is TAU/2 
-								 */
-
-    }
-
-    if (diff_ipid & !rand_ip_id) {
-
-	delta = (diff_id > 1 ? diff_id - 1 : 0);
-
-	/* a low_pass filter voids spikes */
-
-	out_burst = twostep_predictor (delta * (tcpip_lenght[traffic_tos].lenght << 3), pending_time);
-	out_burst = lp_FIR (out_burst, pending_time);
-
-	max_burst = MAX (max_burst, out_burst);
-
-	E (&mean_burst, out_burst, 1);
-
-	PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ", out_burst, mean_burst, max_burst);
-	PUTS ("usage=%d%%(%d%%) ", (int)PER_CENT (out_burst, max_burst), (int)PER_CENT (mean_burst, max_burst));
-	PUTS ("link=[%s/%s]\n", link_type (mean_burst), link_type (max_burst));
+	pending_time = MAX (tau/2, real_tau + jitter/2);
 
     }
-    else if (rand_ip_id) {
-	/* rand_ip_id detected!!! OPENBSD| FREEBSD */
-	PUTS ("    burst+= rand(ip_id)\n");
-    }
 
+    out_burst  = (MAX (0, diff_id-1 ) * tcpip_lenght[traffic_tos].lenght <<3)  + (ip_size<<3); 	/* bits */ 
+    out_burst /= pending_time; 									/* kbps */
+
+    max_burst = MAX (max_burst, out_burst);
+
+    E (&mean_burst, out_burst, 1);
+
+    PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ", out_burst, mean_burst, max_burst);
+    PUTS ("link=[%s]\n", link_type (mean_burst));
 
 }

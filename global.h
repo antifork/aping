@@ -54,6 +54,9 @@ EXTERN long ip_src;
 EXTERN long ip_dst;
 EXTERN long ip_tos;
 EXTERN long ip_ttl INIT(=255);		/* default ttl */
+
+EXTERN long ip_size;
+EXTERN long icmp_size;
 EXTERN long icmp_type INIT(=8);		/* default echo request */
 EXTERN long icmp_code;
 
@@ -92,7 +95,7 @@ EXTERN long rtt_sqre;   		/* E{rtt^2} */
 
 
 EXTERN long jitter;
-EXTERN long time_lost;  		/* due to packets lost */
+EXTERN long waiting_time;  		/* due to packets lost */
 
 EXTERN long traffic_tos;
 
@@ -109,13 +112,12 @@ EXTERN long out_burst;  		/* the current remote outgoing burst in kbit */
 EXTERN long max_burst;  		/* the max recorded burst ( used to predict the bandwidth) */
 EXTERN long mean_burst;
 
-EXTERN long delta;
 EXTERN long pending_time;
-EXTERN long local_tau;
+EXTERN long real_tau;
 
 EXTERN long slow_start INIT(= 1); 	/* to calc the correct value of ip_id */ 
 
-EXTERN long rand_ip_id; 
+EXTERN long rand_ipid; 
 EXTERN long ipid_failure;		/* used by agent endian bug */
 
 EXTERN bpf_u_int32 localnet;
