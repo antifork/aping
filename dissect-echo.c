@@ -63,10 +63,11 @@ load_echo (packet *p, char **argv)
   ICMP_id(p)  = myid;
   ICMP_seq(p) = n_sent;
 
-  memcpy(p->data, pattern, MIN(strlen(pattern),MAX_PATTERN)); 
+  memcpy(p->icmp_tstamp_data, pattern, MIN(strlen(pattern),MAX_PATTERN)); 
 
   gettimeofday(&now,NULL);
-  memcpy(p->tval, &now, sizeof(struct timeval));
+
+  memcpy(p->icmp_tstamp_tval, &now, sizeof(struct timeval));
 
   ICMP_sum(p)= 0;
   ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
@@ -133,7 +134,7 @@ finger_print(packet *p)
 
   if ( icmp_len > 16 )
 	{
-	memcpy(fp_buffer+6, PDATA(p),icmp_len-16);
+	memcpy(fp_buffer+6, TS_DATA(p),icmp_len-16);
   	h = hash (fp_buffer, icmp_len-10); 
 	}
   else 

@@ -93,8 +93,16 @@ typedef union {
 typedef struct {
         struct ip      *ip;
         struct icmp    *icmp;
-        struct timeval *tval;
-        char           *data;
+
+        char 	       *data;
+   	struct { 
+        	struct timeval *tval;
+        	char           *data;
+		} echo; 
+
+#define icmp_tstamp_data echo.data 
+#define icmp_tstamp_tval echo.tval 
+
 } packet;
 
 

@@ -75,8 +75,10 @@ lineup_layers (char *buff, packet * pkt)
 
     pkt->ip = (struct ip *) ((void *) buff + offset_dl);
     pkt->icmp = (struct icmp *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2));
-    pkt->tval = (struct timeval *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);	/* icmp_type 0|8 */
-    pkt->data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8 + sizeof (struct timeval));
+    pkt->data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
+
+    pkt->icmp_tstamp_tval = (struct timeval *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);	/* icmp_type 0|8 */
+    pkt->icmp_tstamp_data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8 + sizeof (struct timeval));
 
 }
 

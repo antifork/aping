@@ -43,16 +43,41 @@
 #define IP_sum(p)	((p)->ip->ip_sum)
 #define IP_src(p)	((p)->ip->ip_src.s_addr)
 #define IP_dst(p)	((p)->ip->ip_dst.s_addr)
+
 #define ICMP_type(p)    ((p)->icmp->icmp_type)
 #define ICMP_code(p)	((p)->icmp->icmp_code)
 #define ICMP_sum(p)     ((p)->icmp->icmp_cksum)
 #define ICMP_id(p)	((p)->icmp->icmp_id) 
 #define ICMP_seq(p)	((p)->icmp->icmp_seq)
-#define TVAL_sec(p)	((p)->tval->tv_sec)
-#define TVAL_usec(p)	((p)->tval->tv_usec)
-#define TVAL_tv(p)	(p)->tval->tv
 
-#define PDATA(p)	((p)->data)
+#define ICMP_IP_ver(p)  ((p)->icmp->icmp_ip.ip_v)
+#define ICMP_IP_hl(p)   ((p)->icmp->icmp_ip.ip_hl)
+#define ICMP_IP_tos(p)  ((p)->icmp->icmp_ip.ip_tos)
+#define ICMP_IP_len(p)  ((p)->icmp->icmp_ip.ip_len)
+#define ICMP_IP_id(p)   ((p)->icmp->icmp_ip.ip_id)
+#define ICMP_IP_off(p)  ((p)->icmp->icmp_ip.ip_off)
+#define ICMP_IP_ttl(p)  ((p)->icmp->icmp_ip.ip_ttl)
+#define ICMP_IP_p(p)    ((p)->icmp->icmp_ip.ip_p)
+#define ICMP_IP_sum(p)  ((p)->icmp->icmp_ip.ip_sum)
+#define ICMP_IP_src(p)  ((p)->icmp->icmp_ip.ip_src.s_addr)
+#define ICMP_IP_dst(p)  ((p)->icmp->icmp_ip.ip_dst.s_addr)
+
+#define ICMP_TCP_sport(p) ((short *)(p)->data) 
+#define ICMP_TCP_dport(p) ((short *)(p)->data[0+sizeof(short)])
+
+#define ICMP_ICMP_type(p) ((p)->data)
+#define ICMP_ICMP_code(p) ((p)->data[1])
+#define ICMP_ICMP_sum(p)  ((short *)(p)->data[2])
+#define ICMP_ICMP_id(p)   ((short *)(p)->data[4])
+#define ICMP_ICMP_seq(p)  ((short *)(p)->data[6])
+
+#define TVAL_sec(p)	((p)->icmp_tstamp_tval->tv_sec)
+#define TVAL_usec(p)	((p)->icmp_tstamp_tval->tv_usec)
+#define TVAL_tv(p)	(p)->icmp_tstamp_tval->tv
+
+#define RAW_DATA(p)	((p)->data)
+#define TS_DATA(p)	((p)->icmp_tstamp_data)
+ 
 
 /* filters macro */
 

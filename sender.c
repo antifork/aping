@@ -133,8 +133,11 @@ load_layers (char *buff, packet * pkt)
 
     pkt->ip = (struct ip *) ((void *) buff);
     pkt->icmp = (struct icmp *) ((void *) buff + off_ip);
-    pkt->tval = (struct timeval *) ((void *) buff + off_ip + 8);
-    pkt->data = (char *) ((void *) buff + off_ip + 8 + sizeof (struct timeval));
+
+    pkt->data = (char *) ((void *) buff + off_ip + 8);
+
+    pkt->icmp_tstamp_tval = (struct timeval *) ((void *) buff + off_ip + 8);
+    pkt->icmp_tstamp_data = (char *) ((void *) buff + off_ip + 8 + sizeof (struct timeval));
 }
 
 
