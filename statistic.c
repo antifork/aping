@@ -313,13 +313,13 @@ bandwidth_predictor (packet * p)
 
     if ( curr_tstamp )
 	{
-		/* icmp timestamp reply: 
-		   In case of ts_reply we dont need to estimate the pending_time, 
-		   since we are able to calc a deterministic value.
-		 */
 
-		if ( curr_tstamp - last_tstamp )
-		     pending_time = curr_tstamp - last_tstamp;
+	/* icmp timestamp reply: 
+	 *  In case of ts_reply we dont need to estimate the pending_time, 
+	 *  since we are able to calc a deterministic value.
+	 */
+
+	pending_time = MAX(tau/2, curr_tstamp- last_tstamp);
 
 	} 
     else
