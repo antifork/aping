@@ -313,6 +313,7 @@ end_switch:
 void
 receiver()
 {
+	struct timespec tr, ts={ 0, 1000000 };
 	const u_char *ptr;
 	packet *p;
 	pcap_t *in_pcap;
@@ -359,11 +360,15 @@ receiver()
 
 	for (;;) {
 
-		//DONT_EAT_CPU();
 		ptr = NULL;
+
+		/* don't eat cpu */
+                while (nanosleep(&ts,&tr)==-1)
+                	ts=tr;
 
 		while ((ptr = pcap_next(in_pcap, &pcaphdr)) != (u_char *) NULL) {
 
+			/* set cancel point */
 			pthread_testcancel();
 
 			/* timestamp of current packet */

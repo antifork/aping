@@ -58,8 +58,6 @@ fflush (stderr);                                                        \
 #define DEBUG(f,arg...) do {} while (0)
 #endif
 
-#define DONT_EAT_CPU()  usleep(1);	
-
 #define ATOA(x) 	strtol(x, (char **)NULL, 0)
 #define ATOMIC(a,b)	( (!(a)&&(b)) || ((a)&&!(b)) || (!(a)&&!(b)) )
 

@@ -134,10 +134,11 @@ sender(argv)
 	char **argv;
 {
 	struct timeval timenow;
+	struct timespec ts, tr;
 	struct sockaddr_in saddr;
 	packet pkt;
 	int sfd;
-	int msec;
+	int usec;
 
 	DEBUG("start\n");
 
@@ -205,7 +206,8 @@ sender(argv)
 	else
 		PUTS("PING %s (%s): icmp=%ld(%s)\n", host_dst, safe_inet_ntoa(ip_dst), icmp_type, icmp_type_str[icmp_type]);
 
-	msec = 1000 * tau;
+	ts.tv_sec = (tau/1000);
+	ts.tv_nsec= (tau%1000)*1000000;
 
 	while (!count || (n_sent < count)) {
 
@@ -242,16 +244,15 @@ sender(argv)
 			ip_id = rand();
 
 		/* rating.. */
+		while ( nanosleep(&ts,&tr)==-1 )
+			ts=tr;
 
-		usleep(msec);
-		
 		while (n_pause)
-			usleep(1000);
+			nanosleep(&ts,NULL);
 
 		pthread_testcancel();
 
 	}
 
 	pthread_exit(NULL);
-
 }
