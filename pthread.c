@@ -35,7 +35,7 @@
 #include <signal.h>
 #include <pthread.h>
 
-void
+int
 pthread_sigset_block (int n, ...)
 {
     sigset_t set;
@@ -50,12 +50,12 @@ pthread_sigset_block (int n, ...)
 	sigaddset (&set, signum);
     }
 
-    pthread_sigmask (SIG_BLOCK, &set, NULL);
+    return(pthread_sigmask (SIG_BLOCK, &set, NULL));
 
 }
 
 
-void
+int
 pthread_sigset_unblock (int n, ...)
 {
     sigset_t set;
@@ -70,6 +70,6 @@ pthread_sigset_unblock (int n, ...)
 	sigaddset (&set, signum);
     }
 
-    pthread_sigmask (SIG_UNBLOCK, &set, NULL);
+    return(pthread_sigmask (SIG_UNBLOCK, &set, NULL));
 
 }

@@ -33,6 +33,7 @@
 
 #include "header.h"
 #include "macro.h"
+#include "config.h"
 
 int
 get_first_hop (target, source, ifname)
@@ -117,7 +118,7 @@ get_first_hop (target, source, ifname)
 	ifr = (struct ifreq *) buffer;
 	iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
 
-#if !defined (__linux__) && !defined(__sun__)
+#if defined (HAVE_SOCKADDR_SA_LEN)
 	for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + ifr->ifr_addr.sa_len)
 #else
 	for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in))
@@ -184,7 +185,7 @@ gethostbyif (char *ifname)
     if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)
 	FATAL (strerror (errno));
 
-#if !defined(__linux__) && !defined(__sun__)
+#if defined(HAVE_SOCKADDR_SA_LEN)
     for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + ifr->ifr_addr.sa_len)
 #else
     for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in))

@@ -30,7 +30,7 @@
 
 CC          = @CC@
 CFLAGS      = @CFLAGS@  
-INCLS       = @INCLS@
+INCLS       = -I. @INCLS@
 LDFLAGS     = @LDFLAGS@
 LIBS        = @LIBS@  
 DEFS        = @DEFS@ @APING_DEFS@ # -DEADBUG
