@@ -240,7 +240,7 @@ print_RR(char *opt)
 	 hop = (long *)(opt+3); /* hop pointer */ 
 
 
-	 for(i=1; i < (opt[IPOPT_OFFSET]>>2); i++ ) 	
+	 for(i=1; i < MIN(9,(opt[IPOPT_OFFSET]>>2)); i++ ) 	
 		{
 		PUTS("\rRR:  %s(%s)\n", gethostbyaddr_lru(hop[i-1]),multi_inet_ntoa(hop[i-1]));	
 		}

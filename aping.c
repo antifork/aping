@@ -162,10 +162,22 @@ main (argc, argv)
      char        **argv;
 {
     
+    struct rlimit core; 
     int           loss;
     int           es;
     int		  major;
     int 	  minor;
+
+    /* rlimit */
+
+    core.rlim_cur = 0;
+    core.rlim_max = 0;
+
+    /* setrlimit */
+
+#ifndef EADBUG
+    setrlimit(RLIMIT_CORE, &core);
+#endif
 
     /* maturity interface */
 

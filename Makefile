@@ -30,7 +30,7 @@
 
 CC      = gcc
 DEBUG   = # -DEADBUG 
-CFLAGS  = -O3 -funroll-loops -fomit-frame-pointer -pipe -Wall -I.
+CFLAGS  = -O2 -pipe -Wall -I.
 
 LINUX   = -lpcap -lpthread 
 OPENBSD = -lpcap  -pthread
