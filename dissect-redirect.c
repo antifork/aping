@@ -56,11 +56,18 @@ Redirect Message
 
 */
 
+static int _dissect_type = ICMP_REDIRECT;
+#include "maturity.h"
 
 
 void
 load_redirect(packet *p, char **argv)
 {
+	
+        /* maturity level */
+        SET_LOADER_LEVEL('b');
+
+
 	/* destination, tos, new_gateway, icmp_src_ip, icmp_dest_ip */
 	checkargs(argv,5,ARG_IP,ARG_NUM,ARG_IP,ARG_IP,ARG_IP);
 
@@ -97,4 +104,7 @@ load_redirect(packet *p, char **argv)
 void
 dissect_redirect(packet *p)
 {
+        /* maturity level */
+        SET_DISSECT_LEVEL('_');
+
 }

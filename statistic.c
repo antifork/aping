@@ -335,7 +335,8 @@ bandwidth_predictor (packet * p)
     	pending_time = MAX(tau/2, local_tau+ jitter/2 );   /* <- min of pending time is TAU/2 */
 
 	}
-
+	
+	printf("pending_time=%ld\n",pending_time);
     if (options.differ & !rand_ip_id)
 	{
 

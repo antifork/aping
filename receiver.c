@@ -50,31 +50,7 @@ struct bpf_program fcode;
 struct timeval *timestamp;
 packet        pkt;
 
-
-void  (*icmp_dissect_vector[256]) (packet *) =
-{
-        dissect_echo_reply,
-	NULL,
-	NULL,
-	dissect_destination_unreachable,
-	dissect_source_quench,
-	dissect_redirect,
-	NULL,
-	NULL,
-	dissect_echo,
-	dissect_router_advertisement,
-	dissect_router_solicitation,
-	dissect_time_exceeded,
-	dissect_parameter_problem, 
-        dissect_timestamp, 
-	dissect_timestamp_reply, 
-	dissect_information_request, 
-	dissect_information_reply, 
-	dissect_address_mask_request, 
-	dissect_address_mask_reply
-};
-
-
+#include "vectors.h"
 #include "filter.h"
 
 void

@@ -53,10 +53,9 @@ void    print_icon              (int);
 u_short	chksum                  (u_short * addr, int len);
 
 unsigned long hash 		(const char *, int);
+unsigned char TTL_PREDICTOR     (unsigned char);
 
 long 	LOW_PASS_FIR		(long , long );
-unsigned char TTL_PREDICTOR	(unsigned char);
-
 void    bandwidth_predictor     (packet *);
 long    E                       (long *, long, long);
 

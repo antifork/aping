@@ -60,31 +60,38 @@
 #include "prototype.h"
 #include "global.h"
 
+static int _dissect_type = ICMP_TSTAMPREPLY;
+#include "maturity.h"
+
 void
 load_timestamp_reply (packet *p, char **argv)
 {
+        /* maturity level */
+        SET_LOADER_LEVEL('_');
+
 }
 
 void
 dissect_timestamp_reply (packet *p)
 {
-  long rtime;
-  long ttime;   
+  	long rtime;
+  	long ttime;   
 
-  long hour;
-  long min;
-  long sec;
+  	long hour;
+  	long min;
+  	long sec;
 
-  rtime = ntohl(ICMP_rtime(p));
-  ttime = ntohl(ICMP_ttime(p));
+        /* maturity level */
+        SET_DISSECT_LEVEL('a');
 
-  hour  = (rtime /( 1000 * 60 * 60 )) % 24;
-  min   = (rtime /( 1000 * 60 )) % 60;  
-  sec   = (rtime /( 1000 )) % 60;
+  	rtime = ntohl(ICMP_rtime(p));
+  	ttime = ntohl(ICMP_ttime(p));
 
-  PUTS("    idle=%ld ms time=%02ld:%02ld:%02ld GMT", ttime-rtime, hour, min,sec);
-  PUTS("\n");
+ 	hour  = (rtime /( 1000 * 60 * 60 )) % 24;
+  	min   = (rtime /( 1000 * 60 )) % 60;  
+  	sec   = (rtime /( 1000 )) % 60;
 
-  bandwidth_predictor(p);
+  	PUTS("    idle=%ld ms time=%02ld:%02ld:%02ld GMT\n", ttime-rtime, hour, min,sec);
 
+  	bandwidth_predictor(p);
 }

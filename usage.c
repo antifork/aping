@@ -76,7 +76,7 @@ usage (char *name, int type)
 		      "   -p                        set pattern \"\"\n"
 		      "   -e  ifname                set default device\n"
 		      "   -P                        set promisc-mode\n"
-		      "   -s  level               * set sniff level\n"
+		      "   -s  level                 set sniff level\n"
 		      "   -z  size                  set packetsize\n"
 		      "   -c                        count\n"
 		      "   -d                        don't fragment bit\n"
@@ -99,12 +99,17 @@ usage (char *name, int type)
 	     {
 		 int           i;
 
-		 fprintf (stderr, "Summary of Message Types:\n");
-
+		 fprintf (stderr, "Summary of message types and current implementation:\n");
+		 fprintf (stderr, "\nlegenda: [_]= not implemented   [i]= incomplete    [a] = alpha\n"
+				    "         [b]= beta              [*]= done\n\n"
+				    "         [T][R] T= trasmitter, R= receiver\n\n");
 		 for (i = 0; i < 256; i++)
 		     {
 			 if (icmp_type_str[i] != NULL)
-			     printf ("   -t %2d  %s\n", i, icmp_type_str[i]);
+			     printf ("         [%c][%c] -t %2d  %s\n", 
+					maturity_level[i][0],
+					maturity_level[i][1],	
+					i, icmp_type_str[i]);
 
 		     }
 	     }

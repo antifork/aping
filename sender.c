@@ -62,7 +62,7 @@
 #include "aping.h"
 #include "prototype.h"
 #include "global.h"
-
+#include "vectors.h"
 
 extern char  *icmp_type_str[256];
 extern char  *icmp_code_str[256*256];
@@ -80,25 +80,9 @@ int           true = 1;
 
 #define LEN(base,type) (base|type<<8)
 
-int           icmphdr_vector[32] = { LEN (8, 1), 0, 0, LEN (8, 2), LEN (8, 2), LEN (8, 2), 0, 0,
+int  icmphdr_vector[32] = { LEN (8, 1), 0, 0, LEN (8, 2), LEN (8, 2), LEN (8, 2), 0, 0,
     LEN (8, 1), LEN (8, 4), 8, LEN (8, 2), LEN (8, 2), 20, 20, 8, 8, 12 , 12 
 };
-
-
-void          (*icmp_load_vector[32]) (packet *, char **) =
-{
-load_echo_reply,
-	NULL,
-	NULL,
-	load_destination_unreachable,
-	load_source_quench,
-	load_redirect,
-	NULL,
-	NULL,
-	load_echo,
-	load_router_advertisement,
-	load_router_solicitation,
-	load_time_exceeded, load_parameter_problem, load_timestamp, load_timestamp_reply, load_information_request, load_information_reply, load_address_mask_request, load_address_mask_reply};
 
 
 int
@@ -186,11 +170,11 @@ sender (argv)
 {
 
     struct timeval timenow;
-
     struct sockaddr_in saddr;
     sigset_t      set;
     packet        pkt;
     int           sfd;
+
 
     sigemptyset (&set);
 
@@ -203,6 +187,10 @@ sender (argv)
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
+    gettimeofday (&timenow, NULL);
+
+    last_sent.ts_sec  =  timenow.tv_sec;                                                                    
+    last_sent.ts_usec =  timenow.tv_usec-tau*1000;
 
     /* set icmp_id */
 
@@ -261,16 +249,16 @@ sender (argv)
 
 	/* load icmp header */
 
-	    if (icmp_load_vector[icmp_type] != NULL)
-		(*icmp_load_vector[icmp_type]) (&pkt, argv);
+	    if (icmp_loader_vector[icmp_type] != NULL)
+		(*icmp_loader_vector[icmp_type]) (&pkt, argv);
 
 
 	/* marking system timestamp for no-echo packets */
 
 	    gettimeofday (&timenow, NULL);
 
-	    last_sent.ts_sec  = timenow.tv_sec;
-	    last_sent.ts_usec = timenow.tv_usec;
+	    last_sent.ts_sec  =  timenow.tv_sec;
+	    last_sent.ts_usec =  timenow.tv_usec;
 
 	    switch (sendto(sfd, buffer, UNFIX (pkt.ip->ip_len), 0, (struct sockaddr *) &saddr, sizeof (struct sockaddr)))
 		{
@@ -286,16 +274,26 @@ sender (argv)
 
 	    print_icon(0);
 
-            /* rate */ 
-
-            usleep (tau * 1000);
-	
 	    /* changes */
 
-	    if (options.ip_ramp                      ) ip_ttl++;
-	    if (options.ip_id_incr || !options.ip_id ) ip_id ++;
+	    if (options.ip_ramp ) 
+		ip_ttl++;
+
+	    if (options.ip_id_incr || !options.ip_id ) 
+		{
+		  ip_id ++;
+		}
 	    else 
-            if (options.ip_id_rand                   ) ip_id = rand ();
+                {
+		   if (options.ip_id_rand) 
+			ip_id = rand ();
+		}
+
+
+            /* rating.. */
+
+            usleep ( tau * 1000 );
+
 
 	}
 

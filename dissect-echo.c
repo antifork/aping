@@ -46,7 +46,7 @@ Echo or Echo Reply Message
    +-+-+-+-+-
 
 */
- 
+
 #include "dissect.h" 
 #include "aping.h"
 
@@ -55,27 +55,34 @@ Echo or Echo Reply Message
 #include "global.h"
 #include "filter.h"
 
+
+static int _dissect_type = ICMP_ECHO;
+#include "maturity.h"
+
 void
 load_echo (packet *p, char **argv)
 {
+	struct timeval now;
 
-  struct timeval now;
+  	/* maturity level */
+  	SET_LOADER_LEVEL('*'); 
 
-  ICMP_type(p)= ICMP_ECHO;
-  ICMP_code(p)= 0;
-  ICMP_id(p)  = myid;
-  ICMP_seq(p) = n_sent;
+  	ICMP_type(p)= _dissect_type;
+  	ICMP_code(p)= 0;
+  	ICMP_id(p)  = myid;
+  	ICMP_seq(p) = n_sent;
 
-  memcpy(p->icmp_tstamp_data, pattern, MIN(strlen(pattern),MAX_PATTERN)); 
+  	memcpy(p->icmp_tstamp_data, pattern, MIN(strlen(pattern),MAX_PATTERN)); 
 
-  gettimeofday(&now,NULL);
+  	gettimeofday(&now,NULL);
 
-  memcpy(p->icmp_tstamp_tval, &now, sizeof(struct timeval));
+  	memcpy(p->icmp_tstamp_tval, &now, sizeof(struct timeval));
 
-  ICMP_sum(p)= 0;
-  ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
+  	ICMP_sum(p)= 0;
+  	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(_dissect_type));
 
 }
+
 
 #include "fingerprint.h"
 
@@ -135,6 +142,9 @@ void
 dissect_echo (packet *p)
 {
 
-  finger_print(p);
+  	/* maturity level */
+  	SET_DISSECT_LEVEL('*');
+
+  	finger_print(p);
 
 }

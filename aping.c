@@ -46,6 +46,8 @@
 
 #define  GLOBAL_HERE
 #include "global.h"
+#include "vectors.h"
+#include "maturity.h"
 
 #define ID "$Id$";
 
@@ -164,6 +166,12 @@ main (argc, argv)
     int           es;
     int		  major;
     int 	  minor;
+
+    /* maturity interface */
+
+    SETUP_MATURITY();
+
+    LOAD_MATURITY();
 
     /* Security */
 

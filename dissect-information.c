@@ -52,20 +52,29 @@
 #include "prototype.h"
 #include "global.h"
 
+static int _dissect_type = ICMP_IREQ;
+#include "maturity.h"
+
 void
 load_information_request(packet *p, char **argv)
 {
-  ICMP_type(p)= ICMP_IREQ;
-  ICMP_code(p)= 0;
-  ICMP_id(p)  = myid;
-  ICMP_seq(p) = n_sent;
+        /* maturity level */
+        SET_LOADER_LEVEL('*');
 
-  ICMP_sum(p)= 0;
-  ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
+  	ICMP_type(p)= ICMP_IREQ;
+  	ICMP_code(p)= 0;
+  	ICMP_id(p)  = myid;
+  	ICMP_seq(p) = n_sent;
+
+  	ICMP_sum(p) = 0;
+  	ICMP_sum(p) = chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
 }
 
 void
 dissect_information_request(packet *p)
 {
-  PUTS("icmp_ld=%ld seq=%ld\n", (long)ICMP_id(p), (long)ICMP_seq(p));
+        /* maturity level */
+        SET_DISSECT_LEVEL('*');
+
+  	PUTS("icmp_ld=%ld seq=%ld\n", (long)ICMP_id(p), (long)ICMP_seq(p));
 }

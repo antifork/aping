@@ -31,7 +31,7 @@
  * 
  */
 
-/* ICMP_INFO_REPLY */
+/* ICMP_IREQREPLY */
  
 #include "dissect.h" 
 #include "aping.h"
@@ -40,13 +40,23 @@
 #include "prototype.h"
 #include "global.h"
 
+static int _dissect_type = ICMP_IREQREPLY;
+#include "maturity.h"
+
+
 void
 load_information_reply(packet *p, char **argv)
 {
+        /* maturity level */
+        SET_LOADER_LEVEL('_');
+
 }
 
 void
 dissect_information_reply(packet *p)
 {
-   PUTS("icmp_ud=%ld seq=%ld\n",(long)ICMP_id(p), (long)ICMP_seq(p));
+        /* maturity level */
+        SET_DISSECT_LEVEL('*');
+
+   	PUTS("icmp_ud=%ld seq=%ld\n",(long)ICMP_id(p), (long)ICMP_seq(p));
 }

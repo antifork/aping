@@ -59,11 +59,18 @@ Echo or Echo Reply Message
 #include "filter.h"
 #include "argscheck.h"
 
+static int _dissect_type = ICMP_ECHOREPLY;
+#include "maturity.h"
+
 void
 load_echo_reply (packet *p, char **argv)
 {
-	/* destination, id, seq */
 	struct timeval now;
+
+        /* maturity level */
+        SET_LOADER_LEVEL('b');
+
+        /* destination, id, seq */
 	checkargs(argv,3,ARG_IP,ARG_NUM,ARG_NUM);
 
 	ICMP_type(p)= 0; /*echo reply */
@@ -85,7 +92,8 @@ load_echo_reply (packet *p, char **argv)
 void
 dissect_echo_reply (packet *p)
 {
+  	/* maturity level */
+ 	SET_DISSECT_LEVEL('*');
 
-  bandwidth_predictor(p);  
-
+  	bandwidth_predictor(p);  
 }

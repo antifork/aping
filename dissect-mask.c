@@ -54,21 +54,30 @@
 #include "prototype.h"
 #include "global.h"
 
+static int _dissect_type = ICMP_MASKREQ;
+#include "maturity.h"
+
 void
 load_address_mask_request (packet *p, char **argv)
 {
 
-  ICMP_type(p)= ICMP_MASKREQ;
-  ICMP_code(p)= 0;
-  ICMP_id(p)  = myid;
-  ICMP_seq(p) = n_sent;
+        /* maturity level */
+        SET_LOADER_LEVEL('b');
 
-  ICMP_sum(p)= 0;
-  ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
+	ICMP_type(p)= ICMP_MASKREQ;
+	ICMP_code(p)= 0;
+	ICMP_id(p)  = myid;
+	ICMP_seq(p) = n_sent;
+
+	ICMP_sum(p) = 0;
+	ICMP_sum(p) = chksum((u_short *)p->icmp, sizeof_icmp(ICMP_MASKREQ));
 }
 
 
 void
 dissect_address_mask_request (packet *p)
 {
+        /* maturity level */
+        SET_DISSECT_LEVEL('_');
+
 }

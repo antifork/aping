@@ -41,6 +41,7 @@ INSTALL = /usr/bin/ginstall -c
 OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
 	resolver.c \
 	argscheck.o \
+	chksum.o usage.o \
 	dissect-destination.o \
 	dissect-echo-reply.o \
 	dissect-echo.o \
@@ -55,8 +56,7 @@ OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
 	dissect-source-quench.o \
 	dissect-time-exceeded.o \
 	dissect-timestamp-reply.o \
-	dissect-timestamp.o \
-	chksum.o usage.o 
+	dissect-timestamp.o 
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEBUG) -c $< -o $@ 

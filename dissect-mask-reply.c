@@ -54,30 +54,39 @@
 #include "prototype.h"
 #include "global.h"
 
+static int _dissect_type = ICMP_MASKREPLY;
+#include "maturity.h"
+
 void
 load_address_mask_reply (packet *p, char **argv)
 {
+        /* maturity level */
+        SET_LOADER_LEVEL('_');
+
 }
 
 void
 dissect_address_mask_reply (packet *p)
 {
-  long network;
-  long mask;
-  long class;
-  long broad;
+  	long network;
+  	long mask;
+  	long class;
+  	long broad;
 
-  mask = class = 0;
-  mask = ntohl(ICMP_mask(p));
+        /* maturity level */
+        SET_DISSECT_LEVEL('*');
 
-  do
-  { class++; }
-  while ( mask <<=1 ); 
+  	mask = class = 0;
+  	mask = ntohl(ICMP_mask(p));
 
-  network = IP_src(p) & ICMP_mask(p);
-  broad   = network | ~ICMP_mask(p);
+  	do
+  	{ class++; }
+  	while ( mask <<=1 ); 
 
-  PUTS("    mask=%s net=%s/%ld broadcast=%s\n",  \
+  	network = IP_src(p) & ICMP_mask(p);
+  	broad   = network | ~ICMP_mask(p);
+
+  	PUTS("    mask=%s net=%s/%ld broadcast=%s\n",  \
 	multi_inet_ntoa(ICMP_mask(p)),multi_inet_ntoa(network),class,multi_inet_ntoa(broad));
 
 }

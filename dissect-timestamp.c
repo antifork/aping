@@ -59,6 +59,11 @@
 #include "prototype.h"
 #include "global.h"
 
+
+static int _dissect_type = ICMP_TSTAMP;
+#include "maturity.h"
+
+
 /* from ip_icmp.c BSD kernel.. */ 
  
 long
@@ -78,21 +83,24 @@ iptime()
 void
 load_timestamp (packet *p, char **argv)
 {
-  ICMP_type(p)  = ICMP_TSTAMP;
-  ICMP_code(p)  = 0;
 
-  ICMP_id(p)    = myid;
-  ICMP_seq(p)   = n_sent;
+        /* maturity level */
+        SET_LOADER_LEVEL('*');
 
-  ICMP_otime(p) = iptime();
+	ICMP_type(p)  = ICMP_TSTAMP;
+  	ICMP_code(p)  = 0;
+  	ICMP_id(p)    = myid;
+  	ICMP_seq(p)   = n_sent;
+  	ICMP_otime(p) = iptime();
 
-  ICMP_sum(p)= 0;
-  ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
-
- 
+  	ICMP_sum(p)   = 0;
+  	ICMP_sum(p)   = chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
 }
 
 void
 dissect_timestamp (packet *p)
 {
+        /* maturity level */
+        SET_DISSECT_LEVEL('_');
+
 }

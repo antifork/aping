@@ -107,10 +107,12 @@ EXTERN long fail_ip_id;
 EXTERN bpf_u_int32 localnet;
 EXTERN bpf_u_int32 netmask;
 
-
 EXTERN char *host_src;
 EXTERN char *host_dst;
 EXTERN char *pattern;
+
+EXTERN char  maturity_level[256][2];
+EXTERN char  maturity_void [0];
 
 EXTERN char buffer [MAX_PACSIZE];
 EXTERN char bufferr[PCAP_ERRBUF_SIZE];
