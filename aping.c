@@ -78,7 +78,7 @@ ctrl_ (i)
     fail_ip_id =0;
     slow_start =1;
 
-//  LOW_PASS_FIR(-1,0); /* reset low pass filter */
+    lp_FIR(-1,0); /* reset low pass filter */
 
     PUTS ("idbug: %ld, differ: %ld\n\n",(iddeal &2)>>1, iddeal &1);
 
@@ -98,6 +98,8 @@ ctrlz (i)
            max_burst  =0;
 
            E(&mean_burst, 0 , -1);
+            
+           lp_FIR(-1,0); /* reset low pass filter */
 
 	   traffic_tos= (traffic_tos+1) & 0x0f;
 	

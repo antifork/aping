@@ -226,10 +226,26 @@ TTL_PREDICTOR (unsigned char x)
 
 
 
-     The model we use for our 2 step estimator is the following:
+     The model we use for our 2 step linear predictor is the following:
      _          _
      b(t+T) = b(t)*Rb(T) + raw (t+T)* (1-Rb(T));        
 
+    
+     Implementation diagram: 
+
+
+        id(t)
+
+         |
+         |                      .-------.       .-------.
+          `--->(-)-----(*)----->| 2step |--+--->|  FIR  |---> burst(t)
+                ^   |   ^       ._______.  |    ._______.
+                |   |   |          ^       |
+               [T]--'   |           `------'
+                        |
+                    _________
+                    pack_size
+                   
 
 *****/
 
@@ -240,12 +256,76 @@ twostep_predictor(long raw, long pen_time )
 {
   static long b_t;
 
-  b_t  = b_t * TRIANGLE(pen_time) + (raw/(1+pen_time)) * ( tau - TRIANGLE(pen_time) );
+  b_t  = b_t * TRIANGLE(pen_time) + (raw/(1+pen_time)) * \
+		( tau - TRIANGLE(pen_time) );
+
   b_t /= tau;
 
   return (b_t);
 
 }
+
+/*
+ *  low pass filter 
+ */
+
+#define C0 100
+#define C1 36
+#define C2 10
+#define FIR(a,b,c) (a* C0+b* C1+c* C2)/(C0+C1+C2)
+
+double
+onestep_FIR (double n)
+{ 
+    static double enne[2];
+  
+    double        ret;
+  
+    if (n < 0)
+        {
+            /* reset */
+       
+            enne[0] = 0;
+            enne[1] = 0;
+       
+            return 0;
+        }
+       
+    ret = FIR (n, enne[0], enne[1]);
+  
+    enne[1] = enne[0];
+    enne[0] = n;
+  
+    return ret;
+  
+}
+
+
+long
+lp_FIR (long kbps, long pt)
+{ 
+
+    double        ret;
+    long          ns;
+    long          i;
+  
+    if ( kbps < 0) /* reset */
+        {
+            return onestep_FIR (kbps);
+        }
+
+    ns =  pt / tau;          /* how many times the onestep_fir is called  
+                              */
+    if ( ns == 0 ) 
+	ns=1;
+
+    for ( i= 0; i < ns ; i++)
+        ret = onestep_FIR (kbps);
+
+    return (ret);
+
+}
+
 
 
 long
@@ -328,25 +408,29 @@ bandwidth_predictor (packet * p)
 	local_tau    = last_rtt.ms_int + time_lost;
     	local_tau    = magic_round (tau, local_tau);
 
-    	pending_time = MAX(tau/2, local_tau+ jitter/2 );   /* <- min of pending time is TAU/2 */
+    	pending_time = MAX(tau/2, local_tau+ jitter/2 );   /* <- min of pending
+							    *    time is TAU/2 
+							    */
 
 	}
 	
     if (options.differ & !rand_ip_id)
 	{
 
-	    delta = (diff_id > 1 ? diff_id - 1 : 0);
+	  delta = (diff_id > 1 ? diff_id - 1 : 0);
 
 	    /* a low_pass filter voids spikes */
 
-	    out_burst = twostep_predictor (delta *(tcpip_lenght[traffic_tos].lenght << 3), pending_time);
+	  out_burst = twostep_predictor (delta *(tcpip_lenght[traffic_tos].lenght << 3), pending_time);
+	  out_burst = lp_FIR( out_burst , pending_time );
 
-	    max_burst = MAX (max_burst, out_burst);
-	    
-	    E ( &mean_burst, out_burst, 1 );
+	  max_burst = MAX (max_burst, out_burst);
 
-	    PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ",out_burst,mean_burst,max_burst);
-	    PUTS ("link=[%s/%s]\n", link_type(mean_burst),link_type(max_burst));
+	  E ( &mean_burst, out_burst, 1 );
+
+	  PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ",out_burst,mean_burst,max_burst);
+          PUTS ("usage=%d%%(%d%%) ",PER_CENT(out_burst,max_burst),PER_CENT(mean_burst,max_burst));
+	  PUTS ("link=[%s/%s]\n", link_type(mean_burst),link_type(max_burst));
 
 	}
     else if (rand_ip_id)

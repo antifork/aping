@@ -80,7 +80,7 @@ FATAL("%s option require %s",#a,#b);			\
 #define CLR(x) (options.##x=0 )
 #define TST(x) (options.##x==1)
 
-#define PER_CENT(a,b) (100*(a)/(b)) 
+#define PER_CENT(a,b) ( (b) == 0 ? 0 : 100*(a)/(b) )
 
 #define FREE(a) { if ( a != NULL ) free(a); }
  

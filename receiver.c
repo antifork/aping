@@ -152,15 +152,13 @@ agent_ipid (packet * p)
 	    switch (fail_ip_id)
 		{
 		 case 1:
-		 case 2:
 		     break;
+		 case 2:
 		 case 3:
-		 case 4:
-		 case 5:
 		     PUTS ("\n!!!WARNING: wrong ip_id endianess!!!");
 		     return -1;
 		     break;
-		 case 6:
+		 case 4:
 		     PUTS ("\n!!!REVERTING to correct endian!!! ");
 
 		     fail_ip_id = 0;
@@ -176,7 +174,7 @@ agent_ipid (packet * p)
 
 		     slow_start = 1;	/* prevent wild burst */
 
-		     // LOW_PASS_FIR (-1, 0);	/* reset low pass filter */
+		     lp_FIR (-1, 0);	/* reset low pass filter */
 
 		     PUTS ("idbug: %ld, differ: %ld\n", (iddeal & 2) >> 1, iddeal & 1);
 		     return -1;
