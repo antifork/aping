@@ -1,0 +1,21 @@
+# Process this file with autoconf to produce a configure script.
+AC_INIT(sonar, 1.0, Bonelli Nicola <bonelli@blackhats.it>)
+AC_CONFIG_SRCDIR([sonar.c])
+AC_CONFIG_HEADER([config.h])
+
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+
+# Checks for libraries.
+
+# Checks for header files.
+
+AC_CHECK_HEADERS([linux/soundcard.h soundcard.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
