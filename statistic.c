@@ -323,10 +323,11 @@ bandwidth_predictor (packet * p)
 	    /* a low_pass filter voids spikes */
 
 	    out_burst = LOW_PASS_FIR (delta * (tcpip_lenght[traffic_tos].lenght << 3), pending_time);
-
 	    max_burst = MAX (max_burst, out_burst);
-	    PUTS ("    burst=%ld kbps max_burst=%ld kbps ",out_burst,max_burst);
+	    
+	    E ( &mean_burst, out_burst, 1 );
 
+	    PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ",out_burst,mean_burst,max_burst);
 	    PUTS ("link=[%s]\n", link_type(max_burst));
 
 	}
