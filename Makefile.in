@@ -80,7 +80,7 @@ version.h: VERSION
 	@sed -e 's/.*/#define VERSION "&"/' VERSION > $@
 	@echo "#define PLUGIN_PATH  \"@datadir@/aping\"" >> $@  
 	@echo "====================="
-	@echo "       aping"
+	@echo "     making aping"
 	@echo "====================="
 install:
 	$(shtool)  mkdir -f $(datadir)/aping

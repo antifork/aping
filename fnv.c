@@ -50,7 +50,7 @@ __inline
 unsigned long  
 hash (const char *p, int s)
 { 
-    unsigned long h = 0;
+    unsigned long h = 2166136261UL; /* FNV-1 hash */ 
     int           i = 0;
 
     for (; i < s; i++)

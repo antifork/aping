@@ -185,13 +185,12 @@ sender (argv)
 
     /* We set SO_BROADCAST whenever we need this. */
 
-    if (!(ntohl (ip_dst) & 0xff) || (ntohl (ip_dst) & 0xff) == 0xff)
+    if ( ip_dst == ( localnet | ~netmask ) )
 	{
-	    /* broadcast */
-	    PUTS ("broadcast addr, setting SO_BROADCAST socket option.\n");
+	    /* local broadcast */
+	    PUTS ("broadcast addr, SO_BROADCAST option is on.\n");
 	    setsockopt (sfd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof (true));
 	}
-
 
     /* ip_id */
 
@@ -250,19 +249,14 @@ sender (argv)
 
 	    /* changes */
 
-	    if (options.ip_ramp ) 
+	    if ( options.ip_ramp ) 
 		ip_ttl++;
 
-	    if (options.ip_id_incr || !options.ip_id ) 
-		{
-		  ip_id ++;
-		}
+	    if ( options.ip_id_incr || !options.ip_id ) 
+		  ip_id++;
 	    else 
-                {
-		   if (options.ip_id_rand) 
+	    	if (options.ip_id_rand) 
 			ip_id = rand ();
-		}
-
 
             /* rating.. */
 

@@ -385,14 +385,19 @@ main (argc, argv)
 
 	}
 
-    /* Catch signal */
-    signal (SIGINT,  ctrlc);
-    signal (SIGTSTP, ctrlz);
-    signal (SIGQUIT, ctrl_);
+     /* Catch signal */
+     signal (SIGINT,  ctrlc);
+     signal (SIGTSTP, ctrlz);
+     signal (SIGQUIT, ctrl_);
 
 
      /* set myid */
      myid = getpid () & 0xffff;   
+
+     /* get localnet/netmask */
+
+     if (pcap_lookupnet (ifname, &localnet, &netmask, bufferr) == -1)
+        FATAL (bufferr);
 
      pthread_mutex_init(&pd_mutex, NULL); /* mutex setup */
      pthread_create    (&pd_rcv, NULL, (void *) receiver, NULL);

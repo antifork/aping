@@ -405,10 +405,8 @@ receiver ()
     fval |= O_NONBLOCK;
     fcntl (pcap_fd, F_SETFL, fval);
 #endif
-    /* set filter */
 
-    if (pcap_lookupnet (ifname, &localnet, &netmask, bufferr) == -1)
-	FATAL (bufferr);
+    /* set filter */
 
     if (pcap_compile (in_pcap, &fcode, "icmp", 0, netmask) == -1)
 	FATAL ("pcap compile: %s", strerror (errno));

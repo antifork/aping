@@ -41,7 +41,7 @@
  PINGER()	: test whether aping runs as pinger (!sniffer).
  PROMISC()      : test whether aping set promisc interface.
  ORPHAN()       : test if current icmp is orphan, no request, no reply. 
- PARENT()       : test if current icmp is a reply to our request. 
+ PARENT()       : test if current icmp is a reply of a previous request. 
  TOME()         : test whether dst_ip matches with us.  
  FRME()         : test whether src_ip matches with us.
  MYID()         : test if current icmp_id match with us. 
