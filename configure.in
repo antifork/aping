@@ -21,7 +21,7 @@ fi
 
 # FIXME: Replace `main' with a function in `-lpthread':
 AC_CHECK_LIB([pthread], [pthread_create], [ have_pthread=yes ; LIBS="-lpthread $LIBS" ], have_pthread=no)
-AC_CHECK_LIB([c_r],     [pthread_create], [ have_libc_r=yes ;  LIBS="-lc_r $LIBS" ], have_libc_r=no)
+AC_CHECK_LIB([c_r],     [pthread_create], [ have_libc_r=yes ;  LIBS="-pthread $LIBS" ], have_libc_r=no)
 
 if test $have_pthread = no && test $have_libc_r = no ; then
         AC_WARN(this os doesn't support pthread nor libc_r)

@@ -2279,7 +2279,7 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_c_r_pthread_create" >&5
 echo "${ECHO_T}$ac_cv_lib_c_r_pthread_create" >&6
 if test $ac_cv_lib_c_r_pthread_create = yes; then
-   have_libc_r=yes ;  LIBS="-lc_r $LIBS"
+   have_libc_r=yes ;  LIBS="-pthread $LIBS"
 else
   have_libc_r=no
 fi
