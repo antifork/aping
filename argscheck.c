@@ -105,7 +105,7 @@ checkargs(char**argv,char minargsnum,...)
 {
  	va_list ap;
 	int paramnum=0;
-	char format;
+	int format;
 	char**args;
 	args=argv;
 	while(*args)
@@ -118,7 +118,7 @@ checkargs(char**argv,char minargsnum,...)
 
 	for(paramnum=0;paramnum!=minargsnum;paramnum++)
 	{
-		format=va_arg(ap,char);
+		format=va_arg(ap,int);
 		switch(format)
 		{
 			case ARG_NUM:
