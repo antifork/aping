@@ -5,3 +5,4 @@
 :: neural network integration
 :: usage per each single icmp
 :: mac fingerprint ?? plugin ??
+:: solaris and netbsd port (vjt)
