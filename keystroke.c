@@ -88,7 +88,21 @@ getchar_raw ()
 void
 keystroke ()
 {
-    int           c;
+    sigset_t      set;
+    packet        pkt;
+    int           sfd;
+    int             c;
+
+    sigemptyset (&set);
+
+    sigaddset (&set, SIGTSTP);
+    sigaddset (&set, SIGINT);
+    sigaddset (&set, SIGQUIT);
+
+    pthread_sigmask (SIG_BLOCK, &set, NULL);
+
+    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
     while (c = getchar_raw ())
 
