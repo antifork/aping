@@ -78,7 +78,7 @@ iptime()
 void
 load_timestamp (packet *p, char **argv)
 {
-  ICMP_type(p)  = ICMP_TIMESTAMP;
+  ICMP_type(p)  = ICMP_TSTAMP;
   ICMP_code(p)  = 0;
 
   ICMP_id(p)    = myid;
