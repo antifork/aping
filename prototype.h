@@ -52,6 +52,8 @@ void    print_icon              (int);
 
 u_short	chksum                  (u_short * addr, int len);
 
+unsigned long hash 		(const char *, int);
+
 long 	LOW_PASS_FIR		(long , long );
 unsigned char TTL_PREDICTOR	(unsigned char);
 

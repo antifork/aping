@@ -100,7 +100,7 @@ get_first_hop (target, source, ifname)
 
 	char          buffer[10240];
 
-#ifdef LINUX
+#ifdef __linux__ 
 	char         *void_alias = NULL;
 #endif
 	u_long        ipif = 0;
@@ -146,7 +146,7 @@ get_first_hop (target, source, ifname)
 			    {
 				strncpy (ifname, ifr->ifr_name, 16);
 /* alias */
-#ifdef LINUX
+#ifdef __linux__ 
 				if ((void_alias = strchr (ifname, ':')) != NULL)
 				    *void_alias = '\0';
 #endif

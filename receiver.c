@@ -228,25 +228,6 @@ agent_dyn_id (packet * p)
 }
 
 
-#define FNV_prime 16777619
-
-static
-#ifdef __GNUC__
-__inline
-#endif
-unsigned long
-hash (const char *p, int s)
-{
-    unsigned long h = 0;
-    int           i = 0;
-
-    for (; i < s; i++)
-         h = ((h * FNV_prime ) ^ (p[i]));
-
-    return h;
-}
-
-
 void
 print_RR(char *opt)
 {

@@ -54,7 +54,7 @@
 
 #include "typedef.h"
 #include "global.h"
-
+#include "prototype.h"
 
 #ifdef LRU
 #error "LRU already defined"
@@ -97,25 +97,6 @@ static lru    hostbyaddr[LRU];
 
 /* private fuctions */
 
-#define FNV_prime 16777619
-
-static                                  
-#ifdef __GNUC__    
-__inline
-#endif
-unsigned long
-hash (const char *p, int s)
-{
-    unsigned long h = 0;
-    int           i = 0;
-
-    for (; i < s; i++)
-        h = ((h * FNV_prime ) ^ (p[i]));
-
-    return ( h & HASHMASK );
-}
-
-
 /* gethostbyname utils */
 
 static unsigned long
@@ -125,7 +106,7 @@ search_hostbyname (const char *host)
     register long ret;
 
     ret = -1;
-    i   = hash (host, strlen (host));
+    i   = hash (host, strlen (host)) & HASHMASK ;
 
     /* null */
 
@@ -144,7 +125,7 @@ insert_hostbyname (const char *h, const unsigned long addr)
 {
     register int  i;
 
-    i = hash (h, strlen (h));
+    i = hash (h, strlen (h)) & HASHMASK ;
 
     FREE (hostbyname[i].host);
 
@@ -166,7 +147,7 @@ search_hostbyaddr (const unsigned long addr)
 
     if (!addr) return ret;
 
-    i = hash ((char *) &addr, sizeof (long int));
+    i = hash ((char *) &addr, sizeof (long int)) & HASHMASK;
 
     if (addr == hostbyaddr[i].addr)
 	{
@@ -181,7 +162,7 @@ insert_hostbyaddr (const char *h, const unsigned long addr)
 {
     register int  i;
 
-    i = hash ((char *) &addr, 4);
+    i = hash ((char *) &addr, 4) & HASHMASK;
 
     FREE (hostbyaddr[i].host);
 

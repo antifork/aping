@@ -37,9 +37,9 @@
 #include "aping.h"
 
 #ifdef  GLOBAL_HERE
-#define EXTERN	
+#define EXTERN 	
 #else
-#define EXTERN extern	
+#define EXTERN extern 	
 #endif 
 
 EXTERN OPT  options;
