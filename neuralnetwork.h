@@ -22,6 +22,12 @@
  #define NN_VERBOSE3(a,b,c,d) ;
 #endif
 
+#define COPY_AND_SEEK(dest,src,size) \
+		do{ \
+                        memcpy(dest,&(src),sizeof(size)); \
+                        pnn+=sizeof(size); \
+		}while(0)
+
 
 
 typedef unsigned int   u_32;
@@ -41,7 +47,7 @@ typedef struct NEURO
 
 typedef struct LINK
 {
- struct NEURO* next;         /* link to a neuron in the next or prevoius layer*/
+ struct NEURO* linkedneuro;  /* link to a neuron in the next or prevoius layer*/
  double        weight;       /* link weight                                   */
  double        weightsave;   /* saved weights for no training                 */
  double        deltaweight;  /* last weight deltas for momentum               */
@@ -79,4 +85,3 @@ void free_nn(NN* nn);
 NN* create_nn(u_32 size,u_32*pn);
 int save_nn(NN*nn,char*filename);
 #endif /* NEURAL_NETWORK_H */
-
