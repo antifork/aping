@@ -58,8 +58,6 @@ Redirect Message
 
 
 
-
-
 void
 load_redirect(packet *p, char **argv)
 {
@@ -91,6 +89,9 @@ load_redirect(packet *p, char **argv)
 
 	ICMP_sum(p)= 0;
 	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));
+
+        PUTS("\r     tos=0x%x new_gw=%s %s->%s\n", ICMP_IP_tos(p) ,argv[3],argv[4], argv[5]);
+
 }
 
 void
