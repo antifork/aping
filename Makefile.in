@@ -28,12 +28,13 @@
 #
 #
 
-CC          = @CC@
+CC          = @CC@ @optimize_def@
 CFLAGS      = @CFLAGS@  
+CPPFLAGS    = @CPPFLAGS@
 INCLS       = -I. @INCLS@
 LDFLAGS     = @LDFLAGS@
 LIBS        = @LIBS@  
-DEFS        = @DEFS@ @APING_DEFS@ # -DEADBUG
+DEFS        = @DEFS@ -DEADBUG
 INSTALL     = @INSTALL@
 
 prefix      = @prefix@
@@ -81,7 +82,7 @@ OBJS    = aping.o \
 	@LIBOBJS@
 
 .c.o:
-	$(CC) $(CFLAGS) $(INCLS) $(DEFS) $(DEBUG) -c $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $(DEBUG) $(INCLS) -c $< -o $@
 
 all:  global 
 	$(CC) -o aping $(OBJS) $(LIBS) 	

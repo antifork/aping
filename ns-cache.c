@@ -65,21 +65,21 @@ int allow_reverse;
  *  config.h symbols:
  *  -----------------
  *
- *  __USE_NSHACK:	controls whether to use the alarm()/longjmp() hack or not.
+ *  _USE_NSHACK:	controls whether to use the alarm()/longjmp() hack or not.
  *
- *  __USE_PTHREAD:	controls whether this module is designed to join a
+ *  _USE_PTHREAD:	controls whether this module is designed to join a
  *			pthread	project or not. In case of pthread programming,
- *			in order to use	__USE_NSHACK properly all threads must
+ *			in order to use	_USE_NSHACK properly all threads must
  *			block SIGALRM.
  *
  * BUG: In some implementations of libc_r, it is not possible to use
- * __USE_HACK feature. OpenBSD up to release 3.1 is affected by this bug (feature?).
+ * _USE_HACK feature. OpenBSD up to release 3.1 is affected by this bug (feature?).
  *
  */
 
-#define __USE_PTHREAD	1	/* aping is a phtread project */
+#define _USE_PTHREAD	1	/* aping is a phtread project */
 
-#if defined(__USE_PTHREAD)
+#if defined(_USE_PTHREAD)
 #include <pthread.h>
 #endif
 
@@ -105,7 +105,7 @@ static char *sf[SAFE_BUFFERS];	/* used to return __safe_buffer */
 static struct entry hostbyname[HASH_TABSIZE];
 static struct entry hostbyaddr[HASH_TABSIZE];
 
-#if defined(__USE_NSHACK)
+#if defined(_USE_NSHACK)
 static jmp_buf gethost_jmp;
 #endif
 
@@ -114,7 +114,7 @@ static jmp_buf gethost_jmp;
  *
  */
 
-#if defined(__USE_NSHACK)
+#if defined(_USE_NSHACK)
 static void
 __abort_query(int s)
 {
@@ -125,7 +125,7 @@ __abort_query(int s)
 static void
 __prolog_signal()
 {
-#if defined (__USE_PTHREAD) && defined(__USE_NSHACK)
+#if defined (_USE_PTHREAD) && defined(_USE_NSHACK)
 	sigset_t set;
 	sigemptyset(&set);
 	sigaddset(&set, SIGALRM);
@@ -136,7 +136,7 @@ __prolog_signal()
 static void
 __epilog_signal()
 {
-#if defined (__USE_PTHREAD) && defined(__USE_NSHACK)
+#if defined (_USE_PTHREAD) && defined(_USE_NSHACK)
 	sigset_t set;
 	sigemptyset(&set);
 	sigaddset(&set, SIGALRM);
@@ -307,7 +307,7 @@ gethostbyname_cache(const char *host)
 	__prolog_signal();
 
 	if (host == NULL) {
-		fprintf(stderr, "gethostbyname(%s) error: NULL ptr?\n", host);
+		fprintf(stderr, "gethostbyname(\"%s\") error: NULL ptr?\n", host);
 		__epilog_signal();
 		return -1;
 	}
@@ -319,24 +319,24 @@ gethostbyname_cache(const char *host)
 	if ((addr.s_addr = inet_addr(host)) == -1) {
 		/* host is not a ipv4 dot form */
 		/* void DNS timeout */
-#if defined(__USE_NSHACK)
+#if defined(_USE_NSHACK)
 		if (!setjmp(gethost_jmp)) {
 			ssignal(SIGALRM, __abort_query);
 			alarm(DNS_TIMEOUT);
 #endif
 			host_ent = gethostbyname(host);
-#if defined(__USE_NSHACK)
+#if defined(_USE_NSHACK)
 			alarm(0);
 #endif
 			if (host_ent == NULL) {
-				fprintf(stderr, "gethostbyname(%s) error: host not found\n", host);
+				fprintf(stderr, "gethostbyname(\"%s\") error: host not found.\n", host);
 				__epilog_signal();
 				return -1;
 			}
 			bcopy(host_ent->h_addr, (char *) &addr.s_addr, host_ent->h_length);
-#if defined(__USE_NSHACK)
+#if defined(_USE_NSHACK)
 		} else {
-			fprintf(stderr, "gethostbyname(%s) error: timeout\n", host);
+			fprintf(stderr, "gethostbyname(\"%s\") error: timeout.\n", host);
 			__epilog_signal();
 			return -1;
 		}
@@ -368,20 +368,20 @@ gethostbyaddr_cache(const nbo addr)
 		/* fail */
 		/* void DNS timeout */
 
-#if defined(__USE_NSHACK)
+#if defined(_USE_NSHACK)
 		if (!setjmp(gethost_jmp)) {
 			ssignal(SIGALRM, __abort_query);
 			alarm(REV_TIMEOUT);
 #endif
 			hostname = gethostbyaddr((char *) &addr, 4, AF_INET);
-#if defined(__USE_NSHACK)
+#if defined(_USE_NSHACK)
 			alarm(0);
 #endif
 			if (hostname != NULL)
 				ret = hostname->h_name;
 			else
 				ret = inet_ntoa(*(struct in_addr *) & addr);
-#if defined(__USE_NSHACK)
+#if defined(_USE_NSHACK)
 		} else
 			ret = inet_ntoa(*(struct in_addr *) & addr);
 #endif

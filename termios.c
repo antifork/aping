@@ -56,7 +56,7 @@ void
 termios_reset()
 {
 	if (*(long *) &termios_p != 0) {
-		printf("\nResetting terminal interface...\n");
+		//printf("\nResetting terminal interface...\n");
 		tcsetattr(0, TCSANOW, &termios_p);
 	}
 }

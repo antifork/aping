@@ -325,7 +325,7 @@ main(argc, argv)
 		host_dst = strdup(*argv);
 		ip_dst = gethostbyname_cache(*argv);
 		if (ip_dst == -1)
-			FATAL("bad bad destination host");
+			FATAL("bad destination host.");
 
 	} else if (!options.sniff)
 		FATAL("no destination given");
