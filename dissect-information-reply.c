@@ -48,5 +48,5 @@ load_information_reply(packet *p, char **argv)
 void
 dissect_information_reply(packet *p)
 {
-   PUTS("icmp_ud=%ld seq=%ld\n",ICMP_id(p), ICMP_seq(p));
+   PUTS("icmp_ud=%ld seq=%ld\n",(long)ICMP_id(p), (long)ICMP_seq(p));
 }
