@@ -60,8 +60,8 @@ Destination Unreachable Message
 void
 load_destination_unreachable(packet *p, char **argv)
 {
-	/* destination, redirect_type , tos,icmp_src_ip, icmp_dest_ip */
-	checkargs(argv,5,ARG_IP,ARG_NUM,ARG_NUM,ARG_IP,ARG_IP,ARG_IP);
+	/* destination, redirect_type , tos,icmp_src_ip, icmp_dest_ip src_port, dest_port*/
+	checkargs(argv,5,ARG_IP,ARG_NUM,ARG_NUM,ARG_IP,ARG_IP,ARG_PORT,ARG_PORT);
 
 	ICMP_type(p)= ICMP_UNREACH;
 	ICMP_code(p)= ((int)strtol(argv[1], (char **)NULL, 10))%4;
@@ -78,10 +78,8 @@ load_destination_unreachable(packet *p, char **argv)
 	ICMP_IP_src(p)  = gethostbyname_lru(argv[3]);
 	ICMP_IP_dst(p)  = gethostbyname_lru(argv[4]);
 
-
-	/*since bsd kernel don't give shit about 64 bits we don't care and fill with shit */
-	ICMP_TCP_sport(p) = htons(1+(int) (65535.0*rand()/(RAND_MAX+1.0))); 
-	ICMP_TCP_dport(p) = htons((short)(ICMP_TCP_sport(p)+0xfaded));
+	ICMP_TCP_sport(p) = htons((short)strtol(argv[5], (char **)NULL, 10)); 
+	ICMP_TCP_dport(p) = htons((short)strtol(argv[6], (char **)NULL, 10));
 
 
 	ICMP_sum(p)= 0;
