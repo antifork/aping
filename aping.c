@@ -72,6 +72,7 @@ ctrlc (i)
 
     }
     pthread_cancel (pd_snd);
+
 }
 
 void
