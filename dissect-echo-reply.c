@@ -16,7 +16,7 @@
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  * 
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS …AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
@@ -57,11 +57,26 @@ Echo or Echo Reply Message
 
 #include "prototype.h"
 #include "filter.h"
-
+#include "argscheck.h"
 
 void
 load_echo_reply (packet *p, char **argv)
 {
+	/* id, seq */
+	checkargs(argv,2,ARG_NUM,ARG_NUM);
+
+	ICMP_type(p)= 0; /*echo reply */
+	ICMP_code(p)= 0;
+	ICMP_id(p)  = htons(((int)strtol(argv[0], (char **)NULL, 10)));
+	ICMP_seq(p) = htons(((int)strtol(argv[1], (char **)NULL, 10)));
+
+	/*since bsd kernel don't give shit about 64 bits we don't care and fill with shit */
+	ICMP_TCP_sport(p) = htons(1+(int) (65535.0*rand()/(RAND_MAX+1.0))); 
+	ICMP_TCP_dport(p) = htons((short)(ICMP_TCP_sport(p)+0xfaded));
+
+
+	ICMP_sum(p)= 0;
+	ICMP_sum(p)= chksum((u_short *)p->icmp, sizeof_icmp(ICMP_ECHO));	
 }
 
 
