@@ -77,7 +77,6 @@ AC_FUNC_FORK
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
-AC_FUNC_STAT
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([pcap_setnonblock pcap_getnonblock alarm atexit gethostbyaddr gethostbyname gettimeofday inet_ntoa memset socket strchr strdup strerror strstr strtol])
 
