@@ -50,6 +50,13 @@
 #include "global.h"
 #include "version.h"
 
+/* Thanks to ettercap's authors */
+#ifdef __OpenBSD__
+// The below define is a lie since we are really doing RTLD_LAZY since the
+// system doesn't support RTLD_NOW.
+   #define RTLD_NOW DL_LAZY
+#endif
+
 long   (*plugin) (void);
 
 void
@@ -81,7 +88,7 @@ plugin_init(char *name)
   handle = dlopen (so, RTLD_NOW);
 
   if (!handle) 
-  	FATAL("dlerror()"); 
+  	FATAL(dlerror()); 
    
   #if defined(__OpenBSD__)
    plugin = dlsym(handle, sy);
