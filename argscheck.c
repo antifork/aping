@@ -1,5 +1,5 @@
 #include "argscheck.h"
-
+#include "macro.h"
 #ifdef __GNUC__
  __inline
 #endif
@@ -113,7 +113,7 @@ checkargs(char**argv,char minargsnum,...)
 		paramnum++;
 		args++;
 	}
-	if(paramnum<minargsnum) return 0;
+	if(paramnum<minargsnum) FATAL("%d parameters requested",minargsnum);
  	va_start(ap, minargsnum);
 
 	for(paramnum=0;paramnum!=minargsnum;paramnum++)
@@ -124,40 +124,35 @@ checkargs(char**argv,char minargsnum,...)
 			case ARG_NUM:
 				if (!checknum(argv[paramnum]))
 				{
-					 fprintf(stderr,"argument %s is not a valid number\n",argv[paramnum]);
-					 return 0;
+					FATAL("argument %s is not a valid number",argv[paramnum]);
 				}
 			break;
 			
 			case ARG_IP:
 				if (!checkip(argv[paramnum]))
 				{
-					 fprintf(stderr,"argument %s is not a valid ip\n",argv[paramnum]);
-					 return 0;
+					 FATAL("argument %s is not a valid ip\n",argv[paramnum]);
 				}
 			break;
 
 			case ARG_IP_RANGE:
 				if (!checkiprange(argv[paramnum]))
 				{
-					 fprintf(stderr,"argument %s is not a valid ip or ip_range\n",argv[paramnum]);
-					 return 0;
+					 FATAL("argument %s is not a valid ip or ip_range\n",argv[paramnum]);
 				}
 			break;
 
 			case ARG_PORT:
 				if (!checkport(argv[paramnum]))
 				{
-					 fprintf(stderr,"argument %s is not a valid port number\n",argv[paramnum]);
-					 return 0;
+					 FATAL("argument %s is not a valid port number\n",argv[paramnum]);
 				}
 			break;
 
 			case ARG_PORT_RANGE:
 				if (!checkportrange(argv[paramnum]))
 				{
-					 fprintf(stderr,"argument %s is not a valid port range\n",argv[paramnum]);
-					 return -1;
+					 FATAL("argument %s is not a valid port range\n",argv[paramnum]);
 				}
 			break;			
 			

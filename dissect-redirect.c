@@ -7,7 +7,6 @@
 #include "prototype.h"
 #include "global.h"
 #include "argscheck.h"
-
 /*
 
 Redirect Message
@@ -32,11 +31,7 @@ void
 load_redirect(packet *p, char **argv)
 {
 	/* redirect_type , tos, new_gateway, icmp_src_ip, icmp_dest_ip */
-	if(!checkargs(argv,5,ARG_NUM,ARG_NUM,ARG_IP,ARG_IP,ARG_IP,ARG_IP))
-	{
-		fprintf(stderr,"usage: dissect redirect\n");
- 		return;	
-	}
+	checkargs(argv,5,ARG_NUM,ARG_NUM,ARG_IP,ARG_IP,ARG_IP,ARG_IP);
 
 	ICMP_type(p)= ICMP_REDIRECT;
 	ICMP_code(p)= ((int)strtol(argv[0], (char **)NULL, 10))%4;
