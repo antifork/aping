@@ -57,7 +57,7 @@ long          (*plugin_init) (void);
 long          (*plugin_exit) (void);
 char         *plugin_name;
 char         *plugin_string;
-char         *plugin_traname;
+char         *plugin_tarname;
 char         *plugin_version;
 char         *plugin_bugrep;
 char	     *plugin_info;
@@ -134,7 +134,7 @@ main (argc, argv)
 
     plugin_name   = dlsym (handle, "_pi_name");
     plugin_string = dlsym (handle, "_pi_string");
-    plugin_traname= dlsym (handle, "_pi_tarname");
+    plugin_tarname= dlsym (handle, "_pi_tarname");
     plugin_version= dlsym (handle, "_pi_version");
     plugin_bugrep = dlsym (handle, "_pi_bugrep");
     plugin_info   = dlsym (handle, "_pi_info");
@@ -145,7 +145,7 @@ main (argc, argv)
 
     plugin_name   = dlsym (handle, "pi_name");
     plugin_string = dlsym (handle, "pi_string");
-    plugin_traname= dlsym (handle, "pi_tarname");
+    plugin_tarname= dlsym (handle, "pi_tarname");
     plugin_version= dlsym (handle, "pi_version");
     plugin_bugrep = dlsym (handle, "pi_bugrep");
     plugin_info   = dlsym (handle, "pi_info"); 
