@@ -55,8 +55,7 @@ long 	LOW_PASS_FIR		(long , long );
 unsigned char TTL_PREDICTOR	(unsigned char);
 
 void    bandwidth_predictor     (packet *);
-long    E                       (long , long , long );
-
+long    E                       (long *, long, long);
 
 /* dissect-load */
 

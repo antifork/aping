@@ -58,37 +58,86 @@ link_type (long kb)
 }
 
 
-/* E{data^n} */
+/* Operator E */
 
-#define FRAC(x) (x - (double)((long)(x)) )
+/*
+ *                    KEY                           INDEX       
+ *                   18 bit                        12 bit 
+ *     _________________________________ ________________________
+ *    '                                 `'                       `
+ *    _______________ _________________ _____________ _______________  
+ *   | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |x|x|
+ *    7             0 7             0 7             0 7             0 
+ *    `--------------------------------------'`----------------------'
+ *                   20 bit PAGE                   12 bit INDEX
+ *
+ */
+
+#define P_BIT     12
+#define K_BIT     14
+#define P_SIZE    (1UL << P_BIT)
+#define K_SIZE    (1UL << K_BIT)
+#define I_MASK    (P_SIZE-1)
+#define P_MASK    (~(P_SIZE-1))   /* 11111111111111111111000000000000 */
+#define K_MASK    (~(K_SIZE-1))   /* 11111111111111111100000000000000 */
+
+#define IND(x)    ((int)x>>2 & I_MASK)
 
 long
-E (long val, long data, long n)
+E (long * addr, long data, long n)
 {
+    static long long sum[2][P_SIZE];
+    static long      cnt[2][P_SIZE];
+           long      counter;
 
-    register long k;
-    register long d;
+    if ( n != 0 && n != 1 && n != 2 )
+        {
+        fprintf(stderr,"Expectation error: E{x^n} ? n=1 | n=2\n");
+        exit(-1);
+        }
 
-    double        ret;
+    if ( n == 0 )
+        {
+          sum[n-1][IND(addr)] = 0;
+          cnt[n-1][IND(addr)] = 0;
+	  *addr               = 0;
+	  return 0;
+        }
 
-    static long   ct[4];	/* conter for each n */
-    static double ca[4];	/* carry */
+    if ( sum[n-1][IND(addr)] != 0 && ( cnt[n-1][IND(addr)] & K_MASK ) != ( (long)addr & K_MASK ) )
+        {
+        fprintf(stderr,"Expectation error: data collision\n");
+        exit(-1);
+        }
 
-    for (k = 0, d = 1; k < n; k++)
-	d *= data;
+    counter = cnt[n-1][IND(addr)] & ~K_MASK;
+    counter++;
 
-    ret = ((double) val + ca[n]) * ct[n];
-    ret += (double) d;
+    if ( counter >= K_SIZE )
+                {
+                fprintf(stderr, "Expectation error: memory overflow\n");
+                sum[n-1][IND(addr)]=0;
+                cnt[n-1][IND(addr)]=0;
+                *addr              =0;
+                return -1;
+                }
 
-    ct[n]++;
+    switch(n)
+        {
+        case 1:
+                sum[n-1][IND(addr)]+= data;
+                break;
+        case 2:
+                sum[n-1][IND(addr)]+= data*data;
+                break;
+        }
 
-    ret /= ct[n];
+    cnt[n-1][IND(addr)] = ( ((long)addr & K_MASK) | (counter & ~K_MASK) );
+    *addr               = sum[n-1][IND(addr)]/counter;
 
-    ca[n] = FRAC (ret);
-
-    return (long) ret;
-
+    return 0;
 }
+
 
 
 #define HOP_DISTANCE(x)  TTL_PREDICTOR(x)-x
@@ -117,6 +166,10 @@ TTL_PREDICTOR (unsigned char x)
 	return (j ? j : 0xff);
 
 }
+
+/*
+ * filter 
+ */
 
 #define C0 100
 #define C1 36
@@ -177,7 +230,6 @@ LOW_PASS_FIR (long bit, long pt)
 	mean_pt = pt;
 
     n_step = pt / mean_pt;	/* number of single step to perform for the current burst */
-
 
     if (n_step > 1)
 	{

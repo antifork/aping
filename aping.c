@@ -31,7 +31,6 @@
  */
 
 #include "header.h"
-
 #include "aping.h"
 
 #include "typedef.h"
@@ -50,7 +49,6 @@
 #define ID "$Id$";
 
 extern char pcap_version[];
-
 
 char icon_set[]="->DZL>";
 
@@ -178,11 +176,9 @@ main (argc, argv)
 	FATAL ("no arguments given");
      
     /* refresh salt */
-
     srand (time (NULL));
 
     /* default */
-
     default_value ();
 
     while ((es = getopt (argc, argv, "S:D:O:T:MRI:t:k:i:c:p:e:Ps:z:fdnrvhb")) != EOF)
@@ -348,26 +344,22 @@ main (argc, argv)
 
  
     /* Catch signal */
-
     signal (SIGINT,  ctrlc);
     signal (SIGTSTP, ctrlz);
     signal (SIGQUIT, ctrl_);
 
 
      /* set myid */
-  
      myid = getpid () & 0xffff;   
 
      pthread_mutex_init(&pd_mutex, NULL); /* mutex setup */
-
-     pthread_create   (&pd_rcv, NULL, (void *) receiver, NULL);
+     pthread_create    (&pd_rcv, NULL, (void *) receiver, NULL);
 
     if ( ! options.sniff )
         {
 	   pthread_create(&pd_snd, NULL, (void *) sender, argv );
 
 	   /* waiting for pd_snd exit/cancel */
-
 	   pthread_join  (pd_snd, NULL);
 	}
     else 
@@ -375,12 +367,15 @@ main (argc, argv)
 
      if (n_sent)
         {
-          PUTS("--- sleeping %ld ms (RTT+2 sigma) ---\n", rtt_mean+2*ISQRT(rtt_sqre-rtt_mean*rtt_mean ));
-
-	  ( rtt_max ? usleep((rtt_mean+2*ISQRT(rtt_sqre-rtt_mean*rtt_mean ))*1000) : sleep(2));
-
-          pthread_cancel(pd_rcv);
+	  int wait_time;
+         
+          wait_time = ( n_tome ? \
+			rtt_mean+1+2*ISQRT(rtt_sqre-rtt_mean*rtt_mean) : 2000 );
  
+          PUTS("--- sleeping %d ms (RTT+2 sigma) ---\n", wait_time );
+
+	  usleep(wait_time* 1000);
+          pthread_cancel(pd_rcv);
           loss = 100 - PER_CENT (n_tome, n_sent);
 
           PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));
@@ -394,7 +389,5 @@ main (argc, argv)
      else
         PUTS ("done.\n");
 
-
      exit(1);
-
 }

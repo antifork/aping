@@ -134,8 +134,8 @@ agent_timestamp (packet * p)
     rtt_max    = MAX (rtt_max, rtt.ms_int + 1);
     rtt_min    = MIN (rtt_min, rtt.ms_int);
 
-    rtt_mean   = E(rtt_mean,rtt.ms_int,1);
-    rtt_sqre   = E(rtt_sqre,rtt.ms_int,2);
+    E (&rtt_mean,rtt.ms_int, 1);
+    E (&rtt_sqre,rtt.ms_int, 2);
 
     jitter     = rtt.ms_int - last_rtt.ms_int;
 
@@ -456,7 +456,6 @@ receiver ()
 		    {
 
 		if ( ICMP_HAS_TSTAMP(p))
-
 		time_lost =   DIFFTIME_int (TVAL_tv(p),last_ack.ts);
 		else
 	        time_lost =   DIFFTIME_int (last_sent.ts, last_ack.ts ); 
