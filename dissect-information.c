@@ -55,7 +55,7 @@
 void
 load_information_request(packet *p, char **argv)
 {
-  ICMP_type(p)= ICMP_INFO_REQUEST;
+  ICMP_type(p)= ICMP_IREQ;
   ICMP_code(p)= 0;
   ICMP_id(p)  = myid;
   ICMP_seq(p) = n_sent;

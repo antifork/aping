@@ -371,7 +371,7 @@ main (argc, argv)
 	  int wait_time;
          
           wait_time = ( n_tome ? \
-			rtt_mean+1+2*ISQRT(rtt_sqre-rtt_mean*rtt_mean) : 2000 );
+			rtt_mean+100+2*ISQRT(rtt_sqre-rtt_mean*rtt_mean) : 2000 );
  
           PUTS("--- sleeping %d ms (RTT+2 sigma) ---\n", wait_time );
 
