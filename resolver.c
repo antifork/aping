@@ -207,6 +207,7 @@ gethostbyname_lru (const char *host)
 
     prolog_signal();
 
+
     if (host) {
 
 	if ((ret = search_hostbyname (host)) != -1)
@@ -267,10 +268,14 @@ gethostbyaddr_lru (unsigned long addr)
     i++;
 
     free (BUFF (ret));
+
     if (addr == 0)
 	{
 	epilog_signal();
-	return "0.0.0.0";
+
+        BUFF(ret) = strdup("0.0.0.0");        
+	return BUFF(ret);
+
 	}
 
     if (!options.numeric) {

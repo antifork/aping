@@ -231,7 +231,7 @@ print_RR (char *opt)
 
     int i;
 
-    rr = hash (opt, 40);
+    rr = hash (opt, 36);
 
     if (last_route != rr) {
 	/* new RR */
@@ -240,7 +240,9 @@ print_RR (char *opt)
 	hop = (long *) (opt + 3);	/* hop pointer */
 
 	for (i = 1; i < MIN (9, (opt[IPOPT_OFFSET] >> 2)); i++) {
-	    PUTS ("\rRR:  %s(%s)\n", gethostbyaddr_lru (hop[i - 1]), multi_inet_ntoa (hop[i - 1]));
+	    {
+		PUTS ("\rRR:  %s(%s)\n", gethostbyaddr_lru (hop[i - 1]), multi_inet_ntoa (hop[i - 1]));
+	    }	
 	}
 
     }
