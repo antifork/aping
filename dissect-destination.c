@@ -31,7 +31,22 @@
  * 
  */
 
-/* ICMP_DEST_UNREACH */
+/* ICMP_DEST_UNREACH 
+     
+   Destination Unreachable Message
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     Type      |     Code      |          Checksum             |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                             unused                            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |      Internet Header + 64 bits of Original Data Datagram      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+*/
  
 #include "dissect.h" 
 #include "aping.h"
@@ -103,25 +118,8 @@ dissect_destination_unreachable(packet *p)
 	/* maturity level */
   	SET_DISSECT_LEVEL('*');
 
-	if ( ICMP_IP_p(p) == IPPROTO_TCP || ICMP_IP_p(p) == IPPROTO_UDP )
-	   {
-
-		PUTS("    proto[%s] ip_src=%s:%d -> ip_dst=%s:%d \n", 
-			  protocols[ICMP_IP_p(p)],
-		  	  multi_inet_ntoa(ICMP_IP_src(p)),
-		  	  ntohs(ICMP_TCP_sport(p)),				
-		  	  multi_inet_ntoa(ICMP_IP_dst(p)),
-		  	  ntohs(ICMP_TCP_dport(p)) );
-
-	   }
-	else
-	   {
-        	PUTS("    proto[%s] ip_src=%s -> ip_dst=%s \n",
-                  	  protocols[ICMP_IP_p(p)],
-                  	  multi_inet_ntoa(ICMP_IP_src(p)),
-                  	  multi_inet_ntoa(ICMP_IP_dst(p)) );
-
-	   }
+	PRINT_IPH_64bit(p);
+	PUTS("\n");
 
 	if ( verbose < 3 ) 
 		return;

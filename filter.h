@@ -121,11 +121,11 @@
                            ICMP_type (p) == 13 || ICMP_type (p) == 14 ||  \
                            ICMP_type (p) == 15 || ICMP_type (p) == 16     )
 
-#define ICMP_HAS_TSTAMP(p) ( ICMP_type(p) == 0 || ICMP_type (p) == 14 )
+#define ICMP_HAS_TS(p)	 ( ICMP_type(p) == 0 || ICMP_type (p) == 14 )
+#define ZOMBIE(p)        ((ICMP_seq(p)-n_sent)< -1)
 
 #define ICMP_HAS_ID(p)	ICMP_HAS_SEQ(p)
 
-#define ZOMBIE(p)	((ICMP_seq(p)-n_sent)< -1)
 
 #include "user-filter.h"
  

@@ -119,8 +119,6 @@ EXTERN char  maturity_void [0];
 EXTERN char buffer [MAX_PACSIZE];
 EXTERN char bufferr[PCAP_ERRBUF_SIZE];
 
-EXTERN char rspace [3 + 4 * NROUTES + 1];
-EXTERN char filter [512];
 EXTERN char ifname [16];
 
 EXTERN pthread_t       pd_rcv;

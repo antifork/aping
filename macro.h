@@ -115,7 +115,6 @@ FATAL("%s option require %s",#a,#b);			\
 
 #define SIGN(x)  ( (x) > 0 ? 1  : ( (x) == 0 ?   0  :  -1  ) )
 #define U(x)	 ( (x) > 0 ? x  : 0 )
-
 #define ABS(x)   ( (x) < 0 ? -(x) : (x) )
 
 #define ISQRT(v) ({             \
@@ -130,5 +129,25 @@ g ^= bit;                       \
 } while (bit >>=1);             \
 g;                              \
 })
+
+#define PRINT_IPH_64bit(p)	{					\
+if ( ICMP_IP_p(p) == IPPROTO_TCP || ICMP_IP_p(p) == IPPROTO_UDP )	\
+   {									\
+        								\
+   PUTS("    proto[%s] ip_src=%s:%d -> ip_dst=%s:%d ",			\
+             protocols[ICMP_IP_p(p)],					\
+             multi_inet_ntoa(ICMP_IP_src(p)),				\
+             ntohs(ICMP_TCP_sport(p)),					\
+             multi_inet_ntoa(ICMP_IP_dst(p)),				\
+             ntohs(ICMP_TCP_dport(p)) );				\
+   }									\
+else									\
+   {									\
+   PUTS("    proto[%s] ip_src=%s -> ip_dst=%s ",			\
+             protocols[ICMP_IP_p(p)],					\
+             multi_inet_ntoa(ICMP_IP_src(p)),				\
+             multi_inet_ntoa(ICMP_IP_dst(p)) );				\
+   }									\
+}
 
 #endif /* MACRO_H */

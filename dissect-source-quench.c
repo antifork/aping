@@ -103,5 +103,8 @@ void
 dissect_source_quench(packet *p)
 {
         /* maturity level */
-        SET_DISSECT_LEVEL('_');
+        SET_DISSECT_LEVEL('*');
+
+        PRINT_IPH_64bit(p);
+	PUTS("\n");
 }

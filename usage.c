@@ -100,8 +100,8 @@ usage (char *name, int type)
 		 int           i;
 
 		 fprintf (stderr, "Summary of message types and current implementation:\n");
-		 fprintf (stderr, "\nlegenda: [_]= not implemented   [i]= incomplete    [a] = alpha\n"
-				    "         [b]= beta              [*]= done\n\n"
+		 fprintf (stderr, "\nlegenda: [_]= not implemented   [i]= incomplete\n"
+				    "         [a] = alpha            [b]= beta          [*]= done\n\n"
 				    "         [T][R] T= trasmitter, R= receiver\n\n");
 		 for (i = 0; i < 256; i++)
 		     {

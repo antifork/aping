@@ -191,7 +191,6 @@ agent_ipid (packet * p)
 }
 
 
-
 #ifdef __GNUC__
 __inline
 #endif
@@ -259,122 +258,103 @@ process_pack (packet * p)
     daddr = gethostbyaddr_lru (IP_dst (p));
 
 
-    /* print record_route if new */
-
-    if ( options.opt_rroute && IP_hl(p)== 15 )
-    	{
-	print_RR(IP_opt(p)); 
-    	}	
-
-    /* dup | zombie  */
-
-    if (ICMP_HAS_SEQ (p))
-	{
-
-	    if ((ICMP_seq (p) - last_seq) == 0)
-		{
-	            print_icon(ICON_DUP);
-		    goto end_switch;
-		}
-
-	    if ( ZOMBIE(p) )
-		{
-		    print_icon(ICON_ZOMBIE);
-		    goto end_switch;
-		}
-
-	  print_icon(ICON_OK);
-	  end_switch:
-
-	}
-	else
-	print_icon(ICON_OK);
-
-    /* bytes */
-
-    PUTS ("%db", ntohs (IP_len (p)) - (IP_hl (p) << 2));
+    	if ( options.opt_rroute && IP_hl(p)== 15 )
+    				{
+				print_RR(IP_opt(p)); 
+    				}	
 
 
-    /* from | from to */
+    	if (!ICMP_HAS_SEQ (p) )
+				{
+				print_icon(ICON_OK);
+				goto end_switch;
+				}
 
-    PUTS (" from %s", saddr);
+    	if ((ICMP_seq (p) - last_seq) == 0)
+				{
+	            		print_icon(ICON_DUP);
+		    		goto end_switch;
+				}
 
-    if (options.sniff)
-	{
-	    PUTS (" -> to %s:", daddr);
-	}
-    else
-	{
-	    PUTS (":");
-	}
+    	if ( ZOMBIE(p) )
+				{
+		    		print_icon(ICON_ZOMBIE);
+		    		goto end_switch;
+				}
 
-    /*** icmp layer ***/
+	  			print_icon(ICON_OK);
 
-    /* type */
+	end_switch:
 
-    PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0xff]);
 
-    /* code */
+    				PUTS ("%db from %s", ntohs (IP_len (p)) - (IP_hl (p) << 2),saddr );
 
-    if (icmp_code_str[ (ICMP_type (p) << 8) + ICMP_code (p) ] != NULL)
-	{
-	    PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[ (ICMP_type (p) << 8) + ICMP_code (p) ]);
-	}
-    else
-	{
-	    if (ICMP_code (p) != 0)
-		PUTS (" code=%d(?)", ICMP_code (p));
-	}
+    	if (options.sniff)
+				{
+	    			PUTS (" -> to %s:", daddr);
+				}
+    	else
+				{
+	    			PUTS (":");
+				}
 
-    /* icmp seq */
 
-    if (ICMP_HAS_SEQ (p))
-	PUTS (" seq=%d", ICMP_seq (p));
+    				PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0xff]);
 
-    /* icmp timestamp diff: echo reply */
 
-    if (!options.sniff && (ICMP_type (p) == 0 || ICMP_type(p) == 14 ) )
-	{
+    	if (icmp_code_str[ (ICMP_type (p) << 8) + ICMP_code (p) ] != NULL)
+				{
+	    			PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[ (ICMP_type (p) << 8) + ICMP_code (p) ]);
+				}
+    	else
+				{
+	    			if (ICMP_code (p) != 0)
+					PUTS (" code=%d(?)", ICMP_code (p));
+				}
 
-	    PUTS (" rtt=%ld.%ld ms", rtt.ms_int, rtt.ms_frc);
-	}
 
-    /* id_ip (IP layer) */
+    	if (ICMP_HAS_SEQ (p))
+				{
+				PUTS (" seq=%d", ICMP_seq (p));
+				}
 
-    if (options.differ)
-        {
-            PUTS (" ip_id+=%ld\n", diff_id);
-        }
-    else
-        {
-            PUTS (" ip_id=%ld\n", curr_id);
-        }
 
-    if (verbose < 1)
-	goto end;
+    	if (!options.sniff && (ICMP_type (p) == 0 || ICMP_type(p) == 14 ) )
+				{
+	    			PUTS (" rtt=%ld.%ld ms", rtt.ms_int, rtt.ms_frc);
+				}
 
-    /* verbose == 1 */
+    	if (options.differ)
+        			{
+            			PUTS (" ip_id+=%ld\n", diff_id);
+        			}
+    	else
+        			{
+            			PUTS (" ip_id=%ld\n", curr_id);
+        			}
 
-    PUTS ("    ttl=%-3d dst=%d(hop)", IP_ttl (p), HOP_DISTANCE (IP_ttl (p)));
+    	if (verbose < 1) goto end;
 
-    if (ICMP_HAS_ID (p))
-	PUTS (" icmp_id=%d", ICMP_id (p));
- 
-    PUTS (" jitter=%ld ms time_lost=%ld ms\n", jitter, time_lost); 
 
-    /* id_ip (IP layer) */
+    				PUTS ("    ttl=%-3d dst=%d(hop)", IP_ttl (p), HOP_DISTANCE (IP_ttl (p)));
 
-    if (verbose < 2)
-	goto end;
+    	if (ICMP_HAS_ID (p))
+				{		
+				PUTS (" icmp_id=%d", ICMP_id (p));
+ 				}
 
-    /* verbose == 2 */
+    				PUTS (" jitter=%ld ms time_lost=%ld ms\n", jitter, time_lost); 
 
-    if (icmp_dissect_vector[ICMP_type (p) & 0xff] != NULL)
-	{
-	    (*icmp_dissect_vector[ICMP_type (p) & 0xff]) (p);
-	}
 
-  end:
+	if (verbose < 2) goto end;
+
+
+    	if (icmp_dissect_vector[ICMP_type (p) & 0xff] != NULL)
+				{
+	    			(*icmp_dissect_vector[ICMP_type (p) & 0xff]) (p);
+				}
+
+  	end:
 
     return;
 
