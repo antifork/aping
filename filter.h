@@ -16,7 +16,7 @@
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  * 
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS …AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR
@@ -50,6 +50,7 @@
 #define ICMP_type(p)    ((p)->icmp->icmp_type)
 #define ICMP_code(p)	((p)->icmp->icmp_code)
 #define ICMP_sum(p)     ((p)->icmp->icmp_cksum)
+#define ICMP_gwaddr(p)  ((p)->icmp->icmp_gwaddr)
 #define ICMP_id(p)	((p)->icmp->icmp_id) 
 #define ICMP_seq(p)	((p)->icmp->icmp_seq)
 
@@ -64,6 +65,9 @@
 #define ICMP_IP_sum(p)  ((p)->icmp->icmp_ip.ip_sum)
 #define ICMP_IP_src(p)  ((p)->icmp->icmp_ip.ip_src.s_addr)
 #define ICMP_IP_dst(p)  ((p)->icmp->icmp_ip.ip_dst.s_addr)
+
+#define ICMP_IP_s(p)  ((p)->icmp->icmp_ip.ip_src)
+#define ICMP_IP_d(p)  ((p)->icmp->icmp_ip.ip_dst)
 
 #define ICMP_TCP_sport(p) (*(short*)((p)->data+0+(p)->icmp->icmp_ip.ip_hl*4)) 
 #define ICMP_TCP_dport(p) (*(short*)((p)->data+2+(p)->icmp->icmp_ip.ip_hl*4)) 

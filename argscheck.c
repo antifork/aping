@@ -32,6 +32,7 @@ int checkip(char* smt)
 	int pivot;
 	char *str;
 	int stl=strlen(smt);
+	if(isalpha(*smt))return 1;
 	if ( stl>15 ) return 0;
 	if ( stl<7  ) return 0;
 	str=smt;
@@ -103,7 +104,7 @@ int
 checkargs(char**argv,char minargsnum,...)
 {
  	va_list ap;
-	int paramnum;
+	int paramnum=0;
 	char format;
 	char**args;
 	args=argv;
