@@ -119,6 +119,7 @@ typedef struct {
    	char *type;
 } ipl_stat;
 
+typedef void    sigfunc(int);   /* for signal handlers */
 
 #endif /* typedef */
 

@@ -297,7 +297,6 @@ __safe_buffer(char *new)
  *
  */
 
-
 nbo
 gethostbyname_cache(const char *host)
 {
@@ -322,7 +321,7 @@ gethostbyname_cache(const char *host)
 		/* void DNS timeout */
 #if defined(__USE_NSHACK)
 		if (!setjmp(gethost_jmp)) {
-			signal(SIGALRM, __abort_query);
+			ssignal(SIGALRM, __abort_query);
 			alarm(DNS_TIMEOUT);
 #endif
 			host_ent = gethostbyname(host);
@@ -371,7 +370,7 @@ gethostbyaddr_cache(const nbo addr)
 
 #if defined(__USE_NSHACK)
 		if (!setjmp(gethost_jmp)) {
-			signal(SIGALRM, __abort_query);
+			ssignal(SIGALRM, __abort_query);
 			alarm(REV_TIMEOUT);
 #endif
 			hostname = gethostbyaddr((char *) &addr, 4, AF_INET);

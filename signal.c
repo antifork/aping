@@ -1,8 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
- *                    Roberto Ferranti <sbirish@sbirish.net>
+ * Copyright (c) 2002 Nicola Bonelli <bonelli@blackhats.it>
  *
  * All rights reserved.
  *
@@ -29,34 +28,45 @@
  *
  */
 
+/*
+ * This wrapper in memory of Richard Stevens.
+ */
 
-#include "header.h"
-#include "typedef.h"
-#include "prototype.h"
+#include <stdio.h>
+#include <signal.h>
 
-extern struct termios termios_p;
+typedef void sigfunc(int);	/* for signal handlers */
 
-void
-termios_set()
+static sigfunc *
+__signal(int signo, sigfunc * func)
 {
-	struct termios tty;
-	DEBUG("setting termios\n");
 
-	tcgetattr(0, &termios_p);
-	tty = termios_p;
-	tty.c_lflag &= ~(ECHO | ECHOK | ICANON | ISIG);	/* FIXME: ~ISIG bit
-							 * ignores signals' keyboard */
-	tty.c_cc[VMIN] = 1;
-	tty.c_cc[VTIME] = 1;
-	tcsetattr(0, TCSANOW, &tty);
+	struct sigaction act, oact;
+
+	act.sa_handler = func;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	if (signo == SIGALRM) {
+#ifdef  SA_INTERRUPT
+		act.sa_flags |= SA_INTERRUPT;	/* SunOS 4.x */
+#endif
+	} else {
+#ifdef  SA_RESTART
+		act.sa_flags |= SA_RESTART;	/* SVR4, 44BSD */
+#endif
+	}
+	if (sigaction(signo, &act, &oact) < 0)
+		return (SIG_ERR);
+	return (oact.sa_handler);
+
 }
 
+sigfunc *
+ssignal(int signo, sigfunc * func)
+{				/* for our signal() function */
+	sigfunc *sigfunc;
 
-void
-termios_reset()
-{
-	if (*(long *) &termios_p != 0) {
-		printf("\nResetting terminal interface...\n");
-		tcsetattr(0, TCSANOW, &termios_p);
-	}
+	if ((sigfunc = __signal(signo, func)) == SIG_ERR)
+		fprintf(stderr,"signal error");
+	return (sigfunc);
 }

@@ -351,10 +351,10 @@ main(argc, argv)
 
 	/* Catch signal */
 
-	signal(SIGINT, SIG_IGN);
-	signal(SIGTSTP, SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
-	signal(SIGALRM, SIG_IGN);
+	ssignal(SIGINT, SIG_IGN);
+	ssignal(SIGTSTP, SIG_IGN);
+	ssignal(SIGQUIT, SIG_IGN);
+	ssignal(SIGALRM, SIG_IGN);
 
 	/* set termios properties */
 

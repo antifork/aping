@@ -45,9 +45,14 @@ srcdir      = @srcdir@
 shtool      = @SHTOOL@
 
 OBJS    = aping.o \
-	sender.o \
-	receiver.o \
-	statistic.o \
+        pthread.o \
+	signal.o \
+        socket.o \
+        termios.o \
+        pcap.o \
+        sender.o \
+        receiver.o \
+        statistic.o \
 	fnv.o \
 	iface.o \
 	datalink.o \
@@ -55,10 +60,6 @@ OBJS    = aping.o \
 	argscheck.o \
 	keystroke.o  \
 	hardware.o \
-	pthread.o \
-	socket.o \
-	pcap.o \
-	termios.o \
 	plugin.o \
 	chksum.o usage.o \
 	dissect-destination.o \
