@@ -34,7 +34,7 @@
 #ifndef HAVE_ICMP_DEF
 #define HAVE_ICMP_DEF 
 
-char *icmp_type_str[256] =
+char *icmp_type_str[64] =
 {
    [0]=  "echo_rpl", 
    [3]=  "unreach", 
@@ -65,9 +65,9 @@ char *icmp_type_str[256] =
    [40]= "security"
 };
 
-#define str_code(a,b,s) [a*256+b] s
+#define str_code(a,b,s) [a*64+b] s
 
-char *icmp_code_str[256*256] =
+char *icmp_code_str[64*64] =
 {
 str_code(3, 0, "net unreachable"),
 str_code(3, 1, "host unreachable"),

@@ -299,12 +299,12 @@ process_pack (packet * p)
 				}
 
 
-    				PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0xff]);
+    				PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0x3f]);
 
 
-    	if (icmp_code_str[ (ICMP_type (p) << 8) + ICMP_code (p) ] != NULL)
+    	if (icmp_code_str[ INDEX(ICMP_type (p),ICMP_code (p)) ] != NULL)
 				{
-	    			PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[ (ICMP_type (p) << 8) + ICMP_code (p) ]);
+	    			PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[ INDEX(ICMP_type (p),ICMP_code (p)) ]);
 				}
     	else
 				{
@@ -349,9 +349,9 @@ process_pack (packet * p)
 	if (verbose < 2) goto end;
 
 
-    	if (icmp_dissect_vector[ICMP_type (p) & 0xff] != NULL)
+    	if (icmp_dissect_vector[ICMP_type (p) & 0x3f] != NULL)
 				{
-	    			(*icmp_dissect_vector[ICMP_type (p) & 0xff]) (p);
+	    			(*icmp_dissect_vector[ICMP_type (p) & 0x3f]) (p);
 				}
 
   	end:

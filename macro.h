@@ -74,6 +74,8 @@ if ( options.##a && !options.##b )			\
 FATAL("%s option require %s",#a,#b);			\
 } 
 
+#define INDEX(a,b) ((a)*64+b)
+
 #define SET(x) (options.##x=1 )
 #define CLR(x) (options.##x=0 )
 #define TST(x) (options.##x==1)

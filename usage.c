@@ -45,8 +45,8 @@
 
 #include "global.h"
 
-extern char  *icmp_type_str[256];
-extern char  *icmp_code_str[256 * 256];
+extern char  *icmp_type_str[64];
+extern char  *icmp_code_str[64 * 64];
 
 void
 usage (char *name, int type)
@@ -103,7 +103,7 @@ usage (char *name, int type)
 		 fprintf (stderr, "\nlegenda: [_]= not implemented   [i]= incomplete\n"
 				    "         [a] = alpha            [b]= beta          [*]= done\n\n"
 				    "         [T][R] T= trasmitter, R= receiver\n\n");
-		 for (i = 0; i < 256; i++)
+		 for (i = 0; i < 64; i++)
 		     {
 			 if (icmp_type_str[i] != NULL)
 			     printf ("         [%c][%c] -t %2d  %s\n", 
@@ -128,7 +128,7 @@ usage (char *name, int type)
 
 			 printf(" for icmp=%d(%s):\n\n",i,icmp_type_str[i]);	
 		
-			 for (j = 0; j < 256; j++)
+			 for (j = 0; j < 64; j++)
 			     {
 				 if (icmp_code_str[(i<<8)  + j] != NULL)
 				     printf ("   -k %2d  %s\n", j, icmp_code_str[(i<<8) + j]);
@@ -140,11 +140,11 @@ usage (char *name, int type)
 
 		     printf(":\n\n");
 			
-		     for (i = 0; i < 256; i++)
-			 for (j = 0; j < 256; j++)
+		     for (i = 0; i < 64; i++)
+			 for (j = 0; j < 64; j++)
 			     {
-				 if (icmp_code_str[(i<<8) + j] != NULL)
-				     printf ("   -t %2d -k %2d  %s\n", i, j, icmp_code_str[(i<<8) + j]);
+				 if (icmp_code_str[ INDEX(i,j) ] != NULL)
+				     printf ("   -t %2d -k %2d  %s\n", i, j, icmp_code_str[INDEX(i,j)]);
 
 			     }
 		      }
