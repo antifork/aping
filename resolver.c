@@ -41,7 +41,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
- 
+
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -51,6 +51,8 @@
 
 #include <netdb.h>
 #include <errno.h>
+#include <setjmp.h>
+#include <signal.h>
 
 #include "typedef.h"
 #include "global.h"
@@ -63,9 +65,11 @@
 #define LRU  64
 #endif
 
-#define STA_MASK  0x0f 
-#define STA_SIZE  STA_MASK+1
- 
+#define STA_MASK  	0x0f
+#define STA_SIZE  	STA_MASK+1
+#define DNS_TIMEOUT     10	/* gethostbyname timeout */
+#define REV_TIMEOUT	2	/* gethostbyaddr timeout */
+
 #define HASHMASK (\
 LRU >> 1  | LRU >> 2  | LRU >> 3  |\
 LRU >> 4  | LRU >> 5  | LRU >> 6  |\
@@ -75,16 +79,16 @@ LRU >> 13 | LRU >> 14 | LRU >> 15 )
 
 /* table */
 
-typedef struct _lru_
-{
-    unsigned int  yday;		/* day of the year */
+typedef struct _lru_ {
+    unsigned int yday;		/* day of the year */
     unsigned long addr;
-    char         *host;
-}
-lru;
+    char *host;
+} lru;
 
-static lru    hostbyname[LRU];
-static lru    hostbyaddr[LRU];
+static lru hostbyname[LRU];
+static lru hostbyaddr[LRU];
+
+static jmp_buf gethost_jmp;
 
 #define FATAL(f,arg...) {\
                         fprintf(stderr,"%s:%d: ",__FILE__,__LINE__);\
@@ -97,14 +101,20 @@ static lru    hostbyaddr[LRU];
 
 /* gethostbyname utils */
 
+static void
+abort_query (int s)
+{
+    longjmp (gethost_jmp, 1);
+}
+
 static unsigned long
 search_hostbyname (const char *host)
 {
-    register int  i;
+    register int i;
     register long ret;
 
     ret = -1;
-    i   = hash (host, strlen (host)) & HASHMASK ;
+    i = hash (host, strlen (host)) & HASHMASK;
 
     /* null */
 
@@ -121,9 +131,9 @@ search_hostbyname (const char *host)
 static void
 insert_hostbyname (const char *h, const unsigned long addr)
 {
-    register int  i;
+    register int i;
 
-    i = hash (h, strlen (h)) & HASHMASK ;
+    i = hash (h, strlen (h)) & HASHMASK;
 
     free (hostbyname[i].host);
 
@@ -135,22 +145,22 @@ insert_hostbyname (const char *h, const unsigned long addr)
 
 /* gethostbyaddr utils */
 
-static char  *
+static char *
 search_hostbyaddr (const unsigned long addr)
 {
-    register int  i;
-    char  	 *ret;
+    register int i;
+    char *ret;
 
     ret = NULL;
 
-    if (!addr) return ret;
+    if (!addr)
+	return ret;
 
     i = hash ((char *) &addr, sizeof (long int)) & HASHMASK;
 
-    if (addr == hostbyaddr[i].addr)
-	{
-	    ret = hostbyaddr[i].host;
-	}
+    if (addr == hostbyaddr[i].addr) {
+	ret = hostbyaddr[i].host;
+    }
 
     return ret;
 }
@@ -158,7 +168,7 @@ search_hostbyaddr (const unsigned long addr)
 static void
 insert_hostbyaddr (const char *h, const unsigned long addr)
 {
-    register int  i;
+    register int i;
 
     i = hash ((char *) &addr, 4) & HASHMASK;
 
@@ -178,35 +188,43 @@ gethostbyname_lru (const char *host)
     struct in_addr addr;
     struct hostent *host_ent;
 
-    long          ret;
+    long ret;
 
-    if (host)
-	{
+    if (host) {
 
-	    if ((ret = search_hostbyname (host)) != -1)
+	if ((ret = search_hostbyname (host)) != -1)
 	    /* hit */
-		{
-		    return ret;
-		}
-
-	    /* fail */
-
-	    if ((addr.s_addr = inet_addr (host)) == -1)
-		{
-		    if (!(host_ent = gethostbyname (host)))
-			FATAL ("gethostbyname_lru(%s) err", host);
-
-		    bcopy (host_ent->h_addr, (char *) &addr.s_addr, host_ent->h_length);
-		}
-
-	    insert_hostbyname (host, addr.s_addr);
-	    return addr.s_addr;
-
+	{
+	    return ret;
 	}
+	/* fail */
+
+	if ((addr.s_addr = inet_addr (host)) == -1) {
+
+	    /* void DNS timeout */
+
+	    if (!setjmp (gethost_jmp)) {
+		signal (SIGALRM, abort_query);
+		alarm (DNS_TIMEOUT);
+		host_ent = gethostbyname (host);
+		alarm (0);
+
+		if (host_ent == NULL)
+		    FATAL ("gethostbyname_lru(%s) err", host);
+		bcopy (host_ent->h_addr, (char *) &addr.s_addr, host_ent->h_length);
+
+	    }
+	    else
+		FATAL ("gethostbyname_lru(%s) err", host);
+	}
+	insert_hostbyname (host, addr.s_addr);
+	return addr.s_addr;
+
+    }
     else
 	FATAL ("gethostbyname_lru err: %s pointer", (char *) NULL);
 
-    return 0; /* unreachable */
+    return 0;			/* unreachable */
 
 }
 
@@ -217,46 +235,57 @@ gethostbyname_lru (const char *host)
 char *
 gethostbyaddr_lru (unsigned long addr)
 {
-    static int       i;
+    static int i;
 
-    static char     *ret[STA_SIZE];
-           char     *tmp;
+    static char *ret[STA_SIZE];
+    char *tmp;
 
-    struct hostent  *hostname;
+    struct hostent *hostname;
 
     i++;
 
-    free (BUFF(ret));
+    free (BUFF (ret));
 
     if (addr == 0)
 	return "0.0.0.0";
-    
-    if ( ! options.numeric )
-	{
 
-	    if ( (tmp=search_hostbyaddr (addr)) != NULL )
+    if (!options.numeric) {
+
+	if ((tmp = search_hostbyaddr (addr)) != NULL)
 /* hit */
-		{
-		    BUFF(ret) = strdup (tmp);
-		    return BUFF(ret);
-		}
-/* fail */
-	    if ((hostname = gethostbyaddr ((char *) &addr, 4, AF_INET)) != NULL)
-		BUFF(ret) = strdup (hostname->h_name);
-	    else
-		BUFF(ret) = strdup (inet_ntoa (*(struct in_addr *) &addr));
-
+	{
+	    BUFF (ret) = strdup (tmp);
+	    return BUFF (ret);
 	}
+/* fail */
+
+	/* void DNS timeout */
+
+	if (!setjmp (gethost_jmp)) {
+	    signal (SIGALRM, abort_query);
+	    alarm (REV_TIMEOUT);
+	    hostname = gethostbyaddr ((char *) &addr, 4, AF_INET);
+	    alarm (0);
+
+	    if (hostname != NULL)
+		BUFF (ret) = strdup (hostname->h_name);
+	    else
+		BUFF (ret) = strdup (inet_ntoa (*(struct in_addr *) &addr));
+	}
+	else
+	BUFF (ret) = strdup (inet_ntoa (*(struct in_addr *) &addr));
+
+    }
     else
-	BUFF(ret) = strdup (inet_ntoa (*(struct in_addr *) &addr));
+	BUFF (ret) = strdup (inet_ntoa (*(struct in_addr *) &addr));
 
 
     if (ret && addr)
-	insert_hostbyaddr (BUFF(ret), addr);
+	insert_hostbyaddr (BUFF (ret), addr);
     else
 	FATAL ("gethostbyaddr_lru err:%s", strerror (errno));
 
-    return BUFF(ret);
+    return BUFF (ret);
 }
 
 
@@ -264,16 +293,14 @@ char *
 multi_inet_ntoa (long address)
 {
 
-    static int    i;
-    static char  *ret[STA_SIZE];
+    static int i;
+    static char *ret[STA_SIZE];
 
     i++;
+    free (BUFF (ret));
 
-    free(BUFF(ret));
+    BUFF (ret) = strdup (inet_ntoa (*(struct in_addr *) &address));
 
-    BUFF(ret) = strdup ( inet_ntoa (*(struct in_addr *) &address) );
-
-    return (char *) BUFF(ret);
+    return (char *) BUFF (ret);
 
 }
-
