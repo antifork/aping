@@ -1,6 +1,6 @@
 /* $Id$ */
 /*
- * $awgn: ns-cache.c,v 1.5 2002/09/30 17:37:54 awgn Exp $
+ * $awgn: ns-cache.c,v 1.6 2002/09/30 17:37:54 awgn Exp $
  *
  * Copyright (c) 2002 Nicola Bonelli <bonelli@blackhats.it>
  *
@@ -148,6 +148,22 @@ __epilog_signal()
 #endif
 }
 
+static void
+__prolog_pth()
+{
+#if defined (_USE_PTHREAD)
+	pthread_mutex_lock(&safe_mutex);
+#endif
+}
+
+static void
+__epilog_pth()
+{
+#if defined (_USE_PTHREAD) 
+	pthread_mutex_unlock(&safe_mutex);
+#endif
+}
+
 /*
  ***
  *
@@ -219,8 +235,8 @@ __cache_hostbyname(const char *host)
 	if (host == NULL)
 		return -1;
 	i = (__fnv(host, strlen(host)) & HASH_MASK);
-
 	t = time(NULL);
+
 	if ((hostbyname[i].yday + EXPIRE_DAY) <= gmtime(&t)->tm_yday)
 		return -1;	/* expired */
 	if (hostbyname[i].host == NULL)
@@ -291,16 +307,11 @@ __safe_buffer(char *new)
 	static int index;
 	char *ret;
 
-#if defined (_USE_PTHREAD)
-	pthread_mutex_lock(&safe_mutex);
-#endif
 	index++;
 	free(sf[index & SAFE_MASK]);
 	ret = sf[index & SAFE_MASK] = strdup(new);
+	__epilog_pth();
 
-#if defined (_USE_PTHREAD)
-	pthread_mutex_unlock(&safe_mutex);
-#endif
 	return (ret);
 }
 
@@ -316,16 +327,19 @@ gethostbyname_cache(const char *host)
 	struct in_addr addr;
 	nbo ret;
 
+	__prolog_pth();
 	__prolog_signal();
 
 	if (host == NULL) {
-		fprintf(stderr, "gethostbyname(\"%s\") error: NULL ptr?\n", host);
+		fprintf(stderr, "ns-cache::gethostbyname(\"%s\") error: NULL ptr?\n", host);
 		__epilog_signal();
+		__epilog_pth();
 		return -1;
 	}
 	if ((ret = __cache_hostbyname(host)) != -1) {
 		/* HIT */
 		__epilog_signal();
+		__epilog_pth();
 		return ret;
 	}
 	if ((addr.s_addr = inet_addr(host)) == -1) {
@@ -341,15 +355,17 @@ gethostbyname_cache(const char *host)
 			alarm(0);
 #endif
 			if (host_ent == NULL) {
-				fprintf(stderr, "gethostbyname(\"%s\") error: host not found.\n", host);
+				fprintf(stderr, "ns-cache::gethostbyname(\"%s\") error: host not found.\n", host);
 				__epilog_signal();
+				__epilog_pth();
 				return -1;
 			}
 			bcopy(host_ent->h_addr, (char *) &addr.s_addr, host_ent->h_length);
 #if defined(_USE_NSHACK)
 		} else {
-			fprintf(stderr, "gethostbyname(\"%s\") error: timeout.\n", host);
+			fprintf(stderr, "ns-cache::gethostbyname(\"%s\") error: timeout.\n", host);
 			__epilog_signal();
+			__epilog_pth();
 			return -1;
 		}
 #endif
@@ -358,6 +374,7 @@ gethostbyname_cache(const char *host)
 	__insert_hostbyname(host, addr.s_addr);
 
 	__epilog_signal();
+	__epilog_pth();
 	return addr.s_addr;
 }
 
@@ -367,7 +384,9 @@ gethostbyaddr_cache(const nbo addr)
 	struct hostent *hostname;
 	char *ret;
 
+	__prolog_pth();
 	__prolog_signal();
+
 	if (addr == 0) {
 		__epilog_signal();
 		return __safe_buffer("0.0.0.0");
@@ -412,6 +431,7 @@ char *
 safe_inet_ntoa(const nbo address)
 {
 	char *ret;
+	__prolog_pth();
 	ret = inet_ntoa(*(struct in_addr *) & address);
 	return __safe_buffer(ret);
 }

@@ -31,7 +31,7 @@ case "$host_os" in
 #           LIBS="-lipc $LIBS";;
 #bsdi*)     optimize_def="-O2";;
 openbsd*)   optimize_def="-O2"
-            CPPFLAGS="$CPPFLAGS"
+            CPPFLAGS="-D_USE_NSHACK $CPPFLAGS"
             LIBS="-pthread";;
 freebsd*)   optimize_def="-O2"
             CPPFLAGS="-D_THREAD_SAFE -D_USE_NSHACK $CPPFLAGS"
