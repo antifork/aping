@@ -93,17 +93,17 @@ E (long * addr, long data, long n)
     static long      cnt[2][P_SIZE];
            long      counter;
 
-    if ( n != 0 && n != 1 && n != 2 )
+    if ( n != -1 && n != -2 && n != 1 && n != 2 )
         {
         fprintf(stderr,"Expectation error: E{x^n} ? n=1 | n=2\n");
         exit(-1);
         }
 
-    if ( n == 0 )
+    if ( n < 0 )
         {
-          sum[0][IND(addr)] = 0;
-          cnt[1][IND(addr)] = 0;
-	  *addr             = 0;
+          sum[-n-1][IND(addr)] = 0;
+          cnt[-n-1][IND(addr)] = 0;
+	  *addr                = 0;
 	  return 0;
         }
 
@@ -209,7 +209,7 @@ TTL_PREDICTOR (unsigned char x)
                       ___
      whose distance > tau the two are incorrelated.
 
-     n(t) is a stocastic model, indipened from the first one, whose IO 
+     n(t) is a stocastic model, indipendent from the first one, whose IO 
           characteristic has the following graph:
 
             N                                        Fn

@@ -72,7 +72,7 @@ ctrl_ (i)
     out_burst  =0;
     max_burst  =0;
 
-    E(&mean_burst, 0 , 0);
+    E(&mean_burst, 0 , -1);
 
     rand_ip_id =0;
     fail_ip_id =0;
@@ -97,7 +97,7 @@ ctrlz (i)
            out_burst  =0;
            max_burst  =0;
 
-           E(&mean_burst, 0 , 0);
+           E(&mean_burst, 0 , -1);
 
 	   traffic_tos= (traffic_tos+1) & 0x0f;
 	
