@@ -112,20 +112,28 @@ __inline
 agent_timestamp (packet * p)
 {
 
-    if (ICMP_type (p) == 0)
+    switch( ICMP_type (p) )
 	{
-	    /* real timestamp */
 
-            rtt.ms_int = DIFFTIME_int (timestamp->tv, TVAL_tv(p));
-            rtt.ms_frc = DIFFTIME_frc (timestamp->tv, TVAL_tv(p));
+	case 0: /* echo reply */
 
-	}
-    else
-	{
-	    /* stimated rtt */
+		rtt.ms_int = DIFFTIME_int (timestamp->tv, TVAL_tv(p));
+		rtt.ms_frc = DIFFTIME_frc (timestamp->tv, TVAL_tv(p));
 
-	    rtt.ms_int = DIFFTIME_int(timestamp->tv,last_sent.ts);
-            rtt.ms_frc = DIFFTIME_frc(timestamp->tv,last_sent.ts);
+		break;
+
+	case 14: /* timestamp reply */
+
+		rtt.ms_int = (timestamp->tv_sec %(24*60*60))*1000 +timestamp->tv_usec/1000 - ntohl(ICMP_otime(p)); 
+		rtt.ms_frc = 0;
+
+		break;
+
+	default: /* stimated rtt */
+
+	    	rtt.ms_int = DIFFTIME_int(timestamp->tv,last_sent.ts);
+            	rtt.ms_frc = DIFFTIME_frc(timestamp->tv,last_sent.ts);
+		break;
 
 	}
 
@@ -342,7 +350,7 @@ process_pack (packet * p)
 
     /* icmp timestamp diff: echo reply */
 
-    if (!options.sniff && (ICMP_type (p) == 0 || options.differ))
+    if (!options.sniff && (ICMP_type (p) == 0 || ICMP_type(p) == 14 ) )
 	{
 
 	    PUTS (" rtt=%ld.%ld ms", rtt.ms_int, rtt.ms_frc);

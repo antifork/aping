@@ -54,6 +54,10 @@
 #define ICMP_id(p)	((p)->icmp->icmp_id) 
 #define ICMP_seq(p)	((p)->icmp->icmp_seq)
 
+#define ICMP_otime(p)	((p)->icmp->icmp_otime )
+#define ICMP_rtime(p)	((p)->icmp->icmp_rtime )
+#define ICMP_ttime(p)	((p)->icmp->icmp_ttime )
+
 #define ICMP_IP_ver(p)  ((p)->icmp->icmp_ip.ip_v)
 #define ICMP_IP_hl(p)   ((p)->icmp->icmp_ip.ip_hl)
 #define ICMP_IP_tos(p)  ((p)->icmp->icmp_ip.ip_tos)
