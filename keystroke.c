@@ -64,31 +64,6 @@ incr_tcp_tos (int delta)
 }
 
 
-int
-getchar_raw ()
-{
-    int           c;
-    struct termios tty,
-                  otty;
-
-    pthread_setcancelstate (PTHREAD_CANCEL_DISABLE, NULL);
-    
-    tcgetattr (0, &otty);
-    tty = otty;			/* saving termios */
-
-    tty.c_lflag &= ~(ECHO | ECHOK | ICANON);
-    tty.c_cc[VTIME] = 1;
-
-    tcsetattr (0, TCSANOW, &tty);
-    c = getchar ();
-    tcsetattr (0, TCSANOW, &otty);
-
-    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-
-    return (c);
-
-}
-
 void
 keystroke ()
 {
@@ -97,6 +72,7 @@ keystroke ()
     int           sfd;
     int             c;
 
+    
     sigemptyset (&set);
 
     sigaddset (&set, SIGTSTP);
@@ -108,7 +84,7 @@ keystroke ()
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype  (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-    while (c = getchar_raw ())
+    while (c = getchar ())
 
 	switch (c) {
 

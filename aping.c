@@ -97,7 +97,7 @@ main (argc, argv)
      int           argc;
      char        **argv;
 {
-
+    struct termios tty;
     struct rlimit core;
     int           loss;
     int           es;
@@ -338,6 +338,17 @@ main (argc, argv)
     if (pthread_create (&pd_rcv, NULL, (void *) receiver, NULL) != 0)
 	FATAL ("pthread_create(): %s", strerror (errno));
 
+    /* set termios properties */
+    
+    tcgetattr (0, &termios_p);
+
+    tty = termios_p;
+
+    tty.c_lflag &= ~(ECHO | ECHOK | ICANON);
+    tty.c_cc[VTIME] = 1;
+
+    tcsetattr (0, TCSANOW, &tty);
+
     if (!options.sniff)
 	{
 	    if (pthread_create (&pd_snd, NULL, (void *) sender, argv) != 0)
@@ -355,6 +366,10 @@ main (argc, argv)
     else
 	pthread_join (pd_rcv, NULL);
 
+    /* set saved termios */
+
+    tcsetattr (0, TCSANOW, &termios_p);
+ 
     if (n_sent > 0)
 	{
 	    int           wait_time;
