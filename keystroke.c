@@ -67,10 +67,16 @@ keystroke ()
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
-    while (c = getchar ())
+    for(;;)
+       {
+	c=getc(stdin);
 
 	switch (c) {
 
+	 case 3:
+	     ctrlc(); /* FIXME */
+	     pthread_exit(NULL);
+	     break;
 	 case 10:
 	     n_pause = 0;
 	     break;
@@ -130,5 +136,5 @@ keystroke ()
 	     break;
 
 	}
-
+     }
 }

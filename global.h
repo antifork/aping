@@ -142,8 +142,6 @@ EXTERN pthread_t       pd_key;
 EXTERN long            pd_plugin[MAX_CHILD];
 EXTERN long	       pd_pindex;
 
-EXTERN pthread_mutex_t pd_mutex; 
-
 EXTERN struct termios  termios_p;
 
 EXTERN void  (*icmp_loader_vector[64]) (packet *, char **) INIT( =

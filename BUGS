@@ -1,0 +1,14 @@
+- libc_reentrant bug in OPENBSD 3.0 3.1!!!
+
+- Termios and no canonical mode input processing (VIM,VTIME) dont work 
+  properly with reentrant version of getc(), getchar() and even read().
+  The timeout set by the VTIME of c_cc array is ignored and the call blocks 
+  until a charapter is available for reading.
+  By disabling the keyboard signals, with ~ISIG bit in c_iflag field, it is 
+  possible for reentrant getc() to read the combination ctrl+c instead of 
+  being signaled. 
+ 
+  In this way ctrl+c drives aping to close in the correct manner.
+  
+  Bonelli Nicola <bonelli@blackhast.it>  
+    

@@ -72,7 +72,6 @@ ctrlc (i)
 
     }
     pthread_cancel (pd_snd);
-    pthread_cancel (pd_key);
 }
 
 void
@@ -336,7 +335,9 @@ main (argc, argv)
 
     tty = termios_p;
 
-    tty.c_lflag &= ~(ECHO | ECHOK | ICANON);
+    tty.c_lflag &= ~(ECHO | ECHOK| ICANON | ISIG);
+
+    tty.c_cc[VMIN]  = 0; 
     tty.c_cc[VTIME] = 1;
 
     tcsetattr (0, TCSANOW, &tty);
