@@ -27,11 +27,9 @@ int checknum(char*smt)
 #endif
 int checkip(char* smt)
 {
-	char octet[4];
-	int dots=0;
-	int pivot;
-	char *str;
-	int stl=strlen(smt);
+	char *str,octet[4];
+	int pivot,stl,dots=0;
+	for(str=smt,stl=0;*str;stl++,str++);
 	if(isalpha(*smt))return 1;
 	if ( stl>15 ) return 0;
 	if ( stl<7  ) return 0;
