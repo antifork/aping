@@ -101,9 +101,9 @@ E (long * addr, long data, long n)
 
     if ( n == 0 )
         {
-          sum[n-1][IND(addr)] = 0;
-          cnt[n-1][IND(addr)] = 0;
-	  *addr               = 0;
+          sum[0][IND(addr)] = 0;
+          cnt[1][IND(addr)] = 0;
+	  *addr             = 0;
 	  return 0;
         }
 
@@ -170,80 +170,80 @@ TTL_PREDICTOR (unsigned char x)
 
 }
 
-/*
- * filter 
- */
+/*****
+ 
+    A linear bandwidth predictor: a stocastic model.  
+              Bonelli Nicola <bonelli@blackhats.it>
 
-#define C0 100
-#define C1 36
-#define C2 13
-#define C3 4
+    We model the bandwidth with the following law:
 
-#define FIR(a,b,c,d) (a* C0+b* C1+c* C2+d* C3)/(C0+C1+C2+C3)
+    raw(t) = b(t) + n(t)
 
-double
-single_step_FIR (double n)
-{
-    static double enne[3];
+    where:
+                                                               ________
+     raw = raw data read by receiver...  ( raw(t) = diff_id(t)*packsize/tau )
 
-    double        ret;
+     b   = effective instantaneous bandwidth we want to predict 
+     n   = noise due to the quantization.
 
-    if (n < 0)
-	{
-	    /* reset */
 
-	    enne[0] = 0;
-	    enne[1] = 0;
-	    enne[2] = 0;
+     b(t) is a stocastic process whose autocorrelation function can be 
+          thought like this:
 
-	    return 0;
-	}
+     Rb(rtt) = |1-rtt/T| rect (rtt/(2T))  ( triangolar autocorrelation )
 
-    ret = FIR (n, enne[0], enne[1], enne[2]);
 
-    enne[2] = enne[1];
-    enne[1] = enne[0];
-    enne[0] = n;
+            Rb            
+            ^
+            |
+            |                                              ___                 
+            ^           where T is the mean of rtt. (  T = tau )
+           /|\
+          / | \
+         /  |  \
+        /   |   \
+     -------+--------> tau 
+            |    T 
 
-    return ret;
+     This model is likehood, in the sense that for each couple of samples 
+                      ___
+     whose distance > tau the two are incorrelated.
 
-}
+     n(t) is a stocastic model, indipened from the first one, whose IO 
+          characteristic has the following graph:
 
+            E                                        Fn
+            ^                                        ^ 
+            |                                        |
+            |                                        |
+            |  .     .     .                    +----+----+ 
+            | /|    /|    /|                    |    |    |
+            |/ |   / |   / |                    |    |    |
+            +-----/-----/----->            -----+----+----+----->   
+            |  | /   | /                             |    packsize/2
+            |  |/    |/
+            |  '     ' 
+
+
+
+     The model we use for our 2 step estimator is the following:
+     _          _
+     b(t+T) = b(t)*Rb(T) + raw (t+T)* (1-Rb(T));        
+
+
+*****/
+
+#define TRIANGLE(x) ( (x > tau) ? 0 : tau-(x) )
 
 long
-LOW_PASS_FIR (long bit, long pt)
+twostep_predictor(long raw, long pen_time )
 {
-    static long   mean_pt;
+  static long b_t;
 
-    double        ret;
+  b_t  = b_t * TRIANGLE(pen_time) + (raw/(1+pen_time)) * ( tau - TRIANGLE(pen_time) );
+  b_t /= tau;
 
-    long          n_step;
-    long          s_step;
-
-
-    if (bit < 0)
-	{			/* reset */
-	    mean_pt = 0;
-	    return single_step_FIR (bit);
-	}
-
-    ret = single_step_FIR (bit / pt);
-
-    if (!mean_pt)
-	mean_pt = pt;
-
-    n_step = pt / mean_pt;	/* number of single step to perform for the current burst */
-
-    if (n_step > 1)
-	{
-
-	    for (s_step = 0; s_step < (n_step - 1); s_step++)
-		ret = single_step_FIR (bit / pt);
-	}
-
-    mean_pt = (mean_pt + pt) >> 1;
-
-    return (long) ret;
+  return (b_t);
 
 }
 
@@ -267,7 +267,7 @@ void
 bandwidth_predictor (packet * p)
 {
 
-    /*
+/*
 
                    APING           REMOTE_HOST 
                      |                 |
@@ -281,7 +281,7 @@ bandwidth_predictor (packet * p)
    |         v       |        ,--'     |     }
    |   _____________ |    ,--'         |     }
    |         ^       |,--'             |     }
-  tau        |       |`--.             |     } 
+ local_tau   |       |`--.             |     } 
    |         |       |    `--.         |     }
    |         |       |        `-       |     }
    |         |       |                 |     }
@@ -319,7 +319,7 @@ bandwidth_predictor (packet * p)
 	 *  since we are able to calc a deterministic value.
 	 */
 
-	pending_time = MAX(tau/2, curr_tstamp- last_tstamp);
+	pending_time = MAX( 0 , curr_tstamp- last_tstamp);
 
 	} 
     else
@@ -327,6 +327,7 @@ bandwidth_predictor (packet * p)
     	
 	local_tau    = last_rtt.ms_int + time_lost;
     	local_tau    = magic_round (tau, local_tau);
+
     	pending_time = MAX(tau/2, local_tau+ jitter/2 );   /* <- min of pending time is TAU/2 */
 
 	}
@@ -338,13 +339,14 @@ bandwidth_predictor (packet * p)
 
 	    /* a low_pass filter voids spikes */
 
-	    out_burst = LOW_PASS_FIR (delta * (tcpip_lenght[traffic_tos].lenght << 3), pending_time);
+	    out_burst = twostep_predictor (delta *(tcpip_lenght[traffic_tos].lenght << 3), pending_time);
+
 	    max_burst = MAX (max_burst, out_burst);
 	    
 	    E ( &mean_burst, out_burst, 1 );
 
 	    PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ",out_burst,mean_burst,max_burst);
-	    PUTS ("link=[%s]\n", link_type(max_burst));
+	    PUTS ("link=[%s/%s]\n", link_type(mean_burst),link_type(max_burst));
 
 	}
     else if (rand_ip_id)

@@ -71,11 +71,14 @@ ctrl_ (i)
 
     out_burst  =0;
     max_burst  =0;
+
+    E(&mean_burst, 0 , 0);
+
     rand_ip_id =0;
     fail_ip_id =0;
     slow_start =1;
 
-    LOW_PASS_FIR(-1,0); /* reset low pass filter */
+//  LOW_PASS_FIR(-1,0); /* reset low pass filter */
 
     PUTS ("idbug: %ld, differ: %ld\n\n",(iddeal &2)>>1, iddeal &1);
 
@@ -93,6 +96,8 @@ ctrlz (i)
 
            out_burst  =0;
            max_burst  =0;
+
+           E(&mean_burst, 0 , 0);
 
 	   traffic_tos= (traffic_tos+1) & 0x0f;
 	
