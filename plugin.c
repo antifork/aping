@@ -59,43 +59,60 @@ plugin_init (char *name)
     loader[0] = '\0';
 
     arg[0] = "loader";
-    arg[1] = name;
-    arg[2] = NULL;
+    arg[1] = "r";
+    arg[2] = name; 
+    arg[3] = NULL;
 
     strlcat (loader, PLUGIN_PATH, sizeof (loader));
     strlcat (loader, "/", sizeof (loader));
     strlcat (loader, "loader", sizeof (loader));
 
-    switch (pid = fork ())
-	{
-	 case -1:
-	     FATAL ("fork() error");
-	     break;
-	 case 0:
-	     /* plugin child */
+    switch (pid = fork ()) {
+     case -1:
+	 FATAL ("fork() error");
+	 break;
+     case 0:
+	 /* plugin child */
 
-	     if (execve (loader, arg, NULL) == -1)
-		 FATAL ("loader error");
+	 if (execve (loader, arg, NULL) == -1)
+	     FATAL ("loader error");
 
-	     break;
-	 default:
-	     if (pd_pindex < MAX_CHILD)
-		 pd_plugin[pd_pindex++] = pid;
-	     else
-		 {
-		     kill (pid, SIGUSR1);
-		     FATAL ("too many child");
-		 }
-	     break;
-	}
+	 break;
+     default:
+	 if (pd_pindex < MAX_CHILD)
+	     pd_plugin[pd_pindex++] = pid;
+	 else {
+	     kill (pid, SIGUSR1);
+	     FATAL ("too many child");
+	 }
+	 break;
+    }
 
 }
 
 void
 plugin_ls ()
 {
+    char          loader[80];
+    char         *arg[4];
+
     struct dirent *dp;
     DIR          *dfd;
+
+    int 	  pid;
+    int           status;
+
+    loader[0] = '\0';
+
+    arg[0] = "loader";
+    arg[1] = "i";
+    arg[2] = NULL;
+    arg[3] = NULL;
+
+    strlcat (loader, PLUGIN_PATH, sizeof (loader));
+    strlcat (loader, "/", sizeof (loader));
+    strlcat (loader, "loader", sizeof (loader));
+
 
     PUTS ("plugins available:\n");
 
@@ -104,11 +121,30 @@ plugin_ls ()
     if (dfd == NULL)
 	FATAL ("%s: directory doesn't exist. Install the package first", PLUGIN_PATH);
 
-    while ((dp = readdir (dfd)) != NULL)
-	{
-	    if (strcmp (".", dp->d_name) && strcmp ("..", dp->d_name) && strstr (dp->d_name,".so") != NULL)
-		PUTS ("%s ", dp->d_name);
+    while ((dp = readdir (dfd)) != NULL) {
+	if (strcmp (".", dp->d_name) && strcmp ("..", dp->d_name) && strstr (dp->d_name, ".so") != NULL) {
+
+	    switch (pid = fork ()) {
+	     case -1:
+		 FATAL ("fork() error");
+		 break;
+	     case 0:
+		 /* plugin child */
+
+		 arg[2] = strdup (dp->d_name);
+		 *strstr( arg[2] , ".so" ) = '\0';
+
+		 if (execve (loader, arg, NULL) == -1)
+		     FATAL ("loader error");
+
+		 break;
+	     default:
+		waitpid(pid, &status, 0);
+		break;
+
+	    }
 	}
+    }
 
     PUTS ("\n");
 

@@ -48,21 +48,27 @@
 #ifdef __OpenBSD__
 // The below define is a lie since we are really doing RTLD_LAZY since the
 // system doesn't support RTLD_NOW.
-   #define RTLD_NOW DL_LAZY
-#endif                             
+#define RTLD_NOW DL_LAZY
+#endif
 
 
 
-long   (*plugin_init) (void);
-long   (*plugin_exit) (void);
+long          (*plugin_init) (void);
+long          (*plugin_exit) (void);
+char         *plugin_name;
+char         *plugin_string;
+char         *plugin_traname;
+char         *plugin_version;
+char         *plugin_bugrep;
+char	     *plugin_info;
 
 void
-handler_usr1(int i)
+handler_usr1 (int i)
 {
 
-  plugin_exit();
-  exit(1);
- 
+    plugin_exit ();
+    exit (1);
+
 }
 
 #define SSO sizeof(so)
@@ -70,65 +76,94 @@ handler_usr1(int i)
 #define SEX sizeof(pi_exit)
 
 int
-main(argc, argv)
-   int    argc;
-   char **argv;
+main (argc, argv)
+     int           argc;
+     char        **argv;
 {
-  
-  sigset_t 	set;
 
-  char 		pi_init[80];
-  char          pi_exit[80];
+    sigset_t      set;
 
-  char 		so[80];
-  char 		*name; 
-  void 		*handle;
+    char          pi_init[80];
+    char          pi_exit[80];
 
-  name = argv[1];
- 
-  if ( name == NULL )
-        FATAL("err: null plugin!");
+    char          so[80];
+    char         *pi_name;
+    int           pi_action;
+    void         *handle;
 
-  so[0]='\0';
 
-  pi_init[0]='_';
-  pi_exit[0]='_';
+    if (argv[1] == NULL || argv[2] == NULL)
+	FATAL ("usage: loader {r|i} plugin");
 
-  pi_init[1]='\0';
-  pi_exit[1]='\0';
+    pi_action = *argv[1];
+    pi_name = argv[2];
 
-  strlcat (so,PLUGIN_PATH,SSO);
-  strlcat (so,"/",SSO);
-  strlcat (so,name,SSO);
-  strlcat (so,".so",SSO);
+    if (pi_name == NULL)
+	FATAL ("err: null plugin!");
 
-  strlcat (pi_init,name,SIN);
-  strlcat (pi_exit,name,SEX);
+    so[0] = '\0';
 
-  strlcat (pi_init,"_init",SIN);
-  strlcat (pi_exit,"_exit",SEX);
+    pi_init[0] = '_';
+    pi_exit[0] = '_';
 
-  PUTS("loading %s\n",so);
+    pi_init[1] = '\0';
+    pi_exit[1] = '\0';
 
-  handle = dlopen (so, RTLD_NOW);
+    strlcat (so, PLUGIN_PATH, SSO);
+    strlcat (so, "/", SSO);
+    strlcat (so, pi_name, SSO);
+    strlcat (so, ".so", SSO);
 
-  if (!handle)
-        FATAL(dlerror());
+    strlcat (pi_init, pi_name, SIN);
+    strlcat (pi_exit, pi_name, SEX);
 
-  #if defined(__OpenBSD__)
-   plugin_init = dlsym(handle, pi_init);
-   plugin_exit = dlsym(handle, pi_exit);
-  #else
-   plugin_init = dlsym(handle, pi_init+1);
-   plugin_exit = dlsym(handle, pi_exit+1);
-  #endif
+    strlcat (pi_init, "_init", SIN);
+    strlcat (pi_exit, "_exit", SEX);
 
-   PI_SIGNAL_INIT(&set);
+    // PUTS ("loading %s\n", so);
 
-   signal (SIGUSR1, handler_usr1);
+    handle = dlopen (so, RTLD_NOW);
 
-   plugin_init();  
+    if (!handle)
+	FATAL (dlerror ());
 
-   pause();
+#if defined(__OpenBSD__)
+    plugin_init = dlsym (handle, pi_init);
+    plugin_exit = dlsym (handle, pi_exit);
+    plugin_name = dlsym (handle, pi_name);
 
+    plugin_name   = dlsym (handle, "_pi_name");
+    plugin_string = dlsym (handle, "_pi_string");
+    plugin_traname= dlsym (handle, "_pi_tarname");
+    plugin_version= dlsym (handle, "_pi_version");
+    plugin_bugrep = dlsym (handle, "_pi_bugrep");
+    plugin_info   = dlsym (handle, "_pi_info");
+
+#else
+    plugin_init = dlsym (handle, pi_init + 1);
+    plugin_exit = dlsym (handle, pi_exit + 1);
+
+    plugin_name   = dlsym (handle, "pi_name");
+    plugin_string = dlsym (handle, "pi_string");
+    plugin_traname= dlsym (handle, "pi_tarname");
+    plugin_version= dlsym (handle, "pi_version");
+    plugin_bugrep = dlsym (handle, "pi_bugrep");
+    plugin_info   = dlsym (handle, "pi_info"); 
+#endif
+
+    switch (pi_action) {
+     case 'r':
+	 PI_SIGNAL_INIT (&set);
+	 signal (SIGUSR1, handler_usr1);
+	 plugin_init ();
+	 pause ();
+	 break;
+     case 'i':
+	 printf("%s %s\t%s\n",plugin_name,plugin_version,plugin_bugrep);
+         printf("        \t%s\n",plugin_info);
+	 break;
+     default:
+	 FATAL ("usage: loader {r|i} plugin");
+	 break;
+    }
 }

@@ -132,7 +132,7 @@ keystroke ()
              reset_stat();
 	     SWITCH (endian_bug);
 	     break;
-	 case '\\':
+	 case 'd':
 	     reset_stat();
 	     SWITCH (diff_ipid);
 	     break;

@@ -39,7 +39,10 @@
 #include <stdio.h>
 #include <signal.h>
 
+
+#define  PACKAGE_INFO  "A dummy plugin for testing purpose."
 #include "config.h"
+#include "../plugin.h"
 
 void
 dummy_exit()

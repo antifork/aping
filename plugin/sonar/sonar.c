@@ -43,9 +43,11 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
+#define PACKAGE_INFO	"A plugin for blind users"
 #include "config.h"
-#include "locale.h"
 #include "../plugin.h"
+
+#include "locale.h"
 
 #ifdef HAVE_SYS_SOUNDCARD_H
 #include <sys/soundcard.h>
