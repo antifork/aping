@@ -63,7 +63,9 @@ OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
 	dissect-time-exceeded.o \
 	dissect-timestamp-reply.o \
 	dissect-timestamp.o \
-	dissect-security.o
+	dissect-security.o \
+	@LIBOBJS@
+
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) $(DEBUG) -c $< -o $@
 
@@ -87,8 +89,8 @@ install:
 	$(INSTALL) -c -m 0755 -g bin aping @bindir@ 
 	cd plugin && make install
 clean:
-	rm -Rf *~ *.bak aping *.o 
+	rm -Rf *~ *.{bak,o} aping  
 	cd plugin && make clean
 distclean:
-	rm -Rf *~ *.bak aping *.o config.status config.h version.h *.cache *.log Makefile
+	rm -Rf *~ *.{bak,o,cache,log} aping config.status config.h version.h Makefile
 	cd plugin && make distclean

@@ -82,8 +82,6 @@ FATAL("%s option require %s",#a,#b);			\
 
 #define PER_CENT(a,b) ( (b) == 0 ? 0 : 100*(a)/(b) )
 
-#define FREE(a) { if ( a != NULL ) free(a); }
- 
 #define STR(a)    # a
 #define CAT(a,b)  a ## b
 #define XCAT(a,b) CAT(a,b)
@@ -116,7 +114,7 @@ FATAL("%s option require %s",#a,#b);			\
 #endif
 
 #define SIGN(x)  ( (x) > 0 ? 1  : ( (x) == 0 ?   0  :  -1  ) )
-#define U(x)	 ( (x) > 0 ? x  : 0 )
+#define U(x)	 ( (x) > 0 ? (x)  : 0 )
 #define ABS(x)   ( (x) < 0 ? -(x) : (x) )
 
 #define ISQRT(v) ({             \

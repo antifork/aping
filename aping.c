@@ -71,18 +71,18 @@ ctrl_ (i)
 
     out_burst  =0;
     max_burst  =0;
-
-    E(&mean_burst, 0 , -1);
-
     rand_ip_id =0;
     fail_ip_id =0;
     slow_start =1;
+
+    E(&mean_burst, 0 , -1);
 
     lp_FIR(-1,0); /* reset low pass filter */
 
     PUTS ("idbug: %ld, differ: %ld\n\n",(iddeal &2)>>1, iddeal &1);
 
-    options.differ   =  iddeal &1;
+    options.differ =iddeal &1;
+
     signal (SIGQUIT, ctrl_);
 }
 
@@ -105,6 +105,7 @@ ctrlz (i)
 	
 	   PUTS("\n%s: avrg size %ld bytes\n\n",
 	   tcpip_lenght[traffic_tos].type,tcpip_lenght[traffic_tos].lenght);
+
 	}
     else
 	{
@@ -141,7 +142,7 @@ discard_plugin()
 {
 	int k =0 ;
 
-	for (k;k< MIN(pd_pindex,32) ; k++)
+	for (k;k< MIN(pd_pindex,MAX_CHILD) ; k++)
                 {
 		  kill (pd_plugin[k], SIGUSR1);
                 }
@@ -417,14 +418,12 @@ main (argc, argv)
 	  int wait_time;
          
           wait_time = ( n_tome ? \
-			rtt_mean+100+2*ISQRT(rtt_sqre-rtt_mean*rtt_mean) : 2000 );
+			100+rtt_mean+2*ISQRT(rtt_sqre-rtt_mean*rtt_mean) : 2000 );
  
           PUTS("--- sleeping %d ms (RTT+2 sigma) ---\n", wait_time );
 
 	  usleep(wait_time* 1000);
-
           pthread_cancel(pd_rcv);
-
           loss = 100 - PER_CENT (n_tome, n_sent);
 
           PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));
@@ -433,6 +432,7 @@ main (argc, argv)
           	PUTS ("%ld packets transmitted, %ld packets received (forked responses found)\n", n_sent, n_tome);
 	  else 
 		PUTS ("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);   
+
           if (n_tome)
            PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n",
 		rtt_min,rtt_mean,ISQRT(rtt_sqre-rtt_mean*rtt_mean ),rtt_max);

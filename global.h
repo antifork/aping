@@ -105,7 +105,7 @@ EXTERN long delta;
 EXTERN long pending_time;
 EXTERN long local_tau;
 
-EXTERN long slow_start INIT(= 1); 	/* to avoid big burst during the ip_id mode switching ( cltr+\ )*/ 
+EXTERN long slow_start INIT(= 1); 	/* to calc the correct value of ip_id */ 
 
 EXTERN long rand_ip_id; 
 EXTERN long fail_ip_id;

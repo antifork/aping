@@ -34,7 +34,7 @@ AC_CHECK_LIB([pthread], [pthread_create], [ have_pthread=yes ; LIBS="-lpthread $
 AC_CHECK_LIB([c_r],     [pthread_create], [ have_libc_r=yes ;  LIBS="-pthread $LIBS" ], have_libc_r=no)
 
 if test $have_pthread = no && test $have_libc_r = no ; then
-        AC_WARN(this os doesn't support pthread nor libc_r)
+        AC_WARN(this os doesn't support pthread)
 	AC_WARN(contact the author reporting what happened.)
 	AC_WARN(the build can't continue)
         rm -Rf *.cache *.log
@@ -55,6 +55,7 @@ AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS([gethostbyaddr gethostbyname gettimeofday inet_ntoa memset socket strchr strdup strerror strtol])
 
+AC_REPLACE_FUNCS([strlcpy strlcat])
 AC_CONFIG_SUBDIRS(plugin)
 
 AC_CONFIG_FILES([Makefile])

@@ -61,10 +61,10 @@ plugin_init(char *name)
   arg[0]   = "loader";
   arg[1]   = name;
   arg[2]   = NULL;
-
-  strcat (loader,PLUGIN_PATH);
-  strcat (loader,"/");
-  strncat(loader,"loader",80-8-sizeof(PLUGIN_PATH));  
+  
+  strlcat (loader,PLUGIN_PATH,sizeof(loader));
+  strlcat (loader,"/",sizeof(loader));
+  strlcat (loader,"loader",sizeof(loader));  
 
   switch (pid = fork ())
 	{

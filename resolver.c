@@ -93,8 +93,6 @@ static lru    hostbyaddr[LRU];
                         exit(1);\
                         }
 
-#define FREE(a) { if ( a != NULL ) free(a); }
-
 /* private fuctions */
 
 /* gethostbyname utils */
@@ -127,7 +125,7 @@ insert_hostbyname (const char *h, const unsigned long addr)
 
     i = hash (h, strlen (h)) & HASHMASK ;
 
-    FREE (hostbyname[i].host);
+    free (hostbyname[i].host);
 
     hostbyname[i].host = strdup (h);
     hostbyname[i].addr = addr;
@@ -164,7 +162,7 @@ insert_hostbyaddr (const char *h, const unsigned long addr)
 
     i = hash ((char *) &addr, 4) & HASHMASK;
 
-    FREE (hostbyaddr[i].host);
+    free (hostbyaddr[i].host);
 
     hostbyaddr[i].host = strdup (h);
     hostbyaddr[i].addr = addr;
@@ -228,7 +226,7 @@ gethostbyaddr_lru (unsigned long addr)
 
     i++;
 
-    FREE (BUFF(ret));
+    free (BUFF(ret));
 
     if (addr == 0)
 	return "0.0.0.0";
@@ -271,7 +269,7 @@ multi_inet_ntoa (long address)
 
     i++;
 
-    FREE(BUFF(ret));
+    free(BUFF(ret));
 
     BUFF(ret) = strdup ( inet_ntoa (*(struct in_addr *) &address) );
 

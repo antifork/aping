@@ -163,23 +163,19 @@ agent_ipid (packet * p)
 
 		     fail_ip_id = 0;
 		     iddeal    ^= 2;
-
 		     out_burst  = 0;
 		     max_burst  = 0;
-
-   	             E (&mean_burst, 0 , -1);
-
 		     rand_ip_id = 0;
 		     fail_ip_id = 0;
 
-		     slow_start = 1;	/* prevent wild burst */
+		     slow_start = 1;	/* to calc the correct value of ip_id */
+
+                     E (&mean_burst, 0 , -1);
 
 		     lp_FIR (-1, 0);	/* reset low pass filter */
 
 		     PUTS ("idbug: %ld, differ: %ld\n", (iddeal & 2) >> 1, iddeal & 1);
 		     return -1;
-
-		     break;
 
 		}
 	}
