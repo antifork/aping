@@ -101,7 +101,7 @@
 			   ICMP_IP_p(p)      == IPPROTO_ICMP && \
 			   ICMP_ICMP_type(p) == icmp_type && \
 			   ICMP_ICMP_code(p) == icmp_code && \
-			   ICMP_ICMP_id(p)   == myid )
+		        !( ICMP_ICMP_type(p) == 0 && !(ICMP_ICMP_id(p)== myid) ) )
 
 #define PARENT(p)        ( icmp_parent[ICMP_type(p) & 0x1f] == icmp_type )
 #define TOME(p)	 	 ( IP_dst(p) == ip_src )
