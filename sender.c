@@ -80,7 +80,7 @@ int           true = 1;
 #define LEN(base,type) (base|type<<8)
 
 int           icmphdr_vector[32] = { LEN (8, 1), 0, 0, LEN (8, 2), LEN (8, 2), LEN (8, 2), 0, 0,
-    LEN (8, 1), LEN (8, 4), 8, LEN (8, 2), LEN (8, 2), 20, 20, 8, 8, 0, 0
+    LEN (8, 1), LEN (8, 4), 8, LEN (8, 2), LEN (8, 2), 20, 20, 8, 8, 12 , 12 
 };
 
 

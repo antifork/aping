@@ -58,6 +58,8 @@
 #define ICMP_rtime(p)	((p)->icmp->icmp_rtime )
 #define ICMP_ttime(p)	((p)->icmp->icmp_ttime )
 
+#define ICMP_mask(p)	((p)->icmp->icmp_mask )
+
 #define ICMP_IP_ver(p)  ((p)->icmp->icmp_ip.ip_v)
 #define ICMP_IP_hl(p)   ((p)->icmp->icmp_ip.ip_hl)
 #define ICMP_IP_tos(p)  ((p)->icmp->icmp_ip.ip_tos)
