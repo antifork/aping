@@ -2,6 +2,7 @@
  * $Id$
  * 
  * Copyright (c) 2002 Nicola Bonelli <bonelli@antifork.org>
+ *                    Roberto Ferranti <sbirish@sbirish.net>
  * 
  * All rights reserved.
  *
