@@ -12,7 +12,7 @@
 /* purpose: an ethernet crc_32 used to check saved files                      */
 /*----------------------------------------------------------------------------*/
 static unsigned const poly= 0x04c11db7U;
-static u_32 eth_crc(int length, u_8 *data)
+static u_32 eth_crc(int length, char *data)
 {
 	int bit,crc = -1;
 	u_8 current_octet;
@@ -221,7 +221,7 @@ void free_nn(NN* nn)
 		n_layer=layer->next;
 		free_layer(layer);
 		layer=n_layer;
-		NN_VERBOSE1(" -snuff snuff one less #%2d remaining\r\n",size-1);
+		NN_VERBOSE1(" -one less #%2d remaining\r\n",size-1);
 	}
 	free(nn);
 	NN_VERBOSE("::free_nn() done\r\n");
@@ -238,6 +238,7 @@ NN* create_nn(u_32 size,u_32*pn)
 	LAYER* l_tmp;
 	LAYER* l_prev;
 	NN* nn;
+	
 	if(size<2)
 	{
 		fprintf(stderr,"Ok, Nice joke\r\n");
@@ -259,7 +260,7 @@ NN* create_nn(u_32 size,u_32*pn)
 	{
 		link_layers(l_prev,l_tmp);
 		l_prev=l_prev->next;
-		l_tmp=l_tmp->next;		
+		l_tmp =l_tmp->next;		
 	}
 	return nn;
 }
@@ -271,29 +272,29 @@ NN* create_nn(u_32 size,u_32*pn)
         structure of the saved file:
          crc  (u_32)
 
-         nn->size  u_16
-         nn->life  u_32
-         nn->alpha double
-         nn->eta   double
-         nn->gain  double
-         nn->error double
+         nn->size             u_16
+         nn->life             u_32
+         nn->alpha          double
+         nn->eta            double
+         nn->gain           double
+         nn->error          double
 
-         layer->size (u_32)  (found nn->size times)
+         layer->size          u_32  (found nn->size times)
          ....
 
-         neuron->state
-         neuron->output
-         neuron->error
+         neuron->state      double 
+         neuron->output     double 
+         neuron->error      double 
         ...
 
-        fplink->weight
-        fplink->weightsave
-        fplink->deltaweight
+        fplink->weight      double 
+        fplink->weightsave  double 
+        fplink->deltaweight double 
         ....
 
-        bplink->weight
-        bplink->weightsave
-        bplink->deltaweight
+        bplink->weight      double 
+        bplink->weightsave  double 
+        bplink->deltaweight double 
         ....
 
 */
@@ -341,6 +342,7 @@ int save_nn(NN*nn,char*filename)
         /* saving nn */
         pnn+=sizeof(u_32);
 
+        
         memcpy(pnn,&(nn->size),sizeof(u_16));
         pnn+=sizeof(u_16);
 
@@ -435,6 +437,7 @@ int save_nn(NN*nn,char*filename)
                 NEURO* currentneuro;
                 int prevlayersize;
 
+		NN_VERBOSE1(" +saving backp links for layer # %d\r\n",counter+1);
                 prevlayersize=currentlayer->previous->size;
                 for(currentneuro=currentlayer->first,counter2=0;counter2!=currentlayer->size;counter2++)
                 // for_each(neuron)
@@ -475,6 +478,7 @@ int save_nn(NN*nn,char*filename)
         fclose(fp);
         NN_VERBOSE(" *ONE KILL\r\n");		        
         NN_VERBOSE("::save_nn() done\r\n");
+        free(pnnp);
         return 1;
 }
 

@@ -22,6 +22,8 @@
  #define NN_VERBOSE3(a,b,c,d) ;
 #endif
 
+
+
 typedef unsigned int   u_32;
 typedef unsigned short u_16;
 typedef unsigned char  u_8;
@@ -66,7 +68,7 @@ typedef struct NN
 }NN;
 
 
-static u_32 eth_crc(int length, u_8 *data);
+static u_32 eth_crc(int length, char *data);
 void* b_malloc( size_t size);
 void* b_calloc(size_t items, size_t size);
 LAYER* alloc_layer(u_32 size, u_32 psize,u_32 nsize);
