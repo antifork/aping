@@ -336,14 +336,17 @@ main (argc, argv)
     if (!options.sniff)	
 	FATAL("no destination given");
 
-    /* getting default route */
+    
+    if ( !options.ip_src ) 
+	{
 
-    if ( !options.ifname )
-        get_first_hop (ip_dst, &ip_src, ifname);
-    else
-        ip_src = gethostbyif(ifname);
+    	   if ( !options.ifname )
+        	get_first_hop (ip_dst, &ip_src, ifname);
+    	   else
+        	ip_src = gethostbyif(ifname);
 
- 
+	}
+
     /* Catch signal */
     signal (SIGINT,  ctrlc);
     signal (SIGTSTP, ctrlz);
