@@ -65,6 +65,7 @@ dissect_address_mask_reply (packet *p)
   long network;
   long mask;
   long class;
+  long broad;
 
   mask = class = 0;
   mask = ntohl(ICMP_mask(p));
@@ -74,7 +75,9 @@ dissect_address_mask_reply (packet *p)
   while ( mask <<=1 ); 
 
   network = IP_src(p) & ICMP_mask(p);
+  broad   = network | ~ICMP_mask(p);
 
-  PUTS("    mask=%s net=%s/%ld\n",  multi_inet_ntoa(ICMP_mask(p)),multi_inet_ntoa(network),class);
+  PUTS("    mask=%s net=%s/%ld broadcast=%s\n",  \
+	multi_inet_ntoa(ICMP_mask(p)),multi_inet_ntoa(network),class,multi_inet_ntoa(broad));
 
 }
