@@ -46,7 +46,8 @@ typedef struct {
    int  ip_id:1;
    int  ip_id_incr:1;
    int  ip_id_rand:1;
-   int  opt_rroute:1;
+   int  rroute:1;
+   int  bcast:1;
 
 /* icmp */
    int  icmp_type:1;

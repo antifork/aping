@@ -73,7 +73,7 @@ sizeof_icmp(int t)
 		ret += sizeof(struct timeval) + strlen(pattern);
 		break;
 	case 2:
-		ret += (options.opt_rroute ? 60 : 20) + (64 >> 3);	/* 64 bits of original
+		ret += (options.rroute ? 60 : 20) + (64 >> 3);	/* 64 bits of original
 									 * datagram */
 		break;
 	case 4:
@@ -88,7 +88,7 @@ load_layers(char *buff, packet * pkt)
 {
 	int off_ip;
 
-	off_ip = (options.opt_rroute ? 15 : 5) << 2;
+	off_ip = (options.rroute ? 15 : 5) << 2;
 
 	pkt->ip = (struct ip *) ((void *) buff);
 	pkt->icmp = (struct icmp *) ((void *) buff + off_ip);
@@ -106,7 +106,7 @@ load_ip(struct ip * ip)
 	char *ip_opt;
 
 	ip->ip_v = 4;
-	ip->ip_hl = (options.opt_rroute ? 15 : 5);
+	ip->ip_hl = (options.rroute ? 15 : 5);
 	ip->ip_tos = (options.ip_tos ? ip_tos : 0);
 
 	ip->ip_len = FIX((ip->ip_hl << 2) + sizeof_icmp(icmp_type));
@@ -123,7 +123,7 @@ load_ip(struct ip * ip)
 	ip->ip_src.s_addr = ip_src;
 	ip->ip_dst.s_addr = ip_dst;
 
-	if (options.opt_rroute) {
+	if (options.rroute) {
 		ip_opt = (char *) ip + (5 << 2);
 
 		ip_opt[IPOPT_OPTVAL] = IPOPT_RR;
@@ -177,13 +177,13 @@ sender(argv)
 
 	/* We set SO_BROADCAST whenever we need this. */
 
-	if (ip_dst == (localnet | ~netmask)) {
+	if ((ip_dst == (localnet | ~netmask)) || options.bcast) {
 		/* local broadcast */
 		PUTS("%s: broadcast addr, SO_BROADCAST option is on.\n", ifname);
 		setsockopt(sfd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof(true));
 	}
-	/* SO_DONTROUTE ... */
 
+	/* SO_DONTROUTE ... */
 	if (options.droute) {
 		PUTS("%s: SO_DONTROUTE option is on.\n", ifname);
 		setsockopt(sfd, SOL_SOCKET, SO_DONTROUTE, (char *) &true, sizeof(true));

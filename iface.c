@@ -51,7 +51,7 @@ get_first_hop(target, source, ifname)
 #ifdef __linux__
 	char *void_alias = NULL;
 #endif
-	struct ifreq *ifr, *iflast;
+	struct ifreq *ifr, *iflast, ifreq_io;
 	struct ifconf ifc;
 	struct sockaddr_in *local;
 	u_long ipif;
@@ -64,6 +64,7 @@ get_first_hop(target, source, ifname)
 	socksize = sizeof(struct sockaddr);
 
 	memset(&saddr, 0, sizeof(struct sockaddr_in));
+	memset(&ifreq_io,0, sizeof(struct ifreq));
 
 	saddr.sin_family = AF_INET;
 	saddr.sin_addr.s_addr = target;
@@ -106,8 +107,6 @@ get_first_hop(target, source, ifname)
 	if (ioctl(sd, SIOCGIFCONF, &ifc) < 0)
 		FATAL(strerror(errno));
 
-	close(sd);
-
 	/* line_up ifreq structure */
 
 	ifr = (struct ifreq *) buffer;
@@ -119,17 +118,26 @@ get_first_hop(target, source, ifname)
 	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + sizeof(struct sockaddr_in))
 #endif
 	{
-		if (*(char *) ifr == 0)
+
+		strncpy(ifreq_io.ifr_name,ifr->ifr_name,16);
+
+
+                if (ioctl(sd, SIOCGIFFLAGS, &ifreq_io) < 0)
+                        FATAL("SIOCGIFFLAGS: %s", strerror(errno));
+
+                if ((ifreq_io.ifr_flags & IFF_UP) == 0)
 			continue;
 
 		local = (struct sockaddr_in *) & ifr->ifr_addr;
+
 		if (ipif == local->sin_addr.s_addr) {
 			strncpy(ifname, ifr->ifr_name, 16);
 			/* alias */
 #ifdef __linux__
 			if ((void_alias = strchr(ifname, ':')) != NULL)
 				*void_alias = '\0';
-#endif
+#endif			
+			close(sd);
 			return 0;
 		}
 	}

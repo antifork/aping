@@ -51,7 +51,7 @@ break;}
 int
 sizeof_datalink(pcap_t * pd)
 {
-	register int dtl;
+	int dtl;
 
 	if ((dtl = pcap_datalink(pd)) < 0)
 		FATAL("no datalink info: %s", pcap_geterr(pd));
@@ -82,7 +82,7 @@ sizeof_datalink(pcap_t * pd)
 		CASE(AP_DLT_FDDI, 21);
 		CASE(AP_DLT_ATM_RFC1483, 8);
 
-		CASE(AP_DLT_LOOP, 4);	/* according to Openbsd DLT_LOOP
+		CASE(AP_DLT_LOOP, 4);	/* according to OpenBSD DLT_LOOP
 					 * collision: see "bpf.h" */
 		CASE(AP_DLT_RAW, 0);
 

@@ -184,7 +184,7 @@ main(argc, argv)
 	if (argv[1][0] == '-' && argv[1][1] == '-')
 		FATAL("%s doesn't support --long-options.\ntype %s -h instead", argv[0], argv[0]);
 
-	while ((es = getopt(argc, argv, "DS:O:T:MRI:t:k:i:c:p:e:Pz:l:dnrvhbs")) != EOF)
+	while ((es = getopt(argc, argv, "DS:O:T:MRI:t:k:i:c:p:e:Pz:l:dnrvhbys")) != EOF)
 		switch (es) {
 		case 'S':
 			SET(ip_src);
@@ -205,7 +205,7 @@ main(argc, argv)
 			SET(ip_ramp);
 			break;
 		case 'R':
-			SET(opt_rroute);
+			SET(rroute);
 			break;
 		case 'I':
 			if (argv[optind] == NULL && *optarg == 'd')
@@ -228,6 +228,9 @@ main(argc, argv)
 			}
 			break;
 		case 'b':
+			SET(bcast);
+			break;
+		case 'y':
 			usage(optarg, USAGE_BANDWIDTH);
 			break;
 		case 'l':
@@ -379,6 +382,8 @@ main(argc, argv)
 	}
 
 	pthread_cancel(pd_rcv);
+	signal(SIGTSTP,SIG_DFL);
+	signal(SIGINT, SIG_DFL);
 	report();
 	exit(0);
 }

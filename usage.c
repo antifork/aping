@@ -78,10 +78,11 @@ usage(char *name, int type)
 			"   -d                        set SO_DEBUG option\n"
 		        "   -n                        don't resolve hostname\n"
 			"   -r                        don't route\n"
+			"   -b                        force broadcast frame\n"
 			"   -v                        print version\n"
 			"   -h                        print this help\n"
 		        "   -l plugin                 load plugin (-ls list)\n"
-		        "   -b                      * print link list\n", name);
+		        "   -y                      * print link list\n", name);
 		break;
 	case USAGE_TOS:
 		fprintf(stderr,

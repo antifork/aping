@@ -256,10 +256,10 @@ process_pack(packet * p)
 	saddr = gethostbyaddr_cache(IP_src(p));
 	daddr = gethostbyaddr_cache(IP_dst(p));
 
-	ip_size = ntohs(IP_len(p));
+	ip_size = ntohs(IP_len(p)); /* iphdr+payload */ 
 	icmp_size = ip_size - (IP_hl(p) << 2);
 
-	if (options.opt_rroute && IP_hl(p) == 15) {
+	if (options.rroute && IP_hl(p) == 15) {
 		print_RR(IP_opt(p));
 	}
 	if (!ICMP_HAS_SEQ(p)) {
@@ -369,7 +369,7 @@ receiver()
 	/* set offset_dl: datalink header size */
 
 	if (sizeof_datalink(in_pcap) == -1)
-		FATAL("aping has not been yet configured to work with DLT_%s(%ld) device...\n" "please mailto bonelli@blackhats.it reporting the event.", linktype[datalink], datalink);
+		FATAL("DLT_%s(%ld) device is not supported yet\n" "please mailto bonelli@blackhats.it reporting the event.", linktype[datalink], datalink);
 
 	if (options.promisc)
 		PUTS("<PROMISC>");
