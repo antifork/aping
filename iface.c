@@ -78,6 +78,12 @@ get_first_hop (target, source, ifname)
 
     close (sd);
 
+    if ( *source == target ) {
+	in_addr_t loopback;
+	loopback = inet_addr("127.0.0.1");
+	memcpy(&saddr.sin_addr, &loopback,sizeof(struct in_addr));
+    }
+	
     {
 
 	char buffer[10240];
