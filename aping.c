@@ -123,17 +123,9 @@ defaults ()
 
     pattern[48] = 0;
 
-    /* Catch signal */
-
-    signal (SIGINT, SIG_IGN);
-    signal (SIGTSTP, SIG_IGN);
-    signal (SIGQUIT, SIG_IGN);
-    signal (SIGALRM, SIG_IGN);
-
     /* set myid */
 
     myid = getpid () & 0xffff;
-
 
 }
 
@@ -365,6 +357,14 @@ main (argc, argv)
 
     if (pthread_create (&pd_key, NULL, (void *) keystroke, NULL) != 0)
 	FATAL ("pthread_create(): %s", strerror (errno));
+
+
+    /* Catch signal */
+
+    signal (SIGINT, SIG_IGN);
+    signal (SIGTSTP, SIG_IGN);
+    signal (SIGQUIT, SIG_IGN);
+    signal (SIGALRM, SIG_IGN);
 
     /* set termios properties */
 
