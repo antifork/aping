@@ -42,6 +42,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #define PACKAGE_INFO	"A plugin for blind users"
 #include "config.h"
@@ -82,15 +83,15 @@ playsound (char *sound, int len)
     }
 
     if (ioctl (dsp, SNDCTL_DSP_SETFMT, &format) == -1) {
-	FATAL ("ioctl(\"SNDCTL_DSP_SETFMT\")");
+	FATAL ("SNDCTL_DSP_SETFMT: %s",strerror(errno));
     }
 
     if (ioctl (dsp, SNDCTL_DSP_STEREO, &channels) == -1) {
-	FATAL ("ioctl(\"SNDCTL_DSP_CHANNELS\")");
+	FATAL ("SNDCTL_DSP_CHANNELS: %s",strerror(errno));
     }
 
     if (ioctl (dsp, SNDCTL_DSP_SPEED, &speed) == -1) {
-	FATAL ("ioctl(\"SNDCTL_DSP_SPEED\")");
+	FATAL ("SNDCTL_DSP_SPEED: %s",strerror(errno));
     }
 
     write (dsp, sound, len);
@@ -128,7 +129,7 @@ sonar_init ()
 	FATAL ("%s: file not found", PINGWAV);
 
     if (read (fd, sound, size) == -1)
-	FATAL ("err: read() sound error.");
+	FATAL ("err: read() sound error");
 
     close (fd);
 

@@ -143,11 +143,10 @@ plugin_ls ()
 		break;
 
 	    }
+
 	}
+
     }
 
-    PUTS ("\n");
-
     exit (1);
-
 }
