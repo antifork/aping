@@ -46,6 +46,7 @@ shtool      = @SHTOOL@
 OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
 	resolver.c \
 	argscheck.o \
+	plugin.o \
 	chksum.o usage.o \
 	dissect-destination.o \
 	dissect-echo-reply.o \
@@ -68,6 +69,7 @@ OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
 
 all:  global 
 	$(CC) -o aping $(OBJS) $(LIBS) 	
+	@cd plugin && make
 
 global: version.h $(OBJS)
 
@@ -77,11 +79,16 @@ version.h: VERSION
 	@rm -f $@
 	@sed -e 's/.*/#define VERSION "&"/' VERSION > $@
 	@echo "#define PLUGIN_PATH  \"@datadir@/aping\"" >> $@  
-	@echo -n "% program: aping " ; cat VERSION ; 
+	@echo "====================="
+	@echo "       aping"
+	@echo "====================="
 install:
+	$(shtool)  mkdir -f $(datadir)/aping
 	$(INSTALL) -c -m 0755 -g bin aping @bindir@ 
+	cd plugin && make install
 clean:
-	rm -Rf *~ aping *.o 
-
+	rm -Rf *~ *.bak aping *.o 
+	cd plugin && make clean
 distclean:
-	rm -Rf *~ aping *.o config.status config.h version.h *.cache *.log Makefile
+	rm -Rf *~ *.bak aping *.o config.status config.h version.h *.cache *.log Makefile
+	cd plugin && make distclean

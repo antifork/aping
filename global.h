@@ -113,7 +113,7 @@ EXTERN char *host_src;
 EXTERN char *host_dst;
 EXTERN char *pattern;
 
-EXTERN char  maturity_level[256][2];
+EXTERN char  maturity_level[64][2];
 EXTERN char  maturity_void [0];
 
 EXTERN char buffer [MAX_PACSIZE];
@@ -124,9 +124,12 @@ EXTERN char ifname [16];
 EXTERN pthread_t       pd_rcv;
 EXTERN pthread_t       pd_snd;
 
+EXTERN pthread_t       pd_plugin[16];
+EXTERN long	       pd_pindex;
+
 EXTERN pthread_mutex_t pd_mutex; 
 
-EXTERN void  (*icmp_loader_vector[256]) (packet *, char **) INIT( =
+EXTERN void  (*icmp_loader_vector[64]) (packet *, char **) INIT( =
 {
         [0] =load_echo_reply,
         [3] =load_destination_unreachable,
@@ -146,7 +149,7 @@ EXTERN void  (*icmp_loader_vector[256]) (packet *, char **) INIT( =
 	[40]=load_security
 });
 
-EXTERN void  (*icmp_dissect_vector[256]) (packet *) INIT (=
+EXTERN void  (*icmp_dissect_vector[64]) (packet *) INIT (=
 {
         [0] =dissect_echo_reply,
         [3] =dissect_destination_unreachable,
@@ -166,7 +169,7 @@ EXTERN void  (*icmp_dissect_vector[256]) (packet *) INIT (=
 	[40]=dissect_security
 });
 
-EXTERN char *protocols[256] INIT( = {
+EXTERN char *protocols[64] INIT( = {
 [0]="ip", [1]="icmp", [2]="igmp", [3]="ggp", [4]="ipencap",
 [5]="st", [6]="tcp", [7]="ucl", [8]="egp", [9]="igp",
 [10]="bbn-rcc-mon", [11]="nvp-ii", [12]="pup", [13]="argus", [14]="emcon",

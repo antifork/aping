@@ -85,6 +85,7 @@ usage (char *name, int type)
 		      "   -f                        print differential id\n"
 		      "   -v                        print version\n" 
 		      "   -h                        print this help\n" 
+		      "   -l plugin                 load plugin (-ls list)\n"                      
                       "   -b                      * print link list\n", name);
 	     break;
 	 case USAGE_TOS:

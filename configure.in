@@ -1,5 +1,13 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT(aping, 2.0.0-ALPHA_5, bonelli@blackhats.it) 
+
+version=`cat ./VERSION`
+
+echo "========================"
+echo " aping $version"        
+echo "========================"
+
+
 AC_CONFIG_SRCDIR([aping.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -7,6 +15,8 @@ AC_CONFIG_HEADER([config.h])
 AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+
+AC_CHECK_PROGS(SHTOOL, shtool, ./shtool)
 
 # Checks for libraries.
 AC_CHECK_LIB([pcap], [pcap_open_live], [ have_pcap=yes ; LIBS="-lpcap $LIBS" ], have_pcap=no)
@@ -31,6 +41,8 @@ if test $have_pthread = no && test $have_libc_r = no ; then
         exit
 fi
 
+AC_CHECK_LIB([dl], [dlopen])
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
@@ -45,16 +57,19 @@ AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS([gethostbyaddr gethostbyname gettimeofday inet_ntoa memset socket strchr strdup strerror strtol])
 
+AC_CONFIG_SUBDIRS(plugin)
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
+
 echo ""
 echo "The aping package has been configured with the following options:"
-echo "          compiler   : $CC" 
-echo "          CFLAGS     : $CFLAGS" 
-echo "          lib        : $LIBS"
-echo "          defs       : $DEFS"
-echo "          prefix     : $prefix"
-echo "          exec_prefix: $exec_prefix"
-echo "          bindir     : $bindir"
-echo "          mandir     : $mandir"
-echo "          datadir    : $datadir"
+echo "  compiler   : $CC" 
+echo "  CFLAGS     : $CFLAGS" 
+echo "  lib        : $LIBS"
+echo "  defs       : $DEFS"
+echo "  prefix     : $prefix"
+echo "  exec_prefix: $exec_prefix"
+echo "  bindir     : $bindir"
+echo "  mandir     : $mandir"
+echo "  datadir    : $datadir"

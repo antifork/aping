@@ -129,6 +129,20 @@ ctrlc (i)
       }
 }
 
+void
+discard_plugin()
+{
+	int k =0 ;
+
+	for (k;k<pd_pindex; k++)
+                {
+                  pthread_cancel(pd_plugin[k]);
+                  pthread_join  (pd_plugin[k],NULL);
+                }
+
+}
+
+
 int
 main (argc, argv)
      int           argc;
@@ -151,6 +165,8 @@ main (argc, argv)
 #ifndef EADBUG
     setrlimit(RLIMIT_CORE, &core);
 #endif
+
+    atexit(discard_plugin);
 
     /* maturity interface */
 
@@ -187,7 +203,7 @@ main (argc, argv)
     }
 
 
-    while ((es = getopt (argc, argv, "S:D:O:T:MRI:t:k:i:c:p:e:Ps:z:fdnrvhb")) != EOF)
+    while ((es = getopt (argc, argv, "S:D:O:T:MRI:t:k:i:c:p:e:Ps:z:l:fdnrvhb")) != EOF)
 	switch (es)
 	    {
 	     case 'S':
@@ -246,6 +262,14 @@ main (argc, argv)
 	     case 'b':
 		usage (optarg, USAGE_BANDWIDTH);
 		break;
+
+	     case 'l':
+                 if (!strcmp ("s", optarg))
+			plugin_ls ();
+
+		 plugin_init (optarg);
+	
+		 break;
 
 	     case 't':
                  if (!strcmp ("help", optarg))
@@ -387,7 +411,9 @@ main (argc, argv)
           PUTS("--- sleeping %d ms (RTT+2 sigma) ---\n", wait_time );
 
 	  usleep(wait_time* 1000);
+
           pthread_cancel(pd_rcv);
+
           loss = 100 - PER_CENT (n_tome, n_sent);
 
           PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));

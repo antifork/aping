@@ -39,8 +39,8 @@
 #include "prototype.h"
 #include "global.h"
 
-extern char  *icmp_type_str[256];
-extern char  *icmp_code_str[256*256];
+extern char  *icmp_type_str[64];
+extern char  *icmp_code_str[64*64];
 
 int           true = 1;
 
@@ -207,9 +207,9 @@ sender (argv)
 
     load_layers (buffer, &pkt);
 
-    if ( icmp_code_str[(icmp_type<<8) +icmp_code] != NULL )
+    if ( icmp_code_str[(icmp_type<<6) +icmp_code] != NULL )
        PUTS ("PING %s (%s): icmp=%ld(%s) code=%ld(%s)\n", \
-       host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type], icmp_code, icmp_code_str[(icmp_type<<8)+icmp_code]);
+       host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type], icmp_code, icmp_code_str[(icmp_type<<6)+icmp_code]);
     else
        PUTS ("PING %s (%s): icmp=%ld(%s)\n", \
        host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type]);     

@@ -14,7 +14,7 @@
 #define SETUP_MATURITY() 						\
 {									\
 int _i;									\
-for (_i=0;_i<256;_i++)							\
+for (_i=0;_i<64;_i++)							\
   {									\
    maturity_level[_i][0]=' ';						\
    maturity_level[_i][1]=' ';						\
@@ -24,7 +24,7 @@ for (_i=0;_i<256;_i++)							\
 #define LOAD_MATURITY()                         				\
 {                                               				\
 int _i;                                         				\
-for (_i=0;_i<256;_i++)                          				\
+for (_i=0;_i<64;_i++)                          				\
   {                                             				\
    IF_LOADER(_i) {(*icmp_loader_vector [_i]) ((packet *)maturity_void, NULL);} 	\
    IF_DISSECT(_i){(*icmp_dissect_vector[_i]) ((packet *)maturity_void);} 	\

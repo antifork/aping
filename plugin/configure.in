@@ -1,0 +1,13 @@
+# Process this file with autoconf to produce a configure script.
+
+AC_INIT(aping-plugin, 1.0, BUG-REPORT-ADDRESS)
+
+plugins=`for dir in *; do if test -d ${dir} ; then echo $dir ; fi done`
+
+echo "======================"
+echo "plugins:"
+echo "$plugins"
+echo "======================"
+
+AC_CONFIG_SUBDIRS($plugins)
+AC_OUTPUT
