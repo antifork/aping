@@ -68,28 +68,23 @@ playsound (char *sound, int len)
 
     dsp = open ("/dev/dsp", O_WRONLY);
     if (dsp == -1) {
-	perror ("open(\"/dev/dsp\")");
-	return;
+	FATAL ("open(\"/dev/dsp\")");
     }
 
     if (ioctl (dsp, SNDCTL_DSP_SAMPLESIZE, &bit) == -1) {
-	fprintf (stderr, "Unable to set the sample size\n");
-	return (-1);
+	FATAL ("unable to set the sample size\n");
     }
 
     if (ioctl (dsp, SNDCTL_DSP_SETFMT, &format) == -1) {
-	perror ("ioctl(\"SNDCTL_DSP_SETFMT\")");
-	return -1;
+	FATAL ("ioctl(\"SNDCTL_DSP_SETFMT\")");
     }
 
     if (ioctl (dsp, SNDCTL_DSP_STEREO, &channels) == -1) {
-	perror ("ioctl(\"SNDCTL_DSP_CHANNELS\")");
-	return -1;
+	FATAL ("ioctl(\"SNDCTL_DSP_CHANNELS\")");
     }
 
     if (ioctl (dsp, SNDCTL_DSP_SPEED, &speed) == -1) {
-	perror ("ioctl(\"SNDCTL_DSP_SPEED\")");
-	return -1;
+	FATAL ("ioctl(\"SNDCTL_DSP_SPEED\")");
     }
 
     write (dsp, sound, len);
