@@ -1,212 +1,169 @@
 #include "wmdata.h"
-#include "macro.h"
-/*
-	OCCHIO MANCANO LE SINCRONIZZAZIONI!!
-	E NON FUNZIONA ANCORA UN CAZZO!!
-	NON INCLUDERE NULLA ANCORA AW... 
-	HO DOVUTO RISCRIVERE TUTTO E SEGARE IL GRABAGE COLLECTOR..
-	SE HAI DUE MINUTI APRI IL MAN DI shmctl E FATTI UNA RISATA...
-*/
 
-/*
-	torna una cll per il motivo sopra...
-	
-
-
-        0xfaded
-        ________
-       |        |---------------------tail---.
-       | WMROOT |    0xfaded+1               | 0xfaded+2
-       |________|     ________           ____V___        
-           |         |        |         |        |       
-           L--head-->| WMDATA |-------->| WMDATA |---- - - - - .
-      .------------->|________|         |________|             | 
-      |                 |     ______       |     ______        |  
-      |                 |    |      |      |    |      |       |  
-      |                 L----| DATA |      L----| DATA |       |  
-      |               0xbea+1|______|    0xbea+2|______|       |  
-      |________________________________________________________|
-*/                               
-
-char rehashing;
-
-WMROOT* get_root()
+static unsigned const poly= 0x04c11db7U;
+static unsigned int eth_crc(int length, char *data)
 {
-	int s_mem_id;
-	char* pmem;	
-	if ((s_mem_id = shmget( 0xfaded, sizeof(WMROOT), SHM_R|SHM_W)) < 0)		
-		return (WMROOT*)0;
-	if ((pmem = shmat(s_mem_id, NULL, 0)) == (char *) -1)
-		return (WMROOT*)0;
-	return(WMROOT*)pmem;
+	int bit,crc = -1;
+	char current_octet;
+	while (--length >= 0)
+	{
+		current_octet = *data++;
+		for (bit = 0; bit < 8; bit++, current_octet >>= 1)
+		crc=(crc<<1)^((crc<0)^(current_octet &1)?poly:0);
+	}
+ 	return crc;
 }
 
-WMDATA* get_data_from_key(key_t key)
+SHARED_ARENA* watermark_init(int isserver)
 {
 	int s_mem_id;
-	char* pmem;	
-	if ((s_mem_id = shmget( key, sizeof(WMDATA), SHM_R|SHM_W)) < 0)		
-		return (WMDATA*)0;
-	if ((pmem = shmat(s_mem_id, NULL, 0)) == (char *) -1)
-		return (WMDATA*)0;
-	return(WMDATA*)pmem;
-}
-
-void* get_data_value_from_key(WMDATA* wmdata)
-{
-	int s_mem_id;
-	char* pmem;	
-	if ((s_mem_id = shmget( wmdata->dataname, wmdata->len, SHM_R)) < 0)
-		return (void*)0;
-
-	if ((pmem = shmat(s_mem_id, NULL, 0)) == (char *) -1)
-		return (void*)0;
-	return (void*)pmem;
-}
-
-
-
-
-WMROOT* watermark_init(int plugins,int isserver)
-{
-	int s_mem_id;
-	key_t name;
+	int init_counter;
 	char* pmem;
-	int sem_id;
-	union semun
+
+	if(isserver)
 	{
-		int val;
-		struct semid_ds *buf;
-		ushort * array;
-	} argument;
-	argument.val = 0;
-	
-	name = 0xfaded;
-	rehashing= 0;
-	if ((sem_id= semget(0xdeadbeef, 1, IPC_CREAT|SHM_R|SHM_W)) < 0)
-	{
-		FATAL("semget");
-	}
-	if( semctl(sem_id, 0, SETVAL, argument) < 0)
-   	{
-		FATAL("semctl");
-	}
-	
-	if ((s_mem_id = shmget( name, sizeof(WMROOT), IPC_CREAT|SHM_R|SHM_W)) < 0)
-	{
-		FATAL("shmget");
+		if ((s_mem_id = shmget(ARENA_KEY, sizeof(SHARED_ARENA), IPC_CREAT|IPC_EXCL|SHM_R|SHM_W|(SHM_R>>6))) < 0)
+		{
+			FATAL("Cannot get Shm. Server is running?\r\n");
+		}
+	}else{
+		if ((s_mem_id = shmget( ARENA_KEY, sizeof(SHARED_ARENA), 0 )) < 0)
+		{
+			FATAL("Cannot get Shm. Server is running?");
+		}
 	}
 
 	if ((pmem = shmat(s_mem_id, NULL, 0)) == (char *) -1)
 	{
-		FATAL("shmat");
+		FATAL("shmat1");
 	}
 
 	if(isserver)
 	{
-		((WMROOT*)pmem)->wm_name_   =0xfaded;
-		((WMROOT*)pmem)->wm_id_     =s_mem_id;
-		((WMROOT*)pmem)->wm_head_   =0;
-		((WMROOT*)pmem)->wm_tail_   =0;
-		((WMROOT*)pmem)->wm_len_    =0;	
-		((WMROOT*)pmem)->wm_plugins_=plugins;	
+		memset(pmem,0,sizeof(SHARED_ARENA));
+		for(init_counter=0;init_counter!=ARENA_SIZE;init_counter++)
+			((SHARED_ARENA*)pmem)->buckets[init_counter].id==1;
+		((SHARED_ARENA*)pmem)->buckets[1].id==2;				
+		((SHARED_ARENA*)pmem)->size=ARENA_SIZE;
 	}
-	return (WMROOT*)pmem;
+	return (SHARED_ARENA*)pmem;
 }
 
 void
-watermark_push(void* data, unsigned int len)
+watermark_push(SHARED_ARENA* sha, void* data, unsigned int len, int oldid)
 {
-	int   s_mem_id , s_mem_id2;
-	key_t name     , name2 ;
-	char* pmem     , *pdata;
-	WMROOT* wmroot;
-	WMDATA* prev;
+	
+	int tlen;
+	unsigned int crcval;
+	BUCKET bucket_tmp;
+	
+	/*flagging*/
+	oldid++;
+	sha->buckets[(oldid)%ARENA_SIZE].id=oldid;
+
+	tlen=(len>ARENA_SIZE)?ARENA_SIZE:len;
+	bucket_tmp.crc  =eth_crc(tlen,data);
+	bucket_tmp.id   =oldid;
+	bucket_tmp.wrote=oldid;
+	bucket_tmp.len  =tlen;
+	memcpy(bucket_tmp.buffer,data,tlen);
 	
 	
-	wmroot = get_root();
-	if(wmroot->wm_tail_==0xfaded+256)
+	/*swapping*/	
+	memcpy(&sha->buckets[(oldid)%ARENA_SIZE],&bucket_tmp,sizeof(BUCKET));
+}
+
+/*
+	will return the BUCKET in return_bucket and return id read 
+*/
+unsigned int 
+watermark_pop(SHARED_ARENA* sha,BUCKET* return_bucket ,int msg_id)
+{
+	int tlen;
+	BUCKET bucket_tmp;
+	
+	for(;;)
 	{
-		wmroot->wm_tail_=0xfaded+1;
-		rehashing=1;
-		prev=get_data_from_key(0xfaded+255);
-		prev->wmd_next_=0xfaded+1;
-	}else{
-		if(!wmroot->wm_head_)	
+		/* blindreading */
+		memcpy(	return_bucket, &sha->buckets[msg_id%ARENA_SIZE], sizeof(BUCKET));
+	
+		/*testing*/
+		if (return_bucket->id==return_bucket->wrote && return_bucket->id >=msg_id)
 		{
-			wmroot->wm_head_=0xfaded+1;
-			wmroot->wm_tail_=0xfaded+1;
-		}else
-		{
-			wmroot->wm_tail_+=1;
-			name=wmroot->wm_tail_;
-			prev=get_data_from_key(wmroot->wm_tail_-1);
-			prev->wmd_next_=wmroot->wm_tail_;
+			if (return_bucket->crc==eth_crc(return_bucket->len,return_bucket->buffer))
+			{
+				return return_bucket->id+1;
+			}
 		}
+		usleep(100000);
 	}
+}
 
-	/* creating WMDATA*/	
-	if ((s_mem_id = shmget( wmroot->wm_tail_, sizeof(WMDATA), IPC_CREAT|SHM_R|SHM_W)) < 0)
-	{
-		FATAL("shmget");
-	}
 
-	if ((pmem = shmat(s_mem_id, NULL, 0)) == (char *) -1)
+void watermark_delete()
+{
+	int s_mem_id;
+	if ((s_mem_id = shmget( ARENA_KEY, sizeof(SHARED_ARENA), SHM_R |SHM_W)) < 0)		
 	{
-		FATAL("shmat");
+		FATAL("Cannot get block\r\n");
 	}
-	name2=0xbea+0xfaded-wmroot->wm_tail_;
-	/* creating data */
-	if ((s_mem_id2 = shmget(name2, len, IPC_CREAT|SHM_R|SHM_W)) < 0)
-	{
-		FATAL("shmget");
-	}
+	shmctl(s_mem_id, IPC_RMID, 0);
+	printf("Shared memory block removed\r\n");
+	return;
+}
 
-	if ((pdata = shmat(s_mem_id2, NULL, 0)) == (char *) -1)
-	{
-		FATAL("shmat");
-	}
 
-	memcpy(pdata,data,len);
+
+
+
+#ifdef TRY_SHM_SERVER
+/*
+	gcc -o server -DTRY_SHM_SERVER wmdata.c && gcc -o client -DTRY_SHM_CLIENT wmdata.c
+	./server 
+	./client
 	
-	wmroot->wm_len_++;
-	((WMDATA*)pmem)->wmd_id_   =s_mem_id;
-	((WMDATA*)pmem)->wmd_name_ =name;
-	((WMDATA*)pmem)->wmd_next_ =0;
-	((WMDATA*)pmem)->wmd_references_=wmroot->wm_plugins_;
-	((WMDATA*)pmem)->data_key=name2;
-	((WMDATA*)pmem)->len=len;
-	((WMDATA*)pmem)->dataname=name2;	
-	((WMDATA*)pmem)->data=pdata;	
-}
+	to test.
+*/
 
-WMDATA* watermark_pop(key_t key)
+int main()
 {
-	int   s_mem_id;
-	WMROOT* wmroot;
-	WMDATA* wdata;
-	char* pmem;
-	if (key==0)
+	SHARED_ARENA* sha;
+	int msg_id=SERVER_INIT_MSG_ID;
+	char message[15];
+	printf("init\r\n");
+	sha=watermark_init(APING_SERVER);
+	for(;msg_id!=1000;msg_id++)
 	{
-		wmroot     =get_root();
-		wdata      =get_data_from_key(wmroot->wm_head_);	
+		sprintf(message,"mex=%d",msg_id);
+		printf("pushing %s\r\n",message);
+		watermark_push(sha,message,strlen(message)+1,msg_id);
+		sleep(1);
 	}
-	wdata      =get_data_from_key(key);
-	wdata->data=get_data_value_from_key(wdata);
-	wdata->wmd_references_--;
-	/* TBD: WE NEED TO COPY THE DATA SINCE WE WANT IT TO BE rescheduled in the arena */
-	return wdata;
+	watermark_delete();
 }
+#endif
 
-
-void watermark_garbage_collector()
+#ifdef TRY_SHM_CLIENT
+int main()
 {
-	/*
-	il garbage collector Š inutile a questo punto... 
-	*/
+	SHARED_ARENA* sha;
+	BUCKET bucket;
+	unsigned int msg_id=CLIENT_INIT_MSG_ID;
+	printf("init\r\n");
+	sha=watermark_init(APING_PLUGIN);
+	printf("trying to pop\r\n");
+	for(;msg_id<=1000;)
+	{
+		printf("trying to pop msg=%d\r\n",msg_id);
+		fflush(stdin);
+		msg_id=watermark_pop(sha,&bucket,msg_id);
+		printf("popped: %s\r\n",bucket.buffer);
+	}
 }
-
-void watermark_delete(int s_mem_id)
+#endif
+#ifdef CLEAN_SHARED
+int main()
 {
-/*tbd*/
+	watermark_delete();
 }
+#endif
