@@ -107,6 +107,28 @@ void
 dissect_redirect(packet *p)
 {
         /* maturity level */
-        SET_DISSECT_LEVEL('_');
+        SET_DISSECT_LEVEL('*');
+
+        if ( ICMP_IP_p(p) == IPPROTO_TCP || ICMP_IP_p(p) == IPPROTO_UDP )
+           {
+
+                PUTS("    proto[%s] ip_src=%s:%d -> ip_dst=%s:%d NEW_GATEWAY=%s\n",
+                          protocols[ICMP_IP_p(p)],
+                          multi_inet_ntoa(ICMP_IP_src(p)),
+                          ntohs(ICMP_TCP_sport(p)),
+                          multi_inet_ntoa(ICMP_IP_dst(p)),
+                          ntohs(ICMP_TCP_dport(p)), 
+			  multi_inet_ntoa(ICMP_gwaddr(p)) );
+
+           }
+        else
+           {
+                PUTS("    proto[%s] ip_src=%s -> ip_dst=%s NEW_GATEWAY=%s\n",
+                          protocols[ICMP_IP_p(p)],
+                          multi_inet_ntoa(ICMP_IP_src(p)),
+                          multi_inet_ntoa(ICMP_IP_dst(p)),
+			  multi_inet_ntoa(ICMP_gwaddr(p)) );
+
+           }
 
 }

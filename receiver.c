@@ -50,18 +50,16 @@ struct bpf_program fcode;
 struct timeval *timestamp;
 packet        pkt;
 
-#include "vectors.h"
 #include "filter.h"
 
 void
 lineup_layers (char *buff, packet * pkt)
 {
 
-  pkt->ip = (struct ip *) ((void *) buff + offset_dl);
+  pkt->ip   = (struct ip *)   ((void *) buff + offset_dl);
   pkt->icmp = (struct icmp *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2));
-  pkt->data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
-
-  pkt->icmp_tstamp_tval = (struct timeval *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8); /* icmp_type 0|8 */
+  pkt->data = (char *)        ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
+  pkt->icmp_tstamp_tval = (struct timeval *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
   pkt->icmp_tstamp_data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8 + sizeof (struct timeval));
 
 }
@@ -263,7 +261,7 @@ process_pack (packet * p)
 
     /* print record_route if new */
 
-    if ( options.opt_rroute )
+    if ( options.opt_rroute && IP_hl(p)== 15 )
     	{
 	print_RR(IP_opt(p)); 
     	}	
@@ -318,9 +316,9 @@ process_pack (packet * p)
 
     /* code */
 
-    if (icmp_code_str[((ICMP_type (p) & 0xff) << 5) + (ICMP_code (p) & 0xff)] != NULL)
+    if (icmp_code_str[ (ICMP_type (p) << 8) + ICMP_code (p) ] != NULL)
 	{
-	    PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[((ICMP_type (p) & 0xff) << 5) + (ICMP_code (p) & 0xff)]);
+	    PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[ (ICMP_type (p) << 8) + ICMP_code (p) ]);
 	}
     else
 	{
@@ -395,23 +393,8 @@ receiver ()
     int           fval;
     int           pcap_fd;
 
-
-    /* setup */
-
-    last_seq = -1;
-    last_id = -1;
-
-    fval = 0;
-    curr_id = 0;
-    diff_id = 0;
-
-    last_rtt.ms_int = 0;
-    last_rtt.ms_frc = 0;
-
-    rtt.ms_int = 0;
-    rtt.ms_frc = 0;
-
-    slow_start = 1;
+    fval    = 0;
+    pcap_fd = 0;
 
     sigemptyset (&set);
 

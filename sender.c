@@ -62,7 +62,6 @@
 #include "aping.h"
 #include "prototype.h"
 #include "global.h"
-#include "vectors.h"
 
 extern char  *icmp_type_str[256];
 extern char  *icmp_code_str[256*256];

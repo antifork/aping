@@ -44,9 +44,8 @@
 
 /* global var */
 
-#define  GLOBAL_HERE
+#define   GLB_OWNER
 #include "global.h"
-#include "vectors.h"
 #include "maturity.h"
 
 #define ID "$Id$";
@@ -60,32 +59,6 @@ print_icon(int t)
 {
   printf("\r%c", icon_set[!t*(n_sent&1)+t]);
   fflush(stdout);
-}
-
-
-void
-default_value ()
-{
-   int i;   
-
-   rtt_max   = 0;
-   rtt_min   = 9999;
-   rtt_mean  = 0;
-   rtt_sqre  = 0;
-
-   tau       = 1000;
-   ip_ttl    = 255;
-   ip_tos    = 0;
-   icmp_type = 8;
-   icmp_code = 0;
-
-   pattern   = (char *) malloc(49);
-
-   for (i=0;i<48;i++) 
-	pattern[i]=i+8; /* Berkeley style */	
-
-   pattern[48]= 0; 
-
 }
 
 
@@ -199,8 +172,20 @@ main (argc, argv)
     /* refresh salt */
     srand (time (NULL));
 
-    /* default */
-    default_value ();
+    /* default pattern */
+   
+    {
+      int j;
+
+      pattern   = (char *) malloc(49);
+
+      for (j=0;j<48;j++)
+         pattern[j]=j+8; /* Berkeley style */
+
+      pattern[48]= 0;
+
+    }
+
 
     while ((es = getopt (argc, argv, "S:D:O:T:MRI:t:k:i:c:p:e:Ps:z:fdnrvhb")) != EOF)
 	switch (es)

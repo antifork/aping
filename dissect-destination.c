@@ -101,7 +101,30 @@ dissect_destination_unreachable(packet *p)
 {
 
 	/* maturity level */
-  	SET_DISSECT_LEVEL('i');
+  	SET_DISSECT_LEVEL('*');
+
+	if ( ICMP_IP_p(p) == IPPROTO_TCP || ICMP_IP_p(p) == IPPROTO_UDP )
+	   {
+
+		PUTS("    proto[%s] ip_src=%s:%d -> ip_dst=%s:%d \n", 
+			  protocols[ICMP_IP_p(p)],
+		  	  multi_inet_ntoa(ICMP_IP_src(p)),
+		  	  ntohs(ICMP_TCP_sport(p)),				
+		  	  multi_inet_ntoa(ICMP_IP_dst(p)),
+		  	  ntohs(ICMP_TCP_dport(p)) );
+
+	   }
+	else
+	   {
+        	PUTS("    proto[%s] ip_src=%s -> ip_dst=%s \n",
+                  	  protocols[ICMP_IP_p(p)],
+                  	  multi_inet_ntoa(ICMP_IP_src(p)),
+                  	  multi_inet_ntoa(ICMP_IP_dst(p)) );
+
+	   }
+
+	if ( verbose < 3 ) 
+		return;
 
 	bandwidth_predictor(p);
 
