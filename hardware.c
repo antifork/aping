@@ -48,7 +48,6 @@ getmacfrom6b(char *hmac, char *mac)
 	int i = 0;
 
 	while (i < 6) {
-
 		*_mac++ = lu_hex[(hmac[i] >> 4) & 0xf];
 		*_mac++ = lu_hex[(hmac[i++]) & 0xf];
 		*_mac++ = ':';

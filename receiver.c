@@ -95,42 +95,29 @@ agent_timestamp(packet * p)
 	switch (ICMP_type(p)) {
 
 		case ICMP_ECHOREPLY:
-
 		rtt.ms_int = DIFFTIME_int(timestamp->tv, TVAL_tv(p));
 		rtt.ms_frc = DIFFTIME_frc(timestamp->tv, TVAL_tv(p));
-
 		break;
 
 	case ICMP_TSTAMPREPLY:	/* timestamp reply */
-
 		rtt.ms_int = (timestamp->tv_sec % (24 * 60 * 60)) * 1000 + timestamp->tv_usec / 1000 - ntohl(ICMP_otime(p));
 		rtt.ms_frc = 0;
-
 		curr_tstamp = ntohl(ICMP_rtime(p));
-
 		break;
-
 	default:		/* stimated rtt */
-
 		rtt.ms_int = DIFFTIME_int(timestamp->tv, last_sent.ts);
 		rtt.ms_frc = DIFFTIME_frc(timestamp->tv, last_sent.ts);
 		break;
 
 	}
 
-
 	TIME_ADJUST(rtt.ms_int, rtt.ms_frc);
-
 	rtt.ms_int = ABS(rtt.ms_int);
-
 	rtt_max = MAX(rtt_max, rtt.ms_int + 1);
 	rtt_min = MIN(rtt_min, rtt.ms_int);
-
 	E(&rtt_mean, rtt.ms_int, 1);
 	E(&rtt_sqre, rtt.ms_int, 2);
-
 	jitter = rtt.ms_int - last_rtt.ms_int;
-
 
 	return;
 }
@@ -139,11 +126,9 @@ agent_timestamp(packet * p)
 void
 reset_ipid()
 {
-
 	rand_ipid = 0;
 	ipid_failure = 0;
 	slow_start = 1;
-
 }
 
 
@@ -155,7 +140,6 @@ reset_stat()
 	rand_ipid = 0;
 	ipid_failure = 0;
 	slow_start = 1;
-
 	E(&mean_burst, 0, -1);
 	//lp_FIR(-1, 0);
 }
@@ -228,14 +212,11 @@ print_RR(char *opt)
 	int i;
 
 	rr = hash(opt, 36);
-
 	if (last_route == rr)
 		return;
 
 	/* new RR */
-
 	last_route = rr;
-
 	hop = (long *) (opt + 3);	/* hop pointer */
 
 	for (i = 1; i < MIN(9, (opt[IPOPT_OFFSET] >> 2)); i++) {
@@ -255,7 +236,7 @@ process_pack(packet * p)
 
 	saddr = gethostbyaddr_cache(IP_src(p));
 
-	ip_size = ntohs(IP_len(p)); /* iphdr+payload */ 
+	ip_size = ntohs(IP_len(p));	/* iphdr+payload */
 	icmp_size = ip_size - (IP_hl(p) << 2);
 
 	if (options.rroute && IP_hl(p) == 15) {
@@ -283,13 +264,14 @@ end_switch:
 		PUTS("[%s]", getmacfromdatalink(p->dl, MAC_SRC));
 
 	if (options.sniff) {
-	        daddr = gethostbyaddr_cache(IP_dst(p));
+		daddr = gethostbyaddr_cache(IP_dst(p));
 		PUTS(" -> to %s", daddr);
 		if (mac_inspection)
 			PUTS("[%s]", getmacfromdatalink(p->dl, MAC_DST));
 
 	}
 	PUTS(": icmp=%d(%s)", ICMP_type(p), icmp_type_str[ICMP_type(p) & 0x3f]);
+
 	if (icmp_code_str[INDEX(ICMP_type(p), ICMP_code(p))] != NULL) {
 		PUTS(" code=%d(%s)", ICMP_code(p), icmp_code_str[INDEX(ICMP_type(p), ICMP_code(p))]);
 	} else {
@@ -341,7 +323,6 @@ receiver()
 	pthread_sigset_block(4, SIGTSTP, SIGINT, SIGQUIT, SIGALRM);
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-
 	p = &pkt;
 
 #if defined(__FreeBSD__)
@@ -350,7 +331,6 @@ receiver()
 	if ((in_pcap = pcap_open_live(ifname, 1024, options.promisc, 0, bufferr)) == NULL)
 #endif
 		FATAL(bufferr);
-
 
 #if !defined(__FreeBSD__)
 	if (pcap_setnonblock(in_pcap, 1, bufferr) == -1)
@@ -368,48 +348,43 @@ receiver()
 	/* set offset_dl: datalink header size */
 
 	if (sizeof_datalink(in_pcap) == -1)
-		FATAL("DLT_%s(%ld) device is not supported yet\n" "please mailto bonelli@antifork.org reporting the event.", linktype[datalink], datalink);
+		FATAL("DLT_%s(%ld) device is not supported yet\n"
+		      "please mailto bonelli@antifork.org reporting the event.", linktype[datalink], datalink);
 
 	if (options.promisc)
 		PUTS("<PROMISC>");
 
-	PUTS("%s: [%s](%s/%s) %ld bytes of %s(%ld) layer.\n", ifname, safe_inet_ntoa((long) ip_src), safe_inet_ntoa((long) localnet), safe_inet_ntoa((long) netmask), offset_dl, linktype[datalink],
-	     datalink);
+	PUTS("%s: [%s](%s/%s) %ld bytes of %s(%ld) layer.\n", ifname, safe_inet_ntoa((long) ip_src),
+	     safe_inet_ntoa((long) localnet), safe_inet_ntoa((long) netmask), offset_dl, linktype[datalink], datalink);
 
 	for (;;) {
 
-		DONT_EAT_CPU();
-
+		//DONT_EAT_CPU();
 		ptr = NULL;
 
 		while ((ptr = pcap_next(in_pcap, &pcaphdr)) != (u_char *) NULL) {
 
+			pthread_testcancel();
+
 			/* timestamp of current packet */
-
 			timestamp = (struct timeval *) & (pcaphdr.ts);
-
 			lineup_layers((char *) ptr, p);
-
 			n_recv++;
 
 			if (GENERIC_FILTER(p) == 0)
 				continue;
 
 			/* the packet fits with filter.. */
-
 			if (REPLY_FILTER(p))
 				n_tome++;
 
 			switch (ICMP_type(p)) {
-
 			case ICMP_ECHOREPLY:
 				waiting_time = DIFFTIME_int(TVAL_tv(p), last_ack.ts);
 				break;
-
 			default:
 				waiting_time = DIFFTIME_int(last_sent.ts, last_ack.ts);
 				break;
-
 			}
 
 			last_ack.ts_sec = timestamp->tv_sec;
@@ -430,7 +405,6 @@ receiver()
 
 			last_id = curr_id;
 			last_rtt.ms_int = rtt.ms_int;
-
 			last_tstamp = curr_tstamp;
 
 		}

@@ -60,15 +60,15 @@ usage(char *name, int type)
 			"   -T  ttl                   set time to live\n"
 			"   -M                        set TTL++ modulation\n"
 			"   -Id id                    set base ip_id\n"
-		        "   -Ii                       set incremental ip_id\n"
+		      "   -Ii                       set incremental ip_id\n"
 			"   -Ir                       set random ip_id\n"
-		        "   -R                        set record route ip_opt\n"
+		    "   -R                        set record route ip_opt\n"
 			"   -D                        don't fragment bit\n"
 			" Layer icmp\n"
 			"   -t  type args...        * set icmp type\n"
 			"   -k  code                * set icmp code\n"
 			" Others\n"
-		        "   -i  msec                  set wait msec (default 1000)\n"
+		"   -i  msec                  set wait msec (default 1000)\n"
 			"   -p                        set pattern \"\"\n"
 			"   -e  ifname                set default device\n"
 			"   -P                        set promisc-mode\n"
@@ -76,13 +76,13 @@ usage(char *name, int type)
 			"   -z  size                  set packetsize\n"
 			"   -c                        count\n"
 			"   -d                        set SO_DEBUG option\n"
-		        "   -n                        don't resolve hostname\n"
+		     "   -n                        don't resolve hostname\n"
 			"   -r                        don't route\n"
-			"   -b                        force broadcast frame\n"
+		      "   -b                        force broadcast frame\n"
 			"   -v                        print version\n"
 			"   -h                        print this help\n"
-		        "   -l plugin                 load plugin (-ls list)\n"
-		        "   -y                      * print link list\n", name);
+		     "   -l plugin                 load plugin (-ls list)\n"
+		    "   -y                      * print link list\n", name);
 		break;
 	case USAGE_TOS:
 		fprintf(stderr,
@@ -117,12 +117,9 @@ usage(char *name, int type)
 			int j;
 
 			fprintf(stderr, "Summary of Message Codes");
-
 			if (options.icmp_type) {
 				i = icmp_type;
-
 				printf(" for icmp=%d(%s):\n\n", i, icmp_type_str[i]);
-
 				for (j = 0; j < 64; j++) {
 					if (icmp_code_str[INDEX(i, j)] != NULL)
 						printf("   -k %2d  %s\n", j, icmp_code_str[INDEX(i, j)]);
@@ -131,7 +128,6 @@ usage(char *name, int type)
 			} else {
 
 				printf(":\n\n");
-
 				for (i = 0; i < 64; i++)
 					for (j = 0; j < 64; j++) {
 						if (icmp_code_str[INDEX(i, j)] != NULL)

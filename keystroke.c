@@ -60,15 +60,13 @@ keystroke()
 
 	for (;;) {
 		pthread_testcancel();
-
 		c = getc(stdin);
-
 		DEBUG("key:0x%x\n", c);
 
 		switch (c) {
 		case 3:
 			ctrlc(SIGTSTP);	/* FIXME */
-			pthread_exit(NULL);
+			// pthread_exit(NULL);
 			break;
 		case 10:
 			n_pause = 0;

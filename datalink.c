@@ -57,7 +57,6 @@ sizeof_datalink(pcap_t * pd)
 		FATAL("no datalink info: %s", pcap_geterr(pd));
 
 	switch (dtl) {
-
 		CASE(AP_DLT_NULL, 4);
 		CASE(AP_DLT_EN10MB, 14);
 		CASE(AP_DLT_EN3MB, 14);
@@ -109,7 +108,6 @@ sizeof_datalink(pcap_t * pd)
 		CASE(AP_DLT_CISCO_IOS, -1);
 		CASE(AP_DLT_PRISM_HEADER, -1);
 		CASE(AP_DLT_AIRONET_HEADER, -1);
-
 	default:
 		FATAL("unknown datalink type DTL_?=%d", dtl);
 		break;

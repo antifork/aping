@@ -42,7 +42,6 @@ pthread_sigset_block(int n,...)
 
 	sigemptyset(&set);
 	va_start(ap, n);
-
 	for (; n != 0; n--) {
 		signum = va_arg(ap, int);
 		sigaddset(&set, signum);
@@ -61,7 +60,6 @@ pthread_sigset_unblock(int n,...)
 
 	sigemptyset(&set);
 	va_start(ap, n);
-
 	for (; n != 0; n--) {
 		signum = va_arg(ap, int);
 		sigaddset(&set, signum);

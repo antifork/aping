@@ -45,18 +45,16 @@ int true = 1;
 
 /*
  * icmp header lenght ( base | x<<8 )
- * 
+ *
  * x:1   -> base + sizeof(data) x:2   -> base + sizeof(ip_header) ( <= 60 bytes
  * ) x:4   -> base + 4*n
- * 
+ *
  */
 
 #define LEN(base,type) (base|type<<8)
 
 int icmphdr_vector[32] = {LEN(8, 1), 0, 0, LEN(8, 2), LEN(8, 2), LEN(8, 2), 0, 0,
-	LEN(8, 1), LEN(8, 4), 8, LEN(8, 2), LEN(8, 2), 20, 20, 8, 8, 12, 12
-};
-
+LEN(8, 1), LEN(8, 4), 8, LEN(8, 2), LEN(8, 2), 20, 20, 8, 8, 12, 12};
 
 int
 sizeof_icmp(int t)
@@ -74,7 +72,7 @@ sizeof_icmp(int t)
 		break;
 	case 2:
 		ret += (options.rroute ? 60 : 20) + (64 >> 3);	/* 64 bits of original
-									 * datagram */
+								 * datagram */
 		break;
 	case 4:
 		break;
@@ -82,19 +80,15 @@ sizeof_icmp(int t)
 	return ret;
 }
 
-
 void
 load_layers(char *buff, packet * pkt)
 {
 	int off_ip;
 
 	off_ip = (options.rroute ? 15 : 5) << 2;
-
 	pkt->ip = (struct ip *) ((void *) buff);
 	pkt->icmp = (struct icmp *) ((void *) buff + off_ip);
-
 	pkt->data = (char *) ((void *) buff + off_ip + 8);
-
 	pkt->icmp_tstamp_tval = (struct timeval *) ((void *) buff + off_ip + 8);
 	pkt->icmp_tstamp_data = (char *) ((void *) buff + off_ip + 8 + sizeof(struct timeval));
 }
@@ -108,7 +102,6 @@ load_ip(struct ip * ip)
 	ip->ip_v = 4;
 	ip->ip_hl = (options.rroute ? 15 : 5);
 	ip->ip_tos = (options.ip_tos ? ip_tos : 0);
-
 	ip->ip_len = FIX((ip->ip_hl << 2) + sizeof_icmp(icmp_type));
 	ip->ip_id = htons(ip_id);
 
@@ -119,7 +112,6 @@ load_ip(struct ip * ip)
 
 	ip->ip_ttl = (options.ip_ttl ? ip_ttl : 255);
 	ip->ip_p = IPPROTO_ICMP;/* Transport protocol */
-
 	ip->ip_src.s_addr = ip_src;
 	ip->ip_dst.s_addr = ip_dst;
 
@@ -141,11 +133,11 @@ void
 sender(argv)
 	char **argv;
 {
-
 	struct timeval timenow;
 	struct sockaddr_in saddr;
 	packet pkt;
 	int sfd;
+	int msec;
 
 	DEBUG("start\n");
 
@@ -182,7 +174,6 @@ sender(argv)
 		PUTS("%s: broadcast addr, SO_BROADCAST option is on.\n", ifname);
 		setsockopt(sfd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof(true));
 	}
-
 	/* SO_DONTROUTE ... */
 	if (options.droute) {
 		PUTS("%s: SO_DONTROUTE option is on.\n", ifname);
@@ -195,41 +186,38 @@ sender(argv)
 		PUTS("%s: SO_DEBUG option is on.\n", ifname);
 		setsockopt(sfd, SOL_SOCKET, SO_DEBUG, (char *) &true, sizeof(true));
 	}
-	/* ip_id */
 
+	/* ip_id */
 	if (!ip_id)
 		ip_id = 0xffff & rand();
 
 	/* struct saddr */
-
 	saddr.sin_family = AF_INET;
 	saddr.sin_addr.s_addr = ip_dst;
 
 	/* lineup layer */
-
 	load_layers(buffer, &pkt);
 
 	if (icmp_code_str[(icmp_type << 6) + icmp_code] != NULL)
-		PUTS("PING %s (%s): icmp=%ld(%s) code=%ld(%s)\n", host_dst, safe_inet_ntoa(ip_dst), icmp_type, icmp_type_str[icmp_type], icmp_code, icmp_code_str[(icmp_type << 6) + icmp_code]);
+		PUTS("PING %s (%s): icmp=%ld(%s) code=%ld(%s)\n", host_dst, safe_inet_ntoa(ip_dst),
+		     icmp_type, icmp_type_str[icmp_type],
+		     icmp_code, icmp_code_str[(icmp_type << 6) + icmp_code]);
 	else
 		PUTS("PING %s (%s): icmp=%ld(%s)\n", host_dst, safe_inet_ntoa(ip_dst), icmp_type, icmp_type_str[icmp_type]);
+
+	msec = 1000 * tau;
 
 	while (!count || (n_sent < count)) {
 
 		/* load ip header */
-
 		load_ip((struct ip *) (pkt.ip));
 
 		/* load icmp header */
-
 		if (icmp_loader_vector[icmp_type] != NULL)
 			(*icmp_loader_vector[icmp_type]) (&pkt, argv);
 
-
 		/* marking system timestamp for no-echo packets */
-
 		gettimeofday(&timenow, NULL);
-
 		last_sent.ts_sec = timenow.tv_sec;
 		last_sent.ts_usec = timenow.tv_usec;
 
@@ -245,7 +233,6 @@ sender(argv)
 		print_icon(0);
 
 		/* changes */
-
 		if (options.ip_ramp)
 			ip_ttl++;
 
@@ -256,10 +243,13 @@ sender(argv)
 
 		/* rating.. */
 
-		usleep(tau * 1000);
-
+		usleep(msec);
+		
 		while (n_pause)
 			usleep(1000);
+
+		pthread_testcancel();
+
 	}
 
 	pthread_exit(NULL);

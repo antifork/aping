@@ -74,7 +74,6 @@ ctrlc(i)
 
 	}
 	pthread_cancel(pd_snd);
-
 }
 
 void
@@ -101,11 +100,9 @@ defaults()
 	core.rlim_max = 0;
 
 	/* setrlimit */
-
 #ifndef EADBUG
 	setrlimit(RLIMIT_CORE, &core);
 #endif
-
 	/* maturity interface */
 	SETUP_MATURITY();
 	LOAD_MATURITY();
@@ -136,21 +133,22 @@ report()
 	int loss;
 
 	sleep_time = (n_tome ? 100 + rtt_mean + 2 * ISQRT(rtt_sqre - rtt_mean * rtt_mean) : 2000);
-	loss = 100 - PER_CENT(n_tome, n_sent);
 
 	PUTS("--- sleeping %d ms (RTT+2 sigma) ---\n", sleep_time);
-
 	usleep(sleep_time * 1000);
-
 	PUTS("\n--- %s aping statistics ---\n", safe_inet_ntoa(ip_dst));
+       
+	loss = 100 - PER_CENT(n_tome, n_sent);
 
 	if (loss < 0)
-		PUTS("%ld packets transmitted, %ld packets received (forked responses found)\n", n_sent, n_tome);
+		PUTS("%ld packets transmitted, %ld packets received (forked responses found)\n",
+		     n_sent, n_tome);
 	else
-		PUTS("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);
-
+		PUTS("%ld packets transmitted, %ld packets received, %d %% packets loss\n",
+		     n_sent, n_tome, loss);
 	if (n_tome)
-		PUTS("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", rtt_min, rtt_mean, ISQRT(rtt_sqre - rtt_mean * rtt_mean), rtt_max);
+		PUTS("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", rtt_min, rtt_mean,
+		     ISQRT(rtt_sqre - rtt_mean * rtt_mean), rtt_max);
 
 }
 
@@ -311,9 +309,7 @@ main(argc, argv)
 
 	ATOMIC_TEST(sniff, ip_src);
 	ATOMIC_TEST(sniff, ip_dst);
-
 	ATOMIC_TEST(ip_id_rand, ip_id_incr);
-
 	DEPEND_TEST(sniff, ifname);
 	DEPEND_TEST(ip_src, ifname);
 
@@ -322,8 +318,8 @@ main(argc, argv)
 		if (ip_src == -1)
 			FATAL("bad source host");
 	}
-	/* destination.. */
 
+	/* destination.. */
 	if (*argv != NULL) {
 		host_dst = strdup(*argv);
 		ip_dst = gethostbyname_cache(*argv);
@@ -334,15 +330,14 @@ main(argc, argv)
 		FATAL("no destination given");
 
 	if (!options.ip_src) {
-
 		if (!options.ifname)
 			get_first_hop(ip_dst, &ip_src, ifname);
 		else
 			ip_src = gethostbyif(ifname);
 
 	}
-	/* get localnet/netmask */
 
+	/* get localnet/netmask */
 	if (pcap_lookupnet(ifname, &localnet, &netmask, bufferr) == -1)
 		FATAL(bufferr);
 
@@ -353,14 +348,12 @@ main(argc, argv)
 		FATAL("pthread_create(): %s", strerror(errno));
 
 	/* Catch signal */
-
 	ssignal(SIGINT, SIG_IGN);
 	ssignal(SIGTSTP, SIG_IGN);
 	ssignal(SIGQUIT, SIG_IGN);
 	ssignal(SIGALRM, SIG_IGN);
 
 	/* set termios properties */
-
 	termios_set();
 
 	if (!options.sniff) {
@@ -373,7 +366,6 @@ main(argc, argv)
 		pthread_join(pd_rcv, NULL);
 
 	/* reset termios properties */
-
 	termios_reset();
 
 	if (n_sent == 0) {
@@ -381,9 +373,9 @@ main(argc, argv)
 		exit(0);
 	}
 
-	pthread_cancel(pd_rcv);
-	signal(SIGTSTP,SIG_DFL);
+	signal(SIGTSTP, SIG_DFL);
 	signal(SIGINT, SIG_DFL);
+	//pthread_cancel(pd_rcv);
 	report();
 	exit(0);
 }
