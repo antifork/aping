@@ -116,5 +116,6 @@ char *strchr (), *strrchr ();
 #include <net/if.h>
 
 #include "macro.h"
+#include "filter.h"
 
 #endif /* HEADER_H */

@@ -33,17 +33,14 @@
 
 
 #include "header.h"
-#include "aping.h"
-
 #include "typedef.h"
-#include "prototype.h"
-
 #include "macro.h"
 #include "version.h"
-
 #include "bandwidth.h"
-
 #include "global.h"
+#include "aping.h"
+#include "prototype.h"
+
 
 extern char  *icmp_type_str[64];
 extern char  *icmp_code_str[64 * 64];

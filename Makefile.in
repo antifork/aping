@@ -92,6 +92,7 @@ version.o: version.h
 
 version.h: VERSION
 	@rm -f $@
+	@ln -s header.h dissect.h
 	@sed -e 's/.*/#define VERSION "&"/' VERSION > $@
 	@echo "#define PLUGIN_PATH  \"@datadir@/aping\"" >> $@  
 	@echo "====================="
@@ -102,8 +103,8 @@ install:
 	$(INSTALL) -c -m 0755 -g bin aping @bindir@ 
 	cd plugin && make install
 clean:
-	rm -Rf *~ *.bak *.o aping  
+	rm -Rf *~ *.bak *.o aping dissect.h 
 	cd plugin && make clean
 distclean:
-	rm -Rf *~ *.bak *.o *.cache *.log aping config.status config.h version.h Makefile
+	rm -Rf *~ *.bak *.o *.cache *.log dissect.h aping config.status config.h version.h Makefile
 	cd plugin && make distclean

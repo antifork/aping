@@ -36,7 +36,6 @@
 
 #define MAC_SRC		0
 #define MAC_DST		1
-
 #define ETHER_ADDR_LEN	   6
 #define ISO88025_ADDR_LEN  6
 
