@@ -1,7 +1,5 @@
 :: -z size option
-:: read/write watermark
-:: watermark plugin support
-:: pcap_nonblock usage
+:: plugin support from scratch
 :: neural network integration
 :: usage per each single icmp
 :: mac fingerprint ?? plugin ??
