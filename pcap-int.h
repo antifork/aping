@@ -40,8 +40,7 @@
 extern "C" {
 #endif
 
-#include "config.h"
-#include "pcap-stub.h"
+#include <pcap.h>
 
 /*
  * Savefile

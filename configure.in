@@ -62,9 +62,9 @@ fi
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([pcap.h pcap-int.h arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([pcap-int.h arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/ioctl.h sys/socket.h sys/time.h unistd.h])
 
-AC_CHECK_HEADER(/usr/include/pcap/pcap.h, [ INCLS="$INCLS -I/usr/include/pcap" ])
+AC_CHECK_HEADER(pcap/pcap.h, [ INCLS="$INCLS -I/usr/include/pcap" ])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

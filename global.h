@@ -35,7 +35,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "pcap-stub.h"
+#include <pcap.h>
 #include "aping.h"
 #include "hardware.h"
 

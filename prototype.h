@@ -34,7 +34,7 @@
 #ifndef PROTOTYPE_H
 #define PROTOTYPE_H
 
-#include "pcap-stub.h"
+#include <pcap.h>
 
 char *  multi_inet_ntoa   	(long);
 void    usage 	        	(char *, int);
