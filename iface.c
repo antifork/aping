@@ -38,14 +38,17 @@
 
 int
 get_first_hop (target, source, ifname)
-     long          target;
-     long         *source;
-     char         *ifname;
+     long target;
+     long *source;
+     char *ifname;
 {
     struct sockaddr_in saddr;
-    int           sd;
+    int true;
+    int sd;
 
     sd = 0;
+    true = 1;
+
     memset (&saddr, 0, sizeof (struct sockaddr_in));
 
     saddr.sin_family = AF_INET;
@@ -56,14 +59,7 @@ get_first_hop (target, source, ifname)
     if ((sd = socket (AF_INET, SOCK_DGRAM, 0)) == -1)
 	FATAL (strerror (errno));
 
-    if (!(ntohl (target) & 0xff) || (ntohl (target) & 0xff) == 0xff)
-	{
-	    /* broadcast */
-	    int           true = 1;
-
-	    setsockopt (sd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof (true));
-	}
-
+    setsockopt (sd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof (true));
 
     if (connect (sd, (struct sockaddr *) &saddr, sizeof (struct sockaddr_in)) == -1)
 	FATAL (strerror (errno));
@@ -71,7 +67,7 @@ get_first_hop (target, source, ifname)
     memset (&saddr, 0, sizeof (struct sockaddr_in));
 
     {
-	int           socksize = 0;
+	int socksize = 0;
 	socksize = sizeof (struct sockaddr);
 
 	if (getsockname (sd, (struct sockaddr *) &saddr, &socksize) == -1)
@@ -84,14 +80,14 @@ get_first_hop (target, source, ifname)
 
     {
 
-	char          buffer[10240];
+	char buffer[10240];
 
 #ifdef __linux__
-	char         *void_alias = NULL;
+	char *void_alias = NULL;
 #endif
-	u_long        ipif = 0;
+	u_long ipif = 0;
 	struct ifreq *ifr,
-	             *iflast;
+	   *iflast;
 	struct ifconf ifc;
 	struct sockaddr_in *local;
 
@@ -124,24 +120,23 @@ get_first_hop (target, source, ifname)
 #else
 	for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in))
 #endif
-	    {
+	{
 
-		if (*(char *) ifr == 0)
-		    continue;
+	    if (*(char *) ifr == 0)
+		continue;
 
-		local = (struct sockaddr_in *) &ifr->ifr_addr;
+	    local = (struct sockaddr_in *) &ifr->ifr_addr;
 
-		if (ipif == local->sin_addr.s_addr)
-		    {
-			strncpy (ifname, ifr->ifr_name, 16);
+	    if (ipif == local->sin_addr.s_addr) {
+		strncpy (ifname, ifr->ifr_name, 16);
 /* alias */
 #ifdef __linux__
-			if ((void_alias = strchr (ifname, ':')) != NULL)
-			    *void_alias = '\0';
+		if ((void_alias = strchr (ifname, ':')) != NULL)
+		    *void_alias = '\0';
 #endif
-			return 0;
-		    }
+		return 0;
 	    }
+	}
 	FATAL ("wasn't able to guess the ifname");
 
     }
@@ -152,11 +147,11 @@ long
 gethostbyif (char *ifname)
 {
 
-    char          buffer[10240];
-    int           sd;
+    char buffer[10240];
+    int sd;
     struct ifreq *ifr,
-                 *iflast,
-                  ifreq_io;
+       *iflast,
+        ifreq_io;
     struct ifconf ifc;
     struct sockaddr_in *paddr;
 
@@ -191,28 +186,28 @@ gethostbyif (char *ifname)
 #else
     for (; ifr < iflast; (char *) ifr += sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in))
 #endif
-	{
+    {
 
-	    if (*(char *) ifr == 0)
-		continue;
+	if (*(char *) ifr == 0)
+	    continue;
 
-	    paddr = (struct sockaddr_in *) &ifr->ifr_addr;
+	paddr = (struct sockaddr_in *) &ifr->ifr_addr;
 
-	    memcpy (&ifreq_io, ifr, sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in));
+	memcpy (&ifreq_io, ifr, sizeof (ifr->ifr_name) + sizeof (struct sockaddr_in));
 
-	    if (ioctl (sd, SIOCGIFFLAGS, &ifreq_io) < 0)
-		FATAL ("SIOCGIFFLAGS: %s", strerror (errno));
+	if (ioctl (sd, SIOCGIFFLAGS, &ifreq_io) < 0)
+	    FATAL ("SIOCGIFFLAGS: %s", strerror (errno));
 
-	    if ((ifreq_io.ifr_flags & IFF_UP) == 0)
-		continue;
+	if ((ifreq_io.ifr_flags & IFF_UP) == 0)
+	    continue;
 
-	    if (ifr->ifr_addr.sa_family != AF_INET)
-		continue;
+	if (ifr->ifr_addr.sa_family != AF_INET)
+	    continue;
 
-	    if (!strcmp (ifr->ifr_name, ifname))
-		return paddr->sin_addr.s_addr;
+	if (!strcmp (ifr->ifr_name, ifname))
+	    return paddr->sin_addr.s_addr;
 
-	}
+    }
 
     close (sd);
 
