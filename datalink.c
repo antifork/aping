@@ -32,7 +32,7 @@
  */
 
 
-#include <pcap.h>
+#include "pcap-stub.h"
 #include "macro.h"
 #include "hardware.h"
 

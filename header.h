@@ -45,7 +45,7 @@
 
 #include <signal.h>
 
-#include <pcap.h>
+#include "pcap-stub.h"
 #include <pthread.h>
 #include <string.h>
 

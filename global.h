@@ -33,9 +33,9 @@
 
 #include <termios.h>
 #include <unistd.h>
-#include <pcap.h>
 #include <pthread.h>
 
+#include "pcap-stub.h"
 #include "aping.h"
 #include "hardware.h"
 
