@@ -109,24 +109,29 @@ abort_query (int s)
 {
     longjmp (gethost_jmp, 1);
 }
-static void
+#endif
 
+static void
 prolog_signal()
 {
+#ifdef NS_HACK
     sigset_t set;
     sigemptyset (&set);
     sigaddset (&set, SIGALRM);
     pthread_sigmask (SIG_UNBLOCK, &set, NULL);
+#endif
 }
 
+static void
 epilog_signal()
 {
+#ifdef NS_HACK
     sigset_t set;
     sigemptyset (&set);
     sigaddset (&set, SIGALRM);   
     pthread_sigmask (SIG_BLOCK, &set, NULL);
-}
 #endif
+}
 
 static unsigned long
 search_hostbyname (const char *host)
