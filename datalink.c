@@ -83,8 +83,16 @@ sizeof_datalink (pcap_t * pd)
 	 CASE (AP_DLT_SLIP_BSDOS,16);
 	 CASE (AP_DLT_PPP_BSDOS,4);
 	 CASE (AP_DLT_ATM_CLIP,-1);
-	 CASE (AP_DLT_PPP_SERIAL,-1);
-	 CASE (AP_DLT_PPP_ETHER,-1);
+#if defined (__FreeBSD__) || defined (__OpenBSD__) || defined (__NetBSD__)
+         CASE (AP_DLT_PPP_SERIAL,4);
+	 CASE (AP_DLT_PPP_ETHER, 4);
+#elif defined (__sun)
+         CASE (AP_DLT_PPP_SERIAL,8);
+         CASE (AP_DLT_PPP_ETHER, 8);
+#else
+         CASE (AP_DLT_PPP_SERIAL,24);
+         CASE (AP_DLT_PPP_ETHER, 24);
+#endif
 	 CASE (AP_DLT_C_HDLC,-1);
 	 CASE (AP_DLT_IEEE802_11,30);
 	 CASE (AP_DLT_LOOP,4);
@@ -94,8 +102,8 @@ sizeof_datalink (pcap_t * pd)
 	 CASE (AP_DLT_IPFILTER,-1);
 	 CASE (AP_DLT_PFLOG,-1);
 	 CASE (AP_DLT_CISCO_IOS,-1);
-	 CASE (AP_DLT_PRISM_HEADER,30);
-	 CASE (AP_DLT_AIRONET_HEADER,30);
+	 CASE (AP_DLT_PRISM_HEADER,-1);
+	 CASE (AP_DLT_AIRONET_HEADER,-1);
 
      default:
 	 FATAL ("unknown datalink type DTL_?=%d", dtl);
