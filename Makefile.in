@@ -78,7 +78,7 @@ version.h: VERSION
 	@sed -e 's/.*/#define VERSION "&"/' VERSION > $@
 	@echo -n "% program: aping " ; cat VERSION ; 
 install:
-	$(INSTALL) -c -m 0755 -g bin aping /bin
+	$(INSTALL) -c -m 0755 -g bin aping @bindir@ 
 clean:
 	rm -Rf *~ aping *.o 
 
