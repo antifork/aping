@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(aping, 2.0.0-ALPHA_5, bonelli@blackhats.it) 
+AC_INIT(aping, 2.0.0-ALPHA, Bonelli Nicola <bonelli@blackhats.it>) 
 
 version=`cat ./VERSION`
 
@@ -7,14 +7,31 @@ echo "========================"
 echo " aping $version"        
 echo "========================"
 
+AC_SUBST(APING_DEFS)
 
 AC_CONFIG_SRCDIR([aping.c])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
+AC_CANONICAL_SYSTEM
 AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+
+# Check and set OS specific parameters.
+
+case "$target_os" in
+*linux*)
+    APING_DEFS="-DNS_HACK"
+    ;;
+*freebsd*)
+    APING_DEFS="-DNS_HACK"
+    ;;
+*openbsd*)
+    ;;
+*netbsd*|*bsdi*|*)
+    ;;
+esac
 
 AC_CHECK_PROGS(SHTOOL, shtool, ./shtool)
 

@@ -127,6 +127,7 @@ defaults ()
     signal (SIGINT, SIG_IGN);
     signal (SIGTSTP, SIG_IGN);
     signal (SIGQUIT, SIG_IGN);
+    signal (SIGALRM, SIG_IGN);
 
     /* set myid */
 

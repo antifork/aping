@@ -158,6 +158,7 @@ sender (argv)
     sigaddset (&set, SIGTSTP);
     sigaddset (&set, SIGINT);
     sigaddset (&set, SIGQUIT);
+    sigaddset (&set, SIGALRM);
 
     pthread_sigmask (SIG_BLOCK, &set, NULL);
 

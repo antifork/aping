@@ -68,7 +68,7 @@
 #define STA_MASK  	0x0f
 #define STA_SIZE  	STA_MASK+1
 #define DNS_TIMEOUT     10	/* gethostbyname timeout */
-#define REV_TIMEOUT	2	/* gethostbyaddr timeout */
+#define REV_TIMEOUT	1	/* gethostbyaddr timeout */
 
 #define HASHMASK (\
 LRU >> 1  | LRU >> 2  | LRU >> 3  |\
@@ -88,7 +88,9 @@ typedef struct _lru_ {
 static lru hostbyname[LRU];
 static lru hostbyaddr[LRU];
 
+#ifdef NS_HACK
 static jmp_buf gethost_jmp;
+#endif
 
 #define FATAL(f,arg...) {\
                         fprintf(stderr,"%s:%d: ",__FILE__,__LINE__);\
@@ -101,11 +103,30 @@ static jmp_buf gethost_jmp;
 
 /* gethostbyname utils */
 
+#ifdef NS_HACK
 static void
 abort_query (int s)
 {
     longjmp (gethost_jmp, 1);
 }
+static void
+
+prolog_signal()
+{
+    sigset_t set;
+    sigemptyset (&set);
+    sigaddset (&set, SIGALRM);
+    pthread_sigmask (SIG_UNBLOCK, &set, NULL);
+}
+
+epilog_signal()
+{
+    sigset_t set;
+    sigemptyset (&set);
+    sigaddset (&set, SIGALRM);   
+    pthread_sigmask (SIG_BLOCK, &set, NULL);
+}
+#endif
 
 static unsigned long
 search_hostbyname (const char *host)
@@ -120,12 +141,10 @@ search_hostbyname (const char *host)
 
     if (hostbyname[i].host == NULL)
 	return ret;
-
     if (!strcmp (host, hostbyname[i].host))
 	ret = hostbyname[i].addr;
 
     return ret;
-
 }
 
 static void
@@ -134,7 +153,6 @@ insert_hostbyname (const char *h, const unsigned long addr)
     register int i;
 
     i = hash (h, strlen (h)) & HASHMASK;
-
     free (hostbyname[i].host);
 
     hostbyname[i].host = strdup (h);
@@ -171,7 +189,6 @@ insert_hostbyaddr (const char *h, const unsigned long addr)
     register int i;
 
     i = hash ((char *) &addr, 4) & HASHMASK;
-
     free (hostbyaddr[i].host);
 
     hostbyaddr[i].host = strdup (h);
@@ -187,37 +204,43 @@ gethostbyname_lru (const char *host)
 {
     struct in_addr addr;
     struct hostent *host_ent;
-
     long ret;
+
+    prolog_signal();
 
     if (host) {
 
 	if ((ret = search_hostbyname (host)) != -1)
 	    /* hit */
 	{
-	    return ret;
+	 epilog_signal();
+         return ret;
 	}
 	/* fail */
 
 	if ((addr.s_addr = inet_addr (host)) == -1) {
 
 	    /* void DNS timeout */
-
+#ifdef NS_HACK
 	    if (!setjmp (gethost_jmp)) {
 		signal (SIGALRM, abort_query);
 		alarm (DNS_TIMEOUT);
+#endif
 		host_ent = gethostbyname (host);
+#ifdef NS_HACK
 		alarm (0);
-
+#endif
 		if (host_ent == NULL)
 		    FATAL ("gethostbyname_lru(%s) err", host);
 		bcopy (host_ent->h_addr, (char *) &addr.s_addr, host_ent->h_length);
-
+#ifdef NS_HACK
 	    }
 	    else
 		FATAL ("gethostbyname_lru(%s) err", host);
+#endif
 	}
 	insert_hostbyname (host, addr.s_addr);
+	epilog_signal();
 	return addr.s_addr;
 
     }
@@ -235,19 +258,21 @@ gethostbyname_lru (const char *host)
 char *
 gethostbyaddr_lru (unsigned long addr)
 {
-    static int i;
-
+    struct hostent *hostname;
     static char *ret[STA_SIZE];
+    static int i;
     char *tmp;
 
-    struct hostent *hostname;
+    prolog_signal();
 
     i++;
 
     free (BUFF (ret));
-
     if (addr == 0)
+	{
+	epilog_signal();
 	return "0.0.0.0";
+	}
 
     if (!options.numeric) {
 
@@ -255,25 +280,31 @@ gethostbyaddr_lru (unsigned long addr)
 /* hit */
 	{
 	    BUFF (ret) = strdup (tmp);
+	    epilog_signal();
 	    return BUFF (ret);
 	}
 /* fail */
 
 	/* void DNS timeout */
 
+#ifdef NS_HACK
 	if (!setjmp (gethost_jmp)) {
 	    signal (SIGALRM, abort_query);
 	    alarm (REV_TIMEOUT);
+#endif
 	    hostname = gethostbyaddr ((char *) &addr, 4, AF_INET);
+#ifdef NS_HACK
 	    alarm (0);
-
+#endif
 	    if (hostname != NULL)
 		BUFF (ret) = strdup (hostname->h_name);
 	    else
 		BUFF (ret) = strdup (inet_ntoa (*(struct in_addr *) &addr));
+#ifdef NS_HACK
 	}
 	else
-	BUFF (ret) = strdup (inet_ntoa (*(struct in_addr *) &addr));
+	    BUFF (ret) = strdup (inet_ntoa (*(struct in_addr *) &addr));
+#endif
 
     }
     else
@@ -285,7 +316,9 @@ gethostbyaddr_lru (unsigned long addr)
     else
 	FATAL ("gethostbyaddr_lru err:%s", strerror (errno));
 
+    epilog_signal();
     return BUFF (ret);
+
 }
 
 
