@@ -350,6 +350,7 @@ main (argc, argv)
 
 	    /* waiting for pd_snd exit/cancel */
 	    pthread_join (pd_snd, NULL);
+            pthread_join (pd_key, NULL);
 	}
     else
 	pthread_join (pd_rcv, NULL);
