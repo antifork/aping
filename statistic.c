@@ -44,10 +44,10 @@
 #include "statistic.h"
 
 
-char         *
+char *
 link_type (long kb)
 {
-    int           i;
+    int i;
 
     i = 0;
 
@@ -81,62 +81,57 @@ link_type (long kb)
 #define P_SIZE    (1UL << P_BIT)
 #define K_SIZE    (1UL << K_BIT)
 #define I_MASK    (P_SIZE-1)
-#define P_MASK    (~(P_SIZE-1))   /* 11111111111111111111000000000000 */
-#define K_MASK    (~(K_SIZE-1))   /* 11111111111111111100000000000000 */
+#define P_MASK    (~(P_SIZE-1))	/* 11111111111111111111000000000000 */
+#define K_MASK    (~(K_SIZE-1))	/* 11111111111111111100000000000000 */
 
 #define IND(x)    ((int)x>>2 & I_MASK)
 
 long
-E (long * addr, long data, long n)
+E (long *addr, long data, long n)
 {
     static long long sum[2][P_SIZE];
-    static long      cnt[2][P_SIZE];
-           long      counter;
+    static long cnt[2][P_SIZE];
+    long counter;
 
-    if ( n != -1 && n != -2 && n != 1 && n != 2 )
-        {
-        fprintf(stderr,"Expectation error: E{x^n} ? n=1 | n=2\n");
-        exit(-1);
-        }
+    if (n != -1 && n != -2 && n != 1 && n != 2) {
+	fprintf (stderr, "Expectation error: E{x^n} ? n=1 | n=2\n");
+	exit (-1);
+    }
 
-    if ( n < 0 )
-        {
-          sum[-n-1][IND(addr)] = 0;
-          cnt[-n-1][IND(addr)] = 0;
-	  *addr                = 0;
-	  return 0;
-        }
+    if (n < 0) {
+	sum[-n - 1][IND (addr)] = 0;
+	cnt[-n - 1][IND (addr)] = 0;
+	*addr = 0;
+	return 0;
+    }
 
-    if ( sum[n-1][IND(addr)] != 0 && ( cnt[n-1][IND(addr)] & K_MASK ) != ( (long)addr & K_MASK ) )
-        {
-        fprintf(stderr,"Expectation error: data collision\n");
-        exit(-1);
-        }
+    if (sum[n - 1][IND (addr)] != 0 && (cnt[n - 1][IND (addr)] & K_MASK) != ((long) addr & K_MASK)) {
+	fprintf (stderr, "Expectation error: data collision\n");
+	exit (-1);
+    }
 
-    counter = cnt[n-1][IND(addr)] & ~K_MASK;
+    counter = cnt[n - 1][IND (addr)] & ~K_MASK;
     counter++;
 
-    if ( counter >= K_SIZE )
-                {
-                fprintf(stderr, "Expectation error: memory overflow\n");
-                sum[n-1][IND(addr)]=0;
-                cnt[n-1][IND(addr)]=0;
-                *addr              =0;
-                return -1;
-                }
+    if (counter >= K_SIZE) {
+	fprintf (stderr, "Expectation error: memory overflow\n");
+	sum[n - 1][IND (addr)] = 0;
+	cnt[n - 1][IND (addr)] = 0;
+	*addr = 0;
+	return -1;
+    }
 
-    switch(n)
-        {
-        case 1:
-                sum[n-1][IND(addr)]+= data;
-                break;
-        case 2:
-                sum[n-1][IND(addr)]+= data*data;
-                break;
-        }
+    switch (n) {
+     case 1:
+	 sum[n - 1][IND (addr)] += data;
+	 break;
+     case 2:
+	 sum[n - 1][IND (addr)] += data * data;
+	 break;
+    }
 
-    cnt[n-1][IND(addr)] = ( ((long)addr & K_MASK) | (counter & ~K_MASK) );
-    *addr               = sum[n-1][IND(addr)]/counter;
+    cnt[n - 1][IND (addr)] = (((long) addr & K_MASK) | (counter & ~K_MASK));
+    *addr = sum[n - 1][IND (addr)] / counter;
 
     return 0;
 }
@@ -156,11 +151,10 @@ TTL_PREDICTOR (unsigned char x)
     j = 1;
     c = 0;
 
-    do
-	{
-	    c += i & 1;
-	    j <<= 1;
-	}
+    do {
+	c += i & 1;
+	j <<= 1;
+    }
     while (i >>= 1);
 
     if (c == 1)
@@ -252,16 +246,15 @@ TTL_PREDICTOR (unsigned char x)
 #define TRIANGLE(x) ( (x > tau) ? 0 : tau-(x) )
 
 long
-twostep_predictor(long raw, long pen_time )
+twostep_predictor (long raw, long pen_time)
 {
-  static long b_t;
+    static long b_t;
 
-  b_t  = b_t * TRIANGLE(pen_time) + (raw/(1+pen_time)) * \
-		( tau - TRIANGLE(pen_time) );
+    b_t = b_t * TRIANGLE (pen_time) + (raw / (1 + pen_time)) * (tau - TRIANGLE (pen_time));
 
-  b_t /= tau;
+    b_t /= tau;
 
-  return (b_t);
+    return (b_t);
 
 }
 
@@ -273,59 +266,57 @@ twostep_predictor(long raw, long pen_time )
  *   
  */
 
-#define h0 100    /* n=0 */ 
-#define h1 26     /* n=1 */
-#define h2 6      /* n=2 */
+#define h0 100			/* n=0 */
+#define h1 26			/* n=1 */
+#define h2 6			/* n=2 */
 
 #define FIR(a,b,c) (a* h0+b* h1+c* h2)/(h0+h1+h2)
 
 double
 onestep_FIR (double n)
-{ 
+{
     static double enne[2];
-  
-    double        ret;
-  
-    if (n < 0)
-        {
-            /* reset */
-       
-            enne[0] = 0;
-            enne[1] = 0;
-       
-            return 0;
-        }
-       
+
+    double ret;
+
+    if (n < 0) {
+	/* reset */
+
+	enne[0] = 0;
+	enne[1] = 0;
+
+	return 0;
+    }
+
     ret = FIR (n, enne[0], enne[1]);
-  
+
     enne[1] = enne[0];
     enne[0] = n;
-  
+
     return ret;
-  
+
 }
 
 
 long
 lp_FIR (long kbps, long pt)
-{ 
+{
 
-    double        ret;
-    long          ns;
-    long          i;
-  
-    if ( kbps < 0) /* reset */
-        {
-            return onestep_FIR (kbps);
-        }
+    double ret;
+    long ns;
+    long i;
 
-    ns =  pt / tau;          /* how many times the onestep_fir is called  
-                              */
-    if ( ns == 0 ) 
-	ns=1;
+    if (kbps < 0) {		/* reset */
+	return onestep_FIR (kbps);
+    }
 
-    for ( i= 0; i < ns ; i++)
-        ret = onestep_FIR (kbps);
+    ns = pt / tau;		/* how many times the onestep_fir is called  
+				 */
+    if (ns == 0)
+	ns = 1;
+
+    for (i = 0; i < ns; i++)
+	ret = onestep_FIR (kbps);
 
     return (ret);
 
@@ -334,16 +325,17 @@ lp_FIR (long kbps, long pt)
 
 
 long
-magic_round(long a, long b)
+magic_round (long a, long b)
 {
-  int s = a;
+    int s = a;
 
-  while ( s <= b ) s+=a;
+    while (s <= b)
+	s += a;
 
-  if ( ABS (s-b) < ABS(s-a-b) )
-        return s;
-  else
-        return s-a;
+    if (ABS (s - b) < ABS (s - a - b))
+	return s;
+    else
+	return s - a;
 
 }
 
@@ -393,56 +385,52 @@ bandwidth_predictor (packet * p)
      */
 
 
-    if ( options.sniff )
+    if (options.sniff)
 	return;
 
-    if ( curr_tstamp )
-	{
+    if (curr_tstamp) {
 
 	/* icmp timestamp reply: 
 	 *  In case of ts_reply we dont need to estimate the pending_time, 
 	 *  since we are able to calc a deterministic value.
 	 */
 
-	pending_time = MAX( 0 , curr_tstamp- last_tstamp);
+	pending_time = MAX (0, curr_tstamp - last_tstamp);
 
-	} 
-    else
-	{
-    	
-	local_tau    = last_rtt.ms_int + time_lost;
-    	local_tau    = magic_round (tau, local_tau);
+    }
+    else {
 
-    	pending_time = MAX(tau/2, local_tau+ jitter/2 );   /* <- min of pending
-							    *    time is TAU/2 
-							    */
+	local_tau = last_rtt.ms_int + time_lost;
+	local_tau = magic_round (tau, local_tau);
 
-	}
-	
-    if (diff_ipid & !rand_ip_id)
-	{
+	pending_time = MAX (tau / 2, local_tau + jitter / 2);	/* <- min of pending
+								 *    time is TAU/2 
+								 */
 
-	  delta = (diff_id > 1 ? diff_id - 1 : 0);
+    }
 
-	    /* a low_pass filter voids spikes */
+    if (diff_ipid & !rand_ip_id) {
 
-	  out_burst = twostep_predictor (delta *(tcpip_lenght[traffic_tos].lenght << 3), pending_time);
-	  out_burst = lp_FIR( out_burst , pending_time );
+	delta = (diff_id > 1 ? diff_id - 1 : 0);
 
-	  max_burst = MAX (max_burst, out_burst);
+	/* a low_pass filter voids spikes */
 
-	  E ( &mean_burst, out_burst, 1 );
+	out_burst = twostep_predictor (delta * (tcpip_lenght[traffic_tos].lenght << 3), pending_time);
+	out_burst = lp_FIR (out_burst, pending_time);
 
-	  PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ",out_burst,mean_burst,max_burst);
-          PUTS ("usage=%d%%(%d%%) ",PER_CENT(out_burst,max_burst),PER_CENT(mean_burst,max_burst));
-	  PUTS ("link=[%s/%s]\n", link_type(mean_burst),link_type(max_burst));
+	max_burst = MAX (max_burst, out_burst);
 
-	}
-    else if (rand_ip_id)
-	{
-	    /* rand_ip_id detected!!! OPENBSD| FREEBSD */
-	    PUTS ("    burst+= rand(ip_id)\n");
-	}
+	E (&mean_burst, out_burst, 1);
+
+	PUTS ("    burst=%ld mean_burst=%ld max_burst=%ld kbps ", out_burst, mean_burst, max_burst);
+	PUTS ("usage=%d%%(%d%%) ", PER_CENT (out_burst, max_burst), PER_CENT (mean_burst, max_burst));
+	PUTS ("link=[%s/%s]\n", link_type (mean_burst), link_type (max_burst));
+
+    }
+    else if (rand_ip_id) {
+	/* rand_ip_id detected!!! OPENBSD| FREEBSD */
+	PUTS ("    burst+= rand(ip_id)\n");
+    }
 
 
 }

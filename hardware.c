@@ -41,17 +41,32 @@
 static char lu_hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 char *
+getmacfrom6b (char *hmac, char *mac)
+{
+    char *_mac = mac;
+    int i = 0;
+
+    while (i < 6) {
+
+	*_mac++ = lu_hex[(hmac[i] >> 4) & 0xf];
+	*_mac++ = lu_hex[(hmac[i++]) & 0xf];
+	*_mac++ = ':';
+
+    }
+
+    *--_mac = '\0';
+
+    return mac;
+}
+
+
+char *
 getmacfromdatalink (char *dl, int type)
 {
-    register int i;
-    register char *mac;
-    static char *ret;
+    static char mac[18];
     int offset;
 
     offset = -1;
-    i = 0;
-
-    mac = ret = (char *) realloc (ret, 18);
 
     switch (datalink) {
 
@@ -83,16 +98,6 @@ getmacfromdatalink (char *dl, int type)
 
     dl += offset;
 
-    while (i < 6) {
-
-	*mac++ = lu_hex[(dl[i] >> 4) & 0xf];
-	*mac++ = lu_hex[(dl[i++]) & 0xf];
-	*mac++ = ':';
-
-    }
-
-    *--mac = '\0';
-
-    return ret;
+    return ( getmacfrom6b (dl, mac) );
 
 }

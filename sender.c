@@ -270,15 +270,18 @@ sender (argv)
 				     continue;
 
 				 PUTS ("sendto: %s\n", strerror (errno));
-				 break;
+				 goto send_exit; 
+
 			     default:
 				 pos += res;
 			    }
 		    }
+
+		send_exit:
 	    }
 
 	    n_sent++;
-
+	    
 	    print_icon (0);
 
 	    /* changes */

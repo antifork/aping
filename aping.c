@@ -86,19 +86,12 @@ discard_plugin ()
 
 }
 
-
-int
-main (argc, argv)
-     int argc;
-     char **argv;
+void
+defaults ()
 {
-    struct termios tty;
+
     struct rlimit core;
-    int loss;
-    int es;
-    int major;
-    int minor;
-    int wait_time;
+    int i;
 
     /* rlimit */
 
@@ -111,13 +104,56 @@ main (argc, argv)
     setrlimit (RLIMIT_CORE, &core);
 #endif
 
-    atexit (discard_plugin);
-
     /* maturity interface */
 
     SETUP_MATURITY ();
-
     LOAD_MATURITY ();
+
+    /* refresh salt */
+
+    srand (time (NULL));
+
+    /* default pattern */
+
+    pattern = (char *) malloc (49);
+
+    for (i = 0; i < 48; i++)
+	pattern[i] = i + 8;	/* Berkeley style */
+
+    pattern[48] = 0;
+
+    /* Catch signal */
+
+    signal (SIGINT, SIG_IGN);
+    signal (SIGTSTP, SIG_IGN);
+    signal (SIGQUIT, SIG_IGN);
+
+    /* set myid */
+
+    myid = getpid () & 0xffff;
+
+
+}
+
+
+int
+main (argc, argv)
+     int argc;
+     char **argv;
+{
+    struct termios tty;
+    int loss;
+    int es;
+    int major;
+    int minor;
+    int wait_time;
+
+
+    /* set values by default */
+
+    defaults ();
+
+    atexit (discard_plugin);
 
     /* Security */
 
@@ -129,23 +165,6 @@ main (argc, argv)
 
     if (argc < 2)
 	FATAL ("no arguments given");
-
-    /* refresh salt */
-    srand (time (NULL));
-
-    /* default pattern */
-
-    {
-	int j;
-
-	pattern = (char *) malloc (49);
-
-	for (j = 0; j < 48; j++)
-	    pattern[j] = j + 8;	/* Berkeley style */
-
-	pattern[48] = 0;
-
-    }
 
 
     while ((es = getopt (argc, argv, "DS:O:T:MRI:t:k:i:c:p:e:Pz:l:dnrvhbs")) != EOF)
@@ -310,15 +329,6 @@ main (argc, argv)
 
     }
 
-    /* Catch signal */
-
-    signal (SIGINT,  SIG_IGN);
-    signal (SIGTSTP, SIG_IGN);
-    signal (SIGQUIT, SIG_IGN);
-
-    /* set myid */
-    myid = getpid () & 0xffff;
-
     /* get localnet/netmask */
 
     if (pcap_lookupnet (ifname, &localnet, &netmask, bufferr) == -1)
@@ -336,9 +346,9 @@ main (argc, argv)
 
     tty = termios_p;
 
-    tty.c_lflag &= ~(ECHO | ECHOK| ICANON | ISIG); /* FIXME: ~ISIG bit ignores signals' keyboard */
+    tty.c_lflag &= ~(ECHO | ECHOK | ICANON | ISIG);	/* FIXME: ~ISIG bit ignores signals' keyboard */
 
-    tty.c_cc[VMIN]  = 1; 
+    tty.c_cc[VMIN] = 1;
     tty.c_cc[VTIME] = 1;
 
     tcsetattr (0, TCSANOW, &tty);
@@ -380,8 +390,7 @@ main (argc, argv)
 	PUTS ("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);
 
     if (n_tome)
-	PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", \
-	rtt_min, rtt_mean, ISQRT (rtt_sqre - rtt_mean * rtt_mean), rtt_max);
+	PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", rtt_min, rtt_mean, ISQRT (rtt_sqre - rtt_mean * rtt_mean), rtt_max);
 
     exit (1);
 }

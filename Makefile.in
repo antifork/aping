@@ -32,7 +32,7 @@ CC          = @CC@
 CFLAGS      = @CFLAGS@ -I. 
 LDFLAGS     = @LDFLAGS@
 LIBS        = @LIBS@  
-DEFS        = @DEFS@
+DEFS        = @DEFS@ # -DEADBUG
 INSTALL     = @INSTALL@
 
 prefix      = @prefix@

@@ -43,7 +43,6 @@
 #include "global.h"
 #include "statistic.h"
 
-
 #include <termios.h>
 #include <unistd.h>
 
@@ -79,6 +78,7 @@ keystroke ()
 	     ctrlc(); /* FIXME */
 	     pthread_exit(NULL);
 	     break;
+
 	 case 10:
 	     n_pause = 0;
 	     break;
@@ -86,18 +86,23 @@ keystroke ()
 	 case '0':
 	     SET_VAL (detail, 0);
 	     break;
+
 	 case '1':
 	     SET_VAL (detail, 1);
 	     break;
+
 	 case '2':
 	     SET_VAL (detail, 2);
 	     break;
+
 	 case '3':
 	     SET_VAL (detail, 3);
 	     break;
+
 	 case '4':
 	     SET_VAL (detail, 4);
 	     break;
+
 	 case ' ':
 	     n_pause ^= 1;
 	     if (n_pause) {
@@ -136,6 +141,12 @@ keystroke ()
 	 case 'm':
 	     SWITCH (mac_inspection);
 	     break;
+
+#ifdef  EADBUG
+	 default:
+	     PUTS("key:0x%x\n",c);
+	     break;
+#endif
 
 	}
      }
