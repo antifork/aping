@@ -71,6 +71,8 @@ getchar_raw ()
     struct termios tty,
                   otty;
 
+    pthread_setcancelstate (PTHREAD_CANCEL_DISABLE, NULL);
+    
     tcgetattr (0, &otty);
     tty = otty;			/* saving termios */
 
@@ -80,6 +82,8 @@ getchar_raw ()
     tcsetattr (0, TCSANOW, &tty);
     c = getchar ();
     tcsetattr (0, TCSANOW, &otty);
+
+    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
 
     return (c);
 
@@ -102,7 +106,7 @@ keystroke ()
     pthread_sigmask (SIG_BLOCK, &set, NULL);
 
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+    pthread_setcanceltype  (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
     while (c = getchar_raw ())
 
