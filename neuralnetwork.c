@@ -1,9 +1,9 @@
 /*
-gcc -DTRY_NN -DVERBOSE -Wall -pedantic -o neuralnetwork neuralnetwork.c -g3 -lm
+gcc -DTRY_NN -DVERBOSE -Wall -pedantic -o neuralnetwork neuralnetwork.c -g3 
 to test as standalone with verbosity and debug
 
-manca parte della backpropagation
-
+ finire fire_nn 
+ riscrivere layer_status
 */
 #include "neuralnetwork.h"
 
@@ -666,23 +666,24 @@ void fire_nn(NN* nn, double* input, double* expected,double* output)
 	LAYER* c_layer;
 	NEURO* c_neuro;
 	LINK * c_link ; 
-	
-	u_32 counter , counter2, counter3 ;
+	u_32 counter , counter2, counter3,nextlayersize;
+	double error,out;
+
 	NN_VERBOSE("fire_nn();\r\n");
 	for( c_layer=nn->first , counter=0; counter!=nn->size ;counter++ , c_layer=c_layer->next)
-	/*for_each(layer)*/
+	/* for_each(layer) */
 	{
-		u_32 nextlayersize=(c_layer->next)?c_layer->next->size:0;
+		nextlayersize=(c_layer->next)?c_layer->next->size:0;
 		NN_VERBOSE1("layer %03u\r\n",counter+1);
 		for(c_neuro=c_layer->first, counter2=0; counter2!=c_layer->size ;counter2++, c_neuro=c_neuro->next)
-		/*for_each(neuron)*/
+		/* for_each(neuron) */
 		{
 			NN_VERBOSE1("neuron %03u\r\nlinks: ",counter2+1);
 			for(c_link=c_neuro->fp_np, counter3=0;counter3!=nextlayersize ;c_link++ , counter3++)
-			/*for_each(link)*/
+			/* for_each(link) */
 			{
 				NN_VERBOSE1("%03u ",counter3+1);
-				c_link->linkedneuro->state += c_link->weight * c_neuro->output; /* output del neurone in basso */ 
+				c_link->linkedneuro->state += c_link->weight * c_neuro->output; /* output of lower neuron */ 
 			}
 			NN_VERBOSE("\r\n");
 			/*since we have computed output for c_layer in a previus for_each(layer) cicle we can calculate output and zero all neurons->state */
@@ -706,6 +707,35 @@ void fire_nn(NN* nn, double* input, double* expected,double* output)
 	}
 	if(expected) /* we won't backpropagate if NULL is passed */
 	{
+
+		/* computing network error */
+		for(nn->error = 0,c_neuro=nn->last->first,counter=0;counter!=nn->last->size;c_neuro=c_neuro->next,counter++)
+		{
+			out=c_neuro->output;
+			error=expected[counter]-out;
+			c_neuro->error= nn->gain* out * (1-out) * error;
+			nn->error += .5*error*error;
+		}
+		
+		/* backpropagating error */
+		for(counter=0, c_layer=nn->last->previous;counter!=nn->size-1;c_layer=c_layer->previous,counter++)
+		/* for_each layer in reverse order */
+		{
+			nextlayersize=c_layer->next->size;
+			for(counter2=0,c_neuro=c_layer->first;counter2!=c_layer->size;counter2++,c_neuro=c_neuro->next)
+			{
+				error = 0;
+				for(c_link=c_neuro->fp_np,counter3=0;counter3!=nextlayersize;counter3++,c_link++)
+				/*for_each(link)*/
+				{
+      					error += c_link->weight * c_link->linkedneuro->error;
+				}
+				c_neuro->error = nn->gain * c_neuro->output * ( 1 - c_neuro->output ) * error;
+			}
+		}
+		
+		/* adjusting weight */
+		
 		// back_propagate(expected);
 		
 	}
