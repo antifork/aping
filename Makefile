@@ -39,8 +39,8 @@ FREEBSD = -lpcap  -pthread
 INSTALL = /usr/bin/ginstall -c 
 
 OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
+	resolver.c \
 	argscheck.o \
-	resolver.o \
 	dissect-destination.o \
 	dissect-echo-reply.o \
 	dissect-echo.o \
