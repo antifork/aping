@@ -31,48 +31,68 @@
  * 
  */
 
-#ifndef HARDWARE_H
-#define HARDWARE_H
+#include "aping.h"
+#include "header.h"
+#include "typedef.h"
 
-#define MAC_SRC		0
-#define MAC_DST		1
+#include "global.h"
+#include "hardware.h"
 
-#define AP_IF_UNKNOWN   0
-#define AP_IF_ETHER	1
-#define AP_IF_TOKEN	2
-#define AP_IF_FDDI	3
-#define AP_IF_80211	4
-#define AP_IF_PPP	5	
+static char lu_hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
-#define ETHER_ADDR_LEN	   6
-#define ISO88025_ADDR_LEN  6
+char *
+getmacfromdatalink (char *dl, int type)
+{
+    register int i;
+    register char *mac;
+    static char *ret;
+    int offset;
 
+    offset = -1;
+    i = 0;
 
-/* Ethernet physical header */
+    mac = ret = (char *) realloc (ret, 18);
 
-struct ether_header {
-	u_int8_t	ether_dhost[ETHER_ADDR_LEN];
-	u_int8_t	ether_shost[ETHER_ADDR_LEN];
-	u_int16_t 	ether_type;
-};
+    switch (datalink) {
 
-/* Token Ring physical header */
+     case AP_IF_ETHER:
+	 if (type == MAC_DST)
+	     offset = 0;
+	 else
+	     offset = 6;
+	 break;
 
-struct token_header {
-        u_int8_t  token_ac;                     	/* access control field */
-        u_int8_t  token_fc;                     	/* frame control field */
-        u_int8_t  token_dhost[ISO88025_ADDR_LEN];       /* dest. address */
-        u_int8_t  token_shost[ISO88025_ADDR_LEN];       /* source address */
-} __attribute__((__packed__));   
+     case AP_IF_TOKEN:
+     case AP_IF_FDDI:
+	 if (type == MAC_DST)
+	     offset = 2;
+	 else
+	     offset = 8;
 
+	 break;
+     case AP_IF_80211:
+     case AP_IF_PPP:
+	 // FIXME
+	 break;
 
-/* Structure of an 100Mb/s FDDI header.  */
+    }
 
-struct  fddi_header {
-        u_char  fddi_fc;
-        u_char  fddi_dhost[6];
-        u_char  fddi_shost[6];
-};
+    if (offset == -1) {
+	return ("??:??:??:??:??:??");
+    }
 
+    dl += offset;
 
-#endif /* HARDWARE_H */	
+    while (i < 6) {
+
+	*mac++ = lu_hex[(dl[i] >> 4) & 0xf];
+	*mac++ = lu_hex[(dl[i++]) & 0xf];
+	*mac++ = ':';
+
+    }
+
+    *--mac = '\0';
+
+    return ret;
+
+}

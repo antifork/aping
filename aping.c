@@ -338,6 +338,9 @@ main (argc, argv)
     if (pthread_create (&pd_rcv, NULL, (void *) receiver, NULL) != 0)
 	FATAL ("pthread_create(): %s", strerror (errno));
 
+    if (pthread_create (&pd_key, NULL, (void *) keystroke, NULL) != 0)
+        FATAL ("pthread_create(): %s", strerror (errno));
+
     /* set termios properties */
     
     tcgetattr (0, &termios_p);
@@ -353,11 +356,6 @@ main (argc, argv)
 	{
 	    if (pthread_create (&pd_snd, NULL, (void *) sender, argv) != 0)
 		FATAL ("pthread_create(): %s", strerror (errno));
-
-	    /* start keystroke thread */
-
-            if (pthread_create (&pd_key, NULL, (void *) keystroke, NULL) != 0)
-                FATAL ("pthread_create(): %s", strerror (errno));
 
 	    /* waiting for pd_snd exit/cancel */
 	    pthread_join (pd_snd, NULL);

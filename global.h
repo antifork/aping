@@ -58,6 +58,7 @@ EXTERN long icmp_type INIT(=8);		/* default echo request */
 EXTERN long icmp_code;
 
 EXTERN long datalink;			/* datalink type */
+EXTERN long mac_inspection;
 
 EXTERN long n_sent;
 EXTERN long n_recv;

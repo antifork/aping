@@ -44,13 +44,13 @@
 #include "global.h"
 #include "def_icmp.h"
 
-int           icmp_parent[32] = { 8, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, 13, 0, 15, 0, 17, -1, -1 };
+int icmp_parent[32] = { 8, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, 13, 0, 15, 0, 17, -1, -1 };
 
 
 struct pcap_pkthdr pcaphdr;
 struct bpf_program fcode;
 struct timeval *timestamp;
-packet        pkt;
+packet pkt;
 
 #include "filter.h"
 
@@ -58,7 +58,7 @@ void
 lineup_layers (char *buff, packet * pkt)
 {
 
-    pkt->dl = (u_char *) buff; 
+    pkt->dl = (u_char *) buff;
     pkt->ip = (struct ip *) ((void *) buff + offset_dl);
     pkt->icmp = (struct icmp *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2));
     pkt->data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
@@ -135,6 +135,17 @@ agent_timestamp (packet * p)
 
 
     return;
+}
+
+
+void
+reset_ipid ()
+{
+
+    rand_ip_id = 0;
+    ipid_failure = 0;
+    slow_start = 1;
+
 }
 
 
@@ -216,10 +227,10 @@ agent_dyn_id (packet * p)
 void
 print_RR (char *opt)
 {
-    long         *hop;
-    long          rr;
+    long *hop;
+    long rr;
 
-    int           i;
+    int i;
 
     rr = hash (opt, 40);
 
@@ -241,8 +252,8 @@ print_RR (char *opt)
 void
 process_pack (packet * p)
 {
-    char         *saddr;
-    char         *daddr;
+    char *saddr;
+    char *daddr;
 
     saddr = gethostbyaddr_lru (IP_src (p));
     daddr = gethostbyaddr_lru (IP_dst (p));
@@ -271,14 +282,19 @@ process_pack (packet * p)
   end_switch:
 
     PUTS ("%db from %s", ntohs (IP_len (p)) - (IP_hl (p) << 2), saddr);
+
+    if (mac_inspection)
+	PUTS ("[%s]", getmacfromdatalink (p->dl, MAC_SRC));
+
     if (options.sniff) {
-	PUTS (" -> to %s:", daddr);
-    }
-    else {
-	PUTS (":");
+	PUTS (" -> to %s", daddr);
+
+	if (mac_inspection)
+	    PUTS ("[%s]", getmacfromdatalink (p->dl, MAC_DST));
+
     }
 
-    PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0x3f]);
+    PUTS (": icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0x3f]);
     if (icmp_code_str[INDEX (ICMP_type (p), ICMP_code (p))] != NULL) {
 	PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[INDEX (ICMP_type (p), ICMP_code (p))]);
     }
@@ -326,11 +342,11 @@ void
 receiver ()
 {
     const u_char *ptr;
-    packet       *p;
-    sigset_t      set;
-    pcap_t       *in_pcap;
-    int           fval;
-    int           pcap_fd;
+    packet *p;
+    sigset_t set;
+    pcap_t *in_pcap;
+    int fval;
+    int pcap_fd;
 
     fval = 0;
     pcap_fd = 0;
@@ -381,11 +397,7 @@ receiver ()
     if (options.promisc)
 	PUTS ("<PROMISC>");
 
-    PUTS ("%s: [%s](%s/%s) with %ld bytes of %s layer.\n", 	\
-	ifname, multi_inet_ntoa ((long) ip_src), 		\
-	multi_inet_ntoa ((long) localnet),			\
-	multi_inet_ntoa ((long) netmask), 			\
-	offset_dl, linktype[datalink]);
+    PUTS ("%s: [%s](%s/%s) with %ld bytes of %s layer.\n", ifname, multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), multi_inet_ntoa ((long) netmask), offset_dl, linktype[datalink]);
 
     ENDLESS () {
 
@@ -433,7 +445,7 @@ receiver ()
 		    process_pack (p);
 		}
 	    }
-	    else
+	    else if (detail)
 		process_pack (p);
 
 	    if (ICMP_HAS_SEQ (p))

@@ -49,28 +49,12 @@
 
 
 void
-incr_tcp_tos (int delta)
-{
-    out_burst = 0;
-    max_burst = 0;
-
-    E (&mean_burst, 0, -1);
-    lp_FIR (-1, 0);
-
-    traffic_tos += delta;
-    traffic_tos &= 0x0f;
-
-    PUTS ("%s: avrg size %ld bytes\n", tcpip_lenght[traffic_tos].type, tcpip_lenght[traffic_tos].lenght);
-}
-
-
-void
 keystroke ()
 {
     sigset_t      set;
     packet        pkt;
     int           sfd;
-    int             c;
+    int           c;
 
     sigemptyset (&set);
 
@@ -81,7 +65,7 @@ keystroke ()
     pthread_sigmask (SIG_BLOCK, &set, NULL);
 
     pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_setcanceltype  (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+    pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
     while (c = getchar ())
 
@@ -104,8 +88,8 @@ keystroke ()
 	     SET_VAL (detail, 3);
 	     break;
 	 case '4':
-             SET_VAL (detail, 4);
-             break;
+	     SET_VAL (detail, 4);
+	     break;
 	 case ' ':
 	     n_pause ^= 1;
 	     if (n_pause) {
@@ -115,20 +99,36 @@ keystroke ()
 
 	 case '+':
 	 case '=':
-	     incr_tcp_tos (1);
+	     reset_ipid ();
+	     traffic_tos++;
+	     traffic_tos &= 0x0f;
+	     PUTS ("%s: avrg size %ld bytes\n", \
+	     tcpip_lenght[traffic_tos].type, tcpip_lenght[traffic_tos].lenght);
 	     break;
+
 	 case '-':
 	 case '_':
-	     incr_tcp_tos (-1);
+	     reset_ipid ();
+	     traffic_tos--;
+	     traffic_tos &= 0x0f;
+	     PUTS ("%s: avrg size %ld bytes\n", \
+	     tcpip_lenght[traffic_tos].type, tcpip_lenght[traffic_tos].lenght);
 	     break;
+
 	 case 'e':
-             reset_stat();
+	     reset_stat ();
 	     SWITCH (endian_bug);
 	     break;
+
 	 case 'd':
-	     reset_stat();
+	     reset_stat ();
 	     SWITCH (diff_ipid);
 	     break;
+
+	 case 'm':
+	     SWITCH (mac_inspection);
+	     break;
+
 	}
 
 }
