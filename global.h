@@ -89,7 +89,7 @@ EXTERN long time_lost;  		/* due to packets lost */
 
 EXTERN long traffic_tos;
 
-EXTERN long iddeal;        		/* ip_id endianess bug */
+EXTERN long endian_bug;        		/* ip_id endianess bug */
 
 EXTERN long last_seq INIT(= -1);      	/* last icmp_seq number received */
 EXTERN long last_id  INIT(= -1);    

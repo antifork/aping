@@ -76,7 +76,7 @@ usage (char *name, int type)
 		      "   -p                        set pattern \"\"\n"
 		      "   -e  ifname                set default device\n"
 		      "   -P                        set promisc-mode\n"
-		      "   -s  level                 set sniff level\n"
+		      "   -s                        set sniff-mode\n"
 		      "   -z  size                  set packetsize\n"
 		      "   -c                        count\n"
 		      "   -d                        don't fragment bit\n"
@@ -131,8 +131,8 @@ usage (char *name, int type)
 		
 			 for (j = 0; j < 64; j++)
 			     {
-				 if (icmp_code_str[(i<<8)  + j] != NULL)
-				     printf ("   -k %2d  %s\n", j, icmp_code_str[(i<<8) + j]);
+				 if (icmp_code_str[INDEX(i,j)] != NULL)
+				     printf ("   -k %2d  %s\n", j, icmp_code_str[INDEX(i,j)]);
 
 			     }
 		     }

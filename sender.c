@@ -40,7 +40,7 @@
 #include "global.h"
 
 extern char  *icmp_type_str[64];
-extern char  *icmp_code_str[64*64];
+extern char  *icmp_code_str[64 * 64];
 
 int           true = 1;
 
@@ -55,8 +55,8 @@ int           true = 1;
 
 #define LEN(base,type) (base|type<<8)
 
-int  icmphdr_vector[32] = { LEN (8, 1), 0, 0, LEN (8, 2), LEN (8, 2), LEN (8, 2), 0, 0,
-    LEN (8, 1), LEN (8, 4), 8, LEN (8, 2), LEN (8, 2), 20, 20, 8, 8, 12 , 12 
+int           icmphdr_vector[32] = { LEN (8, 1), 0, 0, LEN (8, 2), LEN (8, 2), LEN (8, 2), 0, 0,
+    LEN (8, 1), LEN (8, 4), 8, LEN (8, 2), LEN (8, 2), 20, 20, 8, 8, 12, 12
 };
 
 
@@ -105,7 +105,7 @@ load_layers (char *buff, packet * pkt)
 void
 load_ip (struct ip *ip)
 {
-    char *ip_opt;
+    char         *ip_opt;
 
     ip->ip_v = 4;
     ip->ip_hl = (options.opt_rroute ? 15 : 5);
@@ -114,21 +114,24 @@ load_ip (struct ip *ip)
     ip->ip_len = FIX ((ip->ip_hl << 2) + sizeof_icmp (icmp_type));
     ip->ip_id = htons (ip_id);
 
-    ip->ip_off = FIX (0);
-
+    if ( options.dfrag )
+    	ip->ip_off = FIX (IP_DF);
+    else 
+	ip->ip_off = FIX (0);
+ 
     ip->ip_ttl = (options.ip_ttl ? ip_ttl : 255);
     ip->ip_p = IPPROTO_ICMP;	/* Transport protocol */
 
     ip->ip_src.s_addr = ip_src;
     ip->ip_dst.s_addr = ip_dst;
 
-    if ( options.opt_rroute )
+    if (options.opt_rroute)
 	{
-	  ip_opt    = (char *)ip + (5<<2) ;
+	    ip_opt = (char *) ip + (5 << 2);
 
-	  ip_opt[IPOPT_OPTVAL] = IPOPT_RR;
-	  ip_opt[IPOPT_OLEN]   = 3 + 4 * NROUTES;
-	  ip_opt[IPOPT_OFFSET] = IPOPT_MINOFF; 	
+	    ip_opt[IPOPT_OPTVAL] = IPOPT_RR;
+	    ip_opt[IPOPT_OLEN] = 3 + 4 * NROUTES;
+	    ip_opt[IPOPT_OFFSET] = IPOPT_MINOFF;
 
 	}
 
@@ -163,8 +166,8 @@ sender (argv)
 
     gettimeofday (&timenow, NULL);
 
-    last_sent.ts_sec  =  timenow.tv_sec;                                                                    
-    last_sent.ts_usec =  timenow.tv_usec-tau*1000;
+    last_sent.ts_sec = timenow.tv_sec;
+    last_sent.ts_usec = timenow.tv_usec - tau * 1000;
 
     /* set icmp_id */
 
@@ -185,12 +188,23 @@ sender (argv)
 
     /* We set SO_BROADCAST whenever we need this. */
 
-    if ( ip_dst == ( localnet | ~netmask ) )
+    if (ip_dst == (localnet | ~netmask))
 	{
 	    /* local broadcast */
 	    PUTS ("broadcast addr, SO_BROADCAST option is on.\n");
 	    setsockopt (sfd, SOL_SOCKET, SO_BROADCAST, (char *) &true, sizeof (true));
 	}
+
+    /* SO_DONTROUTE ... */
+
+    if ( options.droute )
+	{
+            PUTS ("SO_DONTROUTE option is on.\n");
+            setsockopt (sfd, SOL_SOCKET, SO_DONTROUTE, (char *) &true, sizeof (true));
+	}
+
+    if ( options.dfrag )
+	    PUTS ("IP_DF don't frag option is on.\n");
 
     /* ip_id */
 
@@ -199,68 +213,80 @@ sender (argv)
 
     /* struct saddr */
 
-    saddr.sin_family      = AF_INET;
+    saddr.sin_family = AF_INET;
     saddr.sin_addr.s_addr = ip_dst;
 
     /* lineup layer */
 
     load_layers (buffer, &pkt);
 
-    if ( icmp_code_str[(icmp_type<<6) +icmp_code] != NULL )
-       PUTS ("PING %s (%s): icmp=%ld(%s) code=%ld(%s)\n", \
-       host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type], icmp_code, icmp_code_str[(icmp_type<<6)+icmp_code]);
+    if (icmp_code_str[(icmp_type << 6) + icmp_code] != NULL)
+	PUTS ("PING %s (%s): icmp=%ld(%s) code=%ld(%s)\n", host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type], icmp_code, icmp_code_str[(icmp_type << 6) + icmp_code]);
     else
-       PUTS ("PING %s (%s): icmp=%ld(%s)\n", \
-       host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type]);     
+	PUTS ("PING %s (%s): icmp=%ld(%s)\n", host_dst, multi_inet_ntoa (ip_dst), icmp_type, icmp_type_str[icmp_type]);
 
     while (!count || (n_sent < count))
 	{
 
-	/* load ip header */
+	    /* load ip header */
 
 	    load_ip ((struct ip *) (pkt.ip));
 
-	/* load icmp header */
+	    /* load icmp header */
 
 	    if (icmp_loader_vector[icmp_type] != NULL)
 		(*icmp_loader_vector[icmp_type]) (&pkt, argv);
 
 
-	/* marking system timestamp for no-echo packets */
+	    /* marking system timestamp for no-echo packets */
 
 	    gettimeofday (&timenow, NULL);
 
-	    last_sent.ts_sec  =  timenow.tv_sec;
-	    last_sent.ts_usec =  timenow.tv_usec;
+	    last_sent.ts_sec = timenow.tv_sec;
+	    last_sent.ts_usec = timenow.tv_usec;
 
-	    switch (sendto(sfd, buffer, UNFIX (pkt.ip->ip_len), 0, (struct sockaddr *) &saddr, sizeof (struct sockaddr)))
-		{
-		 case 0:
-		     PUTS ("sendto: 0 byte sent\n");
-		     break;
-		 case -1:
-		     PUTS ("sendto: %s\n", strerror (errno));
-		     break;
-		}
+	    {
+		char         *_s = buffer;
+		int           res,
+		              pos = 0;
 
-	    n_sent++ ;
+		while (UNFIX (pkt.ip->ip_len) > pos)
+		    {
+			res = sendto (sfd, _s + pos, UNFIX (pkt.ip->ip_len) - pos, 0, (struct sockaddr *) &saddr, sizeof (struct sockaddr));
+			switch (res)
+			    {
+			     case 0:
+				 PUTS ("sendto: 0 byte sent\n");
+				 break;
+			     case -1:
+				 if (errno == EINTR || errno == EAGAIN)
+				     continue;
 
-	    print_icon(0);
+				 PUTS ("sendto: %s\n", strerror (errno));
+				 break;
+			     default:
+				 pos += res;
+			    }
+		    }
+	    }
+
+	    n_sent++;
+
+	    print_icon (0);
 
 	    /* changes */
 
-	    if ( options.ip_ramp ) 
+	    if (options.ip_ramp)
 		ip_ttl++;
 
-	    if ( options.ip_id_incr || !options.ip_id ) 
-		  ip_id++;
-	    else 
-	    	if (options.ip_id_rand) 
-			ip_id = rand ();
+	    if (options.ip_id_incr || !options.ip_id)
+		ip_id++;
+	    else if (options.ip_id_rand)
+		ip_id = rand ();
 
-            /* rating.. */
+	    /* rating.. */
 
-            usleep ( tau * 1000 );
+	    usleep (tau * 1000);
 
 
 	}

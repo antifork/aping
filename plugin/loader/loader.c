@@ -67,6 +67,9 @@ handler_usr1(int i)
  
 }
 
+#define SSO sizeof(so)
+#define SIN sizeof(pi_init)
+#define SEX sizeof(pi_exit)
 
 int
 main(argc, argv)
@@ -96,16 +99,16 @@ main(argc, argv)
   pi_init[1]='\0';
   pi_exit[1]='\0';
 
-  strcat (so,PLUGIN_PATH);
-  strcat (so,"/");
-  strncat(so,name,80-4-sizeof(PLUGIN_PATH));
-  strcat (so,".so");
+  strlcat (so,PLUGIN_PATH,SSO);
+  strlcat (so,"/",SSO);
+  strlcat (so,name,SSO);
+  strlcat (so,".so",SSO);
 
-  strncat (pi_init,name,79-6);
-  strncat (pi_exit,name,79-6);
+  strlcat (pi_init,name,SIN);
+  strlcat (pi_exit,name,SEX);
 
-  strcat  (pi_init,"_init");
-  strcat  (pi_exit,"_exit");
+  strlcat (pi_init,"_init",SIN);
+  strlcat (pi_exit,"_exit",SEX);
 
   PUTS("loading %s\n",so);
 

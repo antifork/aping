@@ -37,12 +37,12 @@ INSTALL = @INSTALL@
 prefix  = @prefix@
 datadir = @datadir@ 
 
-PLUGIN	= loader 
+PLUGIN	= loader.o 
 
-all: $(PLUGIN)
+all: $(PLUGIN) @LIBOBJS@
 
-$(PLUGIN):
-	$(CC) $(CFLAGS) $(DEFS) $(LIBS) $@.c $< -o $@ 
+.c.o:
+	$(CC) $(CFLAGS) $(DEFS) $(DEBUG) -c $< -o $@
 
 clean:
 	rm -Rf *~ *.bak $(PLUGIN) 

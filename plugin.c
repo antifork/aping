@@ -49,72 +49,69 @@
 #include "version.h"
 
 void
-plugin_init(char *name)
+plugin_init (char *name)
 {
-  char loader[80];
-  char *arg   [4];
+    char          loader[80];
+    char         *arg[4];
 
-  int  pid;
+    int           pid;
 
-  loader[0]='\0';
+    loader[0] = '\0';
 
-  arg[0]   = "loader";
-  arg[1]   = name;
-  arg[2]   = NULL;
-  
-  strlcat (loader,PLUGIN_PATH,sizeof(loader));
-  strlcat (loader,"/",sizeof(loader));
-  strlcat (loader,"loader",sizeof(loader));  
+    arg[0] = "loader";
+    arg[1] = name;
+    arg[2] = NULL;
 
-  switch (pid = fork ())
+    strlcat (loader, PLUGIN_PATH, sizeof (loader));
+    strlcat (loader, "/", sizeof (loader));
+    strlcat (loader, "loader", sizeof (loader));
+
+    switch (pid = fork ())
 	{
-	case -1:
-		FATAL("fork() error");
-		break;
-	case  0:
-		/* plugin child */
-		
-		if ( execve (loader, arg, NULL)== -1 )
-			FATAL("loader error");
+	 case -1:
+	     FATAL ("fork() error");
+	     break;
+	 case 0:
+	     /* plugin child */
 
-		break;
-	default:
-		if ( pd_pindex < MAX_CHILD )
-			pd_plugin[pd_pindex++]= pid;
-		else
-			{
-			kill ( pid, SIGUSR1 );
-			FATAL("too many child");			
-			}
-		break;
+	     if (execve (loader, arg, NULL) == -1)
+		 FATAL ("loader error");
+
+	     break;
+	 default:
+	     if (pd_pindex < MAX_CHILD)
+		 pd_plugin[pd_pindex++] = pid;
+	     else
+		 {
+		     kill (pid, SIGUSR1);
+		     FATAL ("too many child");
+		 }
+	     break;
 	}
-  
+
 }
 
 void
-plugin_ls()
+plugin_ls ()
 {
-  struct dirent *dp; 
-  DIR *dfd;
+    struct dirent *dp;
+    DIR          *dfd;
 
-  PUTS("plugins available:\n");
+    PUTS ("plugins available:\n");
 
-  dfd = opendir(PLUGIN_PATH);
+    dfd = opendir (PLUGIN_PATH);
 
-  if ( dfd == NULL )
-	FATAL("%s: directory doesn't exist. Install the package first", PLUGIN_PATH);
+    if (dfd == NULL)
+	FATAL ("%s: directory doesn't exist. Install the package first", PLUGIN_PATH);
 
-  while ( (dp = readdir (dfd)) != NULL)
+    while ((dp = readdir (dfd)) != NULL)
 	{
-
-	if ( strcmp(".",dp->d_name ) && strcmp("..",dp->d_name ) && strcmp("loader",dp->d_name )) 
-		{
-		PUTS("%s ",dp->d_name);
-		}
+	    if (strcmp (".", dp->d_name) && strcmp ("..", dp->d_name) && strcmp ("loader", dp->d_name))
+		PUTS ("%s ", dp->d_name);
 	}
 
-  PUTS("\n");
+    PUTS ("\n");
 
-  exit(1);
+    exit (1);
 
 }

@@ -42,7 +42,7 @@
 #include "global.h"
 #include "def_icmp.h"
 
-int icmp_parent[32] = { 8, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, 13, 0, 15, 0, 17, -1, -1 };
+int           icmp_parent[32] = { 8, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, 13, 0, 15, 0, 17, -1, -1 };
 
 
 struct pcap_pkthdr pcaphdr;
@@ -56,11 +56,11 @@ void
 lineup_layers (char *buff, packet * pkt)
 {
 
-  pkt->ip   = (struct ip *)   ((void *) buff + offset_dl);
-  pkt->icmp = (struct icmp *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2));
-  pkt->data = (char *)        ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
-  pkt->icmp_tstamp_tval = (struct timeval *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
-  pkt->icmp_tstamp_data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8 + sizeof (struct timeval));
+    pkt->ip = (struct ip *) ((void *) buff + offset_dl);
+    pkt->icmp = (struct icmp *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2));
+    pkt->data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
+    pkt->icmp_tstamp_tval = (struct timeval *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8);
+    pkt->icmp_tstamp_data = (char *) ((void *) buff + offset_dl + (pkt->ip->ip_hl << 2) + 8 + sizeof (struct timeval));
 
 }
 
@@ -72,7 +72,7 @@ ntohss (s)
 
     ret = 0;
 
-    if (iddeal & 2)
+    if (endian_bug & 2)
 	{
 	    ret = s;
 	}
@@ -93,45 +93,45 @@ __inline
 agent_timestamp (packet * p)
 {
 
-    switch( ICMP_type (p) )
+    switch (ICMP_type (p))
 	{
 
-	case ICMP_ECHOREPLY: 
+	 case ICMP_ECHOREPLY:
 
-		rtt.ms_int = DIFFTIME_int (timestamp->tv, TVAL_tv(p));
-		rtt.ms_frc = DIFFTIME_frc (timestamp->tv, TVAL_tv(p));
+	     rtt.ms_int = DIFFTIME_int (timestamp->tv, TVAL_tv (p));
+	     rtt.ms_frc = DIFFTIME_frc (timestamp->tv, TVAL_tv (p));
 
-		break;
+	     break;
 
-	case ICMP_TSTAMPREPLY: /* timestamp reply */
+	 case ICMP_TSTAMPREPLY:	/* timestamp reply */
 
-		rtt.ms_int  = (timestamp->tv_sec %(24*60*60))*1000 +timestamp->tv_usec/1000 - ntohl(ICMP_otime(p)); 
-		rtt.ms_frc  = 0;
+	     rtt.ms_int = (timestamp->tv_sec % (24 * 60 * 60)) * 1000 + timestamp->tv_usec / 1000 - ntohl (ICMP_otime (p));
+	     rtt.ms_frc = 0;
 
-		curr_tstamp = ntohl(ICMP_rtime(p));
+	     curr_tstamp = ntohl (ICMP_rtime (p));
 
-		break;
+	     break;
 
-	default: /* stimated rtt */
+	 default:		/* stimated rtt */
 
-	    	rtt.ms_int = DIFFTIME_int(timestamp->tv,last_sent.ts);
-            	rtt.ms_frc = DIFFTIME_frc(timestamp->tv,last_sent.ts);
-		break;
+	     rtt.ms_int = DIFFTIME_int (timestamp->tv, last_sent.ts);
+	     rtt.ms_frc = DIFFTIME_frc (timestamp->tv, last_sent.ts);
+	     break;
 
 	}
 
 
-    TIME_ADJUST(rtt.ms_int,rtt.ms_frc);
+    TIME_ADJUST (rtt.ms_int, rtt.ms_frc);
 
     rtt.ms_int = ABS (rtt.ms_int);
 
-    rtt_max    = MAX (rtt_max, rtt.ms_int + 1);
-    rtt_min    = MIN (rtt_min, rtt.ms_int);
+    rtt_max = MAX (rtt_max, rtt.ms_int + 1);
+    rtt_min = MIN (rtt_min, rtt.ms_int);
 
-    E (&rtt_mean,rtt.ms_int, 1);
-    E (&rtt_sqre,rtt.ms_int, 2);
+    E (&rtt_mean, rtt.ms_int, 1);
+    E (&rtt_sqre, rtt.ms_int, 2);
 
-    jitter     = rtt.ms_int - last_rtt.ms_int;
+    jitter = rtt.ms_int - last_rtt.ms_int;
 
 
     return;
@@ -140,9 +140,35 @@ agent_timestamp (packet * p)
 #ifdef __GNUC__
 __inline
 #endif
+    void
+agent_ipid_reset ()
+{
+
+    fail_ip_id = 0;
+    endian_bug ^= 2;
+    out_burst = 0;
+    max_burst = 0;
+    rand_ip_id = 0;
+    fail_ip_id = 0;
+    slow_start = 1;		/* to calc the correct value of ip_id */
+
+    E (&mean_burst, 0, -1);
+
+    lp_FIR (-1, 0);		/* reset low pass filter */
+
+    PUTS ("idbug: %ld, differ: %ld\n", (endian_bug & 2) >> 1, endian_bug & 1);
+
+    return;
+}
+
+
+#ifdef __GNUC__
+__inline
+#endif
     int
 agent_ipid (packet * p)
 {
+
     if (diff_id && !(diff_id & 0xff))
 	{
 	    /* wrong id-endian */
@@ -157,24 +183,9 @@ agent_ipid (packet * p)
 		 case 3:
 		     PUTS ("\n!!!WARNING: wrong ip_id endianess!!!");
 		     return -1;
-		     break;
 		 case 4:
 		     PUTS ("\n!!!REVERTING to correct endian!!! ");
-
-		     fail_ip_id = 0;
-		     iddeal    ^= 2;
-		     out_burst  = 0;
-		     max_burst  = 0;
-		     rand_ip_id = 0;
-		     fail_ip_id = 0;
-
-		     slow_start = 1;	/* to calc the correct value of ip_id */
-
-                     E (&mean_burst, 0 , -1);
-
-		     lp_FIR (-1, 0);	/* reset low pass filter */
-
-		     PUTS ("idbug: %ld, differ: %ld\n", (iddeal & 2) >> 1, iddeal & 1);
+		     agent_ipid_reset ();
 		     return -1;
 
 		}
@@ -215,31 +226,29 @@ agent_dyn_id (packet * p)
 
 
 void
-print_RR(char *opt)
+print_RR (char *opt)
 {
-  long *hop;
-  long  rr;
+    long         *hop;
+    long          rr;
 
-  int   i;
+    int           i;
 
-   rr = hash(opt, 40); 
-  
-   if ( last_route != rr )
+    rr = hash (opt, 40);
+
+    if (last_route != rr)
 	{
-	/* new RR */
+	    /* new RR */
+	    last_route = rr;
 
-	 last_route = rr;
+	    hop = (long *) (opt + 3);	/* hop pointer */
 
-	 hop = (long *)(opt+3); /* hop pointer */ 
-
-
-	 for(i=1; i < MIN(9,(opt[IPOPT_OFFSET]>>2)); i++ ) 	
+	    for (i = 1; i < MIN (9, (opt[IPOPT_OFFSET] >> 2)); i++)
 		{
-		PUTS("\rRR:  %s(%s)\n", gethostbyaddr_lru(hop[i-1]),multi_inet_ntoa(hop[i-1]));	
+		    PUTS ("\rRR:  %s(%s)\n", gethostbyaddr_lru (hop[i - 1]), multi_inet_ntoa (hop[i - 1]));
 		}
 
-
 	}
+
 }
 
 
@@ -254,104 +263,90 @@ process_pack (packet * p)
     daddr = gethostbyaddr_lru (IP_dst (p));
 
 
-    	if ( options.opt_rroute && IP_hl(p)== 15 )
-    				{
-				print_RR(IP_opt(p)); 
-    				}	
+    if (options.opt_rroute && IP_hl (p) == 15)
+	{
+	    print_RR (IP_opt (p));
+	}
 
+    if (!ICMP_HAS_SEQ (p))
+	{
+	    print_icon (ICON_OK);
+	    goto end_switch;
+	}
 
-    	if (!ICMP_HAS_SEQ (p) )
-				{
-				print_icon(ICON_OK);
-				goto end_switch;
-				}
+    if ((ICMP_seq (p) - last_seq) == 0)
+	{
+	    print_icon (ICON_DUP);
+	    goto end_switch;
+	}
 
-    	if ((ICMP_seq (p) - last_seq) == 0)
-				{
-	            		print_icon(ICON_DUP);
-		    		goto end_switch;
-				}
+    if (ZOMBIE (p))
+	{
+	    print_icon (ICON_ZOMBIE);
+	    goto end_switch;
+	}
 
-    	if ( ZOMBIE(p) )
-				{
-		    		print_icon(ICON_ZOMBIE);
-		    		goto end_switch;
-				}
+    print_icon (ICON_OK);
 
-	  			print_icon(ICON_OK);
+  end_switch:
 
-	end_switch:
+    PUTS ("%db from %s", ntohs (IP_len (p)) - (IP_hl (p) << 2), saddr);
+    if (options.sniff)
+	{
+	    PUTS (" -> to %s:", daddr);
+	}
+    else
+	{
+	    PUTS (":");
+	}
 
+    PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0x3f]);
+    if (icmp_code_str[INDEX (ICMP_type (p), ICMP_code (p))] != NULL)
+	{
+	    PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[INDEX (ICMP_type (p), ICMP_code (p))]);
+	}
+    else
+	{
+	    if (ICMP_code (p) != 0)
+		PUTS (" code=%d(?)", ICMP_code (p));
+	}
 
-    				PUTS ("%db from %s", ntohs (IP_len (p)) - (IP_hl (p) << 2),saddr );
+    if (ICMP_HAS_SEQ (p))
+	{
+	    PUTS (" seq=%d", ICMP_seq (p));
+	}
 
-    	if (options.sniff)
-				{
-	    			PUTS (" -> to %s:", daddr);
-				}
-    	else
-				{
-	    			PUTS (":");
-				}
+    if (!options.sniff && (ICMP_type (p) == 0 || ICMP_type (p) == 14))
+	{
+	    PUTS (" rtt=%ld.%ld ms", rtt.ms_int, rtt.ms_frc);
+	}
 
+    if (options.differ)
+	{
+	    PUTS (" ip_id+=%ld\n", diff_id);
+	}
+    else
+	{
+	    PUTS (" ip_id=%ld\n", curr_id);
+	}
 
-    				PUTS (" icmp=%d(%s)", ICMP_type (p), icmp_type_str[ICMP_type (p) & 0x3f]);
+    if (verbose < 1)
+	return;
 
+    PUTS ("    ttl=%-3d dst=%d(hop)", IP_ttl (p), HOP_DISTANCE (IP_ttl (p)));
+    if (ICMP_HAS_ID (p))
+	{
+	    PUTS (" icmp_id=%d", ICMP_id (p));
+	}
 
-    	if (icmp_code_str[ INDEX(ICMP_type (p),ICMP_code (p)) ] != NULL)
-				{
-	    			PUTS (" code=%d(%s)", ICMP_code (p), icmp_code_str[ INDEX(ICMP_type (p),ICMP_code (p)) ]);
-				}
-    	else
-				{
-	    			if (ICMP_code (p) != 0)
-					PUTS (" code=%d(?)", ICMP_code (p));
-				}
+    PUTS (" jitter=%ld ms time_lost=%ld ms\n", jitter, time_lost);
+    if (verbose < 2)
+	return;
 
-
-    	if (ICMP_HAS_SEQ (p))
-				{
-				PUTS (" seq=%d", ICMP_seq (p));
-				}
-
-
-    	if (!options.sniff && (ICMP_type (p) == 0 || ICMP_type(p) == 14 ) )
-				{
-	    			PUTS (" rtt=%ld.%ld ms", rtt.ms_int, rtt.ms_frc);
-				}
-
-    	if (options.differ)
-        			{
-            			PUTS (" ip_id+=%ld\n", diff_id);
-        			}
-    	else
-        			{
-            			PUTS (" ip_id=%ld\n", curr_id);
-        			}
-
-    	if (verbose < 1) goto end;
-
-
-    				PUTS ("    ttl=%-3d dst=%d(hop)", IP_ttl (p), HOP_DISTANCE (IP_ttl (p)));
-
-    	if (ICMP_HAS_ID (p))
-				{		
-				PUTS (" icmp_id=%d", ICMP_id (p));
- 				}
-
-    				PUTS (" jitter=%ld ms time_lost=%ld ms\n", jitter, time_lost); 
-
-
-	if (verbose < 2) goto end;
-
-
-    	if (icmp_dissect_vector[ICMP_type (p) & 0x3f] != NULL)
-				{
-	    			(*icmp_dissect_vector[ICMP_type (p) & 0x3f]) (p);
-				}
-
-  	end:
-
+    if (icmp_dissect_vector[ICMP_type (p) & 0x3f] != NULL)
+	{
+	    (*icmp_dissect_vector[ICMP_type (p) & 0x3f]) (p);
+	}
     return;
 
 }
@@ -360,16 +355,14 @@ process_pack (packet * p)
 void
 receiver ()
 {
+    const u_char *ptr;
     packet       *p;
     sigset_t      set;
     pcap_t       *in_pcap;
-
-    const u_char *ptr;
-
     int           fval;
     int           pcap_fd;
 
-    fval    = 0;
+    fval = 0;
     pcap_fd = 0;
 
     sigemptyset (&set);
@@ -414,70 +407,75 @@ receiver ()
 
     if (sizeof_datalink (in_pcap) == -1)
 	exit (-1);
+    
+    if ( options.promisc )
+	PUTS ("<PROMISC>");
 
-    PUTS ("%s[%s] (%s/%s) with %ld bytes of datalink layer.\n", ifname, \
-	multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), \
-	multi_inet_ntoa ((long) netmask), offset_dl);
+    PUTS ("%s: [%s](%s/%s) with %ld bytes of datalink layer.\n", ifname, multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), multi_inet_ntoa ((long) netmask), offset_dl);
 
     ENDLESS ()
     {
 
-	DONT_EAT_CPU();
+	DONT_EAT_CPU ();
 
 	ptr = NULL;
 
-	while ((ptr = pcap_next (in_pcap, &pcaphdr)) != (u_char *)NULL)
+	while ((ptr = pcap_next (in_pcap, &pcaphdr)) != (u_char *) NULL)
 	    {
-	
+
 		/* timestamp of current packet */
 
-		timestamp = &(pcaphdr.ts); 
+		timestamp = &(pcaphdr.ts);
 
-		lineup_layers ((char *)ptr, p);
+		lineup_layers ((char *) ptr, p);
 
- 		n_recv++;
+		n_recv++;
 
+		if (GENERIC_FILTER (p) == 0)
+		    continue;
 
-		if (GENERIC_FILTER (p))
+		/* the packet fits with filter.. */
+
+		if (REPLY_FILTER (p))
+		    n_tome++;
+
+		switch (ICMP_type (p))
 		    {
 
-                	if (REPLY_FILTER (p))
-                    	n_tome++;
+		     case ICMP_ECHOREPLY:
+			 time_lost = DIFFTIME_int (TVAL_tv (p), last_ack.ts);
+			 break;
 
-			switch( ICMP_type(p))
-				{
+		     default:
+			 time_lost = DIFFTIME_int (last_sent.ts, last_ack.ts);
+			 break;
 
-				case ICMP_ECHOREPLY:
-					time_lost =   DIFFTIME_int (TVAL_tv(p),last_ack.ts);
-					break;
+		    }
 
-				default:
-					time_lost =   DIFFTIME_int (last_sent.ts, last_ack.ts );
-					break;
+		last_ack.ts_sec = timestamp->tv_sec;
+		last_ack.ts_usec = timestamp->tv_usec;
 
-				}
-
-			last_ack.ts_sec  = timestamp->tv_sec;
-			last_ack.ts_usec = timestamp->tv_usec;
-
+		if ( !options.sniff )
+		    {
 			agent_timestamp (p);
 			agent_dyn_id (p);
 
 			if (agent_ipid (p) != -1)
-			   {	
+			    {
 				process_pack (p);
-			   }
-
-
-			if (ICMP_HAS_SEQ (p))
-			    last_seq    = ICMP_seq (p);
-
-			last_id         = curr_id;
-			last_rtt.ms_int = rtt.ms_int;
-
-			last_tstamp     = curr_tstamp;
-
+			    }
 		    }
+		else
+			process_pack (p);
+
+		if (ICMP_HAS_SEQ (p))
+		    last_seq = ICMP_seq (p);
+
+		last_id = curr_id;
+		last_rtt.ms_int = rtt.ms_int;
+
+		last_tstamp = curr_tstamp;
+
 	    }
-      }
+    }
 }
