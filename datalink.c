@@ -79,7 +79,7 @@ sizeof_datalink (pcap_t * pd)
 #endif
 	 CASE (AP_DLT_FDDI,24);
 	 CASE (AP_DLT_ATM_RFC1483,8);
-	 CASE (AP_DLT_RAW,0);
+	 CASE (AP_DLT_RAW,4);
 	 CASE (AP_DLT_SLIP_BSDOS,16);
 	 CASE (AP_DLT_PPP_BSDOS,4);
 	 CASE (AP_DLT_ATM_CLIP,-1);
