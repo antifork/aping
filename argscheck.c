@@ -32,10 +32,10 @@
  */
 
 #include "argscheck.h"
-#include "macro.h"
 #include "header.h"
 #include "typedef.h"
 #include "prototype.h"
+#include "macro.h"
 
 #ifdef __GNUC__
  __inline

@@ -4,7 +4,6 @@
 # define _P(s) ()
 #endif
 
-
 /* aping.c */
 __inline void print_icon _P((int t));
 void ctrlc _P((int i));

@@ -33,11 +33,6 @@
 
 #ifndef ARGSCHECK_H
 #define ARGSCHECK_H
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <stdio.h>
-
 
 #define TEST_ARG
 #define ARG_ANY  	  0x01
