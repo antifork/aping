@@ -62,6 +62,10 @@ keystroke ()
 
 	c=getc(stdin);
 
+#ifdef  EADBUG
+        PUTS("key:0x%x\n",c);
+#endif
+
 	switch (c) {
 
 	 case 3:
@@ -131,12 +135,6 @@ keystroke ()
 	 case 'm':
 	     SWITCH (mac_inspection);
 	     break;
-
-#ifdef  EADBUG
-	 default:
-	     PUTS("key:0x%x\n",c);
-	     break;
-#endif
 
 	}
      }
