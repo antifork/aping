@@ -43,6 +43,7 @@
 #define AP_IF_FDDI	3
 #define AP_IF_80211	4
 #define AP_IF_PPP	5	
+#define AP_IF_SLIP	6
 
 #define ETHER_ADDR_LEN	   6
 #define ISO88025_ADDR_LEN  6

@@ -39,6 +39,12 @@
 extern int offset_dl;
 extern int datalink;
 
+#define CASE(x,size,type) {	\
+case (x):			\
+offset_dl=(size);		\
+datalink =(type);		\
+break;}
+
 int
 sizeof_datalink (pcap_t * pd)
 {
@@ -48,10 +54,35 @@ sizeof_datalink (pcap_t * pd)
 	FATAL ("no datalink info: %s", pcap_geterr (pd));
 
     switch (dtl) {
-     case DLT_NULL:
-	 offset_dl = 4;
-	 datalink = AP_IF_UNKNOWN;
-	 break;
+
+	 CASE (DLT_NULL, 4, AP_IF_UNKNOWN);
+	 CASE (DLT_EN10MB, 14, AP_IF_ETHER);
+#ifdef DLT_EN3MB
+	 CASE (DLT_EN3MB, 14, AP_IF_UNKNOWN);
+#endif
+#ifdef DLT_AX25
+	 CASE (DLT_AX25, -1, AP_IF_UNKNOWN);
+#endif
+#ifdef DLT_PRONET
+	 CASE (DLT_PRONET, -1, AP_IF_UNKNOWN);
+#endif
+#ifdef DLT_CHAOS
+	 CASE (DLT_CHAOS, -1, AP_IF_UNKNOWN);
+#endif
+
+	 CASE (DLT_IEEE802, 22, AP_IF_TOKEN);
+	 CASE (DLT_ARCNET, -1, AP_IF_UNKNOWN);
+
+     case DLT_SLIP:
+#ifdef DLT_SLIP_BSDOS
+     case DLT_SLIP_BSDOS:
+#endif
+	 datalink = AP_IF_SLIP;
+#if (FREEBSD || OPENBSD || NETBSD || BSDI)
+	 offset_dl = 16;
+#else
+	 offset_dl = 24;	/* Anyone use this??? */
+#endif
 
      case DLT_PPP:
 #ifdef DLT_PPP_BSDOS
@@ -59,78 +90,54 @@ sizeof_datalink (pcap_t * pd)
 #endif
 #if defined ( __FreeBSD__ ) || defined (__OpenBSD__) || defined(__NetBSD__)
 	 offset_dl = 4;
-	 datalink = AP_IF_UNKNOWN;
+	 datalink = AP_IF_PPP;
 #else
 #if defined (__solaris__)
 	 offset_dl = 8;
-	 datalink = AP_IF_UNKNOWN;
+	 datalink = AP_IF_PPP;
 #else
 	 offset_dl = 24;
-	 datalink = AP_IF_UNKNOWN;
+	 datalink = AP_IF_PPP;
 #endif
 #endif
 	 break;
 
-     case DLT_SLIP:
-#ifdef DLT_SLIP_BSDOS
-     case DLT_SLIP_BSDOS:
-#endif
-#if defined ( __FreeBSD__ ) || defined (__OpenBSD__) || defined(__NetBSD__)
-	 offset_dl = 16;
-	 datalink = AP_IF_UNKNOWN;
-#else
-	 offset_dl = 24;
-	 datalink = AP_IF_UNKNOWN;
-#endif
-	 break;
+	 CASE (DLT_FDDI, 24, AP_IF_FDDI);
 
-	 /*  /usr/include/net/bpf.h Berkeley 8.[12] ver.  */
-#ifdef  DLT_RAW
-     case DLT_RAW:
-	 offset_dl = 0;
-	 datalink = AP_IF_UNKNOWN;
-	 break;
+#ifdef DLT_ATM_RFC1483
+	 CASE (DLT_ATM_RFC1483, 8, AP_IF_UNKNOWN);
 #endif
+#ifdef DLT_RAW
+	 CASE (DLT_RAW, 0, AP_IF_UNKNOWN);
+#endif
+
+#ifdef DLT_IEEE802_11
+	 CASE (DLT_IEEE802_11, 30, AP_IF_UNKNOWN);
+#endif
+
 #ifdef  DLT_LOOP
-     case DLT_LOOP:
-	 offset_dl = 4;
-	 datalink = AP_IF_UNKNOWN;
-	 break;
+	 CASE (DLT_LOOP, 4, AP_IF_UNKNOWN);
 #endif
 
 #ifdef DLT_ENC
-     case DLT_ENC:
-	 offset_dl = 12;
-	 datalink = AP_IF_UNKNOWN;
+	 CASE (DLT_ENC, 12, AP_IF_UNKNOWN);
+#endif
+
+#ifdef DLT_LINUX_SLL
+	 CASE (DLT_LINUX_SLL, 16, AP_IF_PPP);
+#endif
+
+#ifdef DLT_PRISM_HEADER
+	 CASE (DLT_PRISM_HEADER, 30, AP_IF_UNKNOWN);
+	 break;
+#endif
+#ifdef DLT_AIRONET_HEADER
+	 CASE (DLT_AIRONET_HEADER, 30, AP_IF_UNKNOWN);
 	 break;
 #endif
 
-     case DLT_FDDI:
-	 offset_dl = 21;
-	 datalink = AP_IF_FDDI;
-	 break;
-     case DLT_EN10MB:
-	 offset_dl = 14;
-	 datalink = AP_IF_ETHER;
-	 break;
-     case DLT_ATM_RFC1483:
-	 offset_dl = 8;
-	 datalink = AP_IF_UNKNOWN;
-	 break;
-     case DLT_IEEE802:
-	 /* 802.5 token ring */
-	 offset_dl = 22;
-	 datalink = AP_IF_TOKEN;
-	 break;
-
-#ifdef DLT_IEEE802_11
-	 /* wireless */
-	 offset_dl = 30;
-	 datalink = AP_IF_80211;
-	 break;
-#endif
      default:
-	 FATAL ("unknown datalink type (%d)", datalink);
+	 FATAL ("unknown datalink type DTL_?=%d", dtl);
 	 break;
     }
 
