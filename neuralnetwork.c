@@ -3,9 +3,6 @@
     to test as standalone
  gcc -DVERBOSE -Wall -pedantic -o neuralnetwork neuralnetwork.c 
     to log what happens
- 
-
- STATUS: ALPHA_ALPHA_ALPHA_ALPHA_0 :S
 */
 
 #include "neuralnetwork.h"
@@ -31,10 +28,10 @@ static u_32 eth_crc(int length, u_8 *data)
 /* name:    b_malloc                                                          */
 /* purpose: wraps malloc (my mom says i have to)                              */
 /*----------------------------------------------------------------------------*/
-void* b_malloc( size_t size)
+void* b_malloc(size_t size)
 {
 	void *a;
-	a=calloc(size,1);
+	a=calloc(1,size);
 	if(a)
   		return a;
 	fprintf(stderr,"++ERROR: Can't malloc()!!!\r\nDeath\r\n");
@@ -65,28 +62,28 @@ void* b_calloc(size_t items, size_t size){
 /*----------------------------------------------------------------------------*/
 LAYER* alloc_layer(u_32 size, u_32 psize,u_32 nsize)
 {
-	LAYER *l_temp=0;
-	NEURO *n_temp=0;
+	LAYER *l_temp;
+	NEURO *n_temp;
 	NEURO *oldn_temp=0;
 	u_32 csize;
 	NN_VERBOSE3("::alloc_layer(size=%d,psize=%d,nsize=%d)\r\n",size,psize,nsize);
 	l_temp=(LAYER*)b_malloc(sizeof(LAYER));
 	l_temp->size=size;
-	l_temp->next=0;
-	l_temp->previous=0;
 	/*alloc perceptrons*/
 	for(csize=0;csize!=size;csize++)
 	{
 		n_temp=(NEURO*)b_malloc(sizeof(NEURO));
-		if(!csize)l_temp->first=n_temp;
-  		n_temp->next=0;
-		n_temp->state=0;
+		if(!csize) /* linking first neuron to layer */
+			l_temp->first=n_temp;
 		NN_VERBOSE1(" -allocated 1 preceptron in layer #%d\r\n",size);
-		if(nsize)n_temp->fp_np=(LINK*)b_calloc(nsize,sizeof(LINK));
+		if(nsize) /* if there is a next_layer we alloc forward prop links */
+			n_temp->fp_np=(LINK*)b_calloc(nsize,sizeof(LINK));
 		NN_VERBOSE1("  -allocated #%2d links (fwd propagation)\r\n",nsize);
-		if(psize)n_temp->bp_np=(LINK*)b_calloc(psize,sizeof(LINK));
+		if(psize)
+			n_temp->bp_np=(LINK*)b_calloc(psize,sizeof(LINK));
 		NN_VERBOSE1("  -allocated #%2d links (bwd propagation)\r\n",psize);
-		if(oldn_temp) oldn_temp->next=n_temp;
+		if(oldn_temp)
+			oldn_temp->next=n_temp;
 		oldn_temp=n_temp;
 	}
 	NN_VERBOSE("::alloc_layer() done\r\n");
@@ -115,8 +112,7 @@ void link_layers(LAYER* a, LAYER *b)
 		for(bck=n_tmp->fp_np,size2_tmp=0;size2_tmp!=b->size;size2_tmp++)
 		{
 			bck->next=b_tmp;
-			bck->weight=0;
-			bck=(LINK*)(((char*)bck)+sizeof(LINK));
+			bck++;
 			b_tmp=b_tmp->next;
 			NN_VERBOSE2("   -fwd link: linked perceptron"
 				" #%2d (a) with #%2d (b) w=1\r\n",size_tmp+1,size2_tmp+1);
@@ -162,23 +158,29 @@ void layer_status(LAYER* layer)
 		printf("  -Perceptron state : %f \r\n",a->state);
 		printf(" ----------------------------------------\r\n");
 		/* for each perceptron in the next layer                      */
-		for(b=a->fp_np,lsize=0;lsize!=layer->next->size;lsize++)
+		if(layer->next)
 		{
-			printf("  -fp link address  : 0x%08X\r\n",(unsigned int)b);
-			printf("   -fp neuro address: 0x%08X\r\n",(unsigned int)b->next);
-			printf("   -link weight     : %f\r\n",b->weight);
-			b=(LINK*)(((char*)b)+8);
+			for(b=a->fp_np,lsize=0;lsize!=layer->next->size;lsize++)
+			{
+				printf("  -fp link address  : 0x%08X\r\n",(unsigned int)b);
+				printf("   -fp neuro address: 0x%08X\r\n",(unsigned int)b->next);
+				printf("   -link weight     : %f\r\n",b->weight);
+				b=(LINK*)(((char*)b)+8);
+			}
+			printf(" ----------------------------------------\r\n");
 		}
-		printf(" ----------------------------------------\r\n");
-		/* for each perceptron in the previous layer                  */
-		for(b=a->bp_np,lsize=0;lsize!=layer->previous->size;lsize++)
+		if(layer->previous)
 		{
-			printf("  -bp link address  : 0x%08X \r\n",(unsigned int)b);
-			printf("   -bp neuro address: 0x%08X \r\n",(unsigned int)b->next);
-			printf("   -link weight     : %f \r\n",b->weight);
-			b=(LINK*)(((char*)b)+8);
+			for(b=a->bp_np,lsize=0;lsize!=layer->previous->size;lsize++)
+			/* for_each perceptron in the previous layer */
+			{
+				printf("  -bp link address  : 0x%08X \r\n",(unsigned int)b);
+				printf("   -bp neuro address: 0x%08X \r\n",(unsigned int)b->next);
+				printf("   -link weight     : %f \r\n",b->weight);
+				b=(LINK*)(((char*)b)+8);
+			}
+			printf(" ----------------------------------------\r\n");
 		}
-		printf(" ----------------------------------------\r\n");
 	}
 	printf("::dump_status() done\r\n");
 }
@@ -213,7 +215,7 @@ void free_nn(NN* nn)
 	LAYER *layer=0;
 	LAYER *n_layer=0;
 	u_32 size;
-	NN_VERBOSE("::free_nn() ok.. lets clean.. \r\n");
+	NN_VERBOSE("::free_nn()\r\n");
 	for(layer=nn->first,size=nn->size;size;size--)
 	{
 		n_layer=layer->next;
@@ -234,6 +236,7 @@ void free_nn(NN* nn)
 NN* create_nn(u_32 size,u_32*pn)
 {
 	LAYER* l_tmp;
+	LAYER* l_prev;
 	NN* nn;
 	if(size<2)
 	{
@@ -242,17 +245,22 @@ NN* create_nn(u_32 size,u_32*pn)
 	}
 	nn=(NN*)b_malloc(sizeof(NN));
 	nn->size=size;
-	nn->first=alloc_layer(pn[0],0,pn[1]);
-	l_tmp= nn->first;
-	for(size=1;size!=nn->size;size++)
+	for(l_tmp= nn->first , size=0;size!=nn->size;size++)
 	{			
-		NN_VERBOSE2("size=%u nn->size=%u\r\n",size,nn->size);
-		l_tmp->next=alloc_layer(pn[size],pn[size-1],(size==nn->size-1)?0:pn[size+1]);
-		l_tmp=l_tmp->next;
+		l_tmp=alloc_layer(pn[size],(size)?pn[size-1]:0,(size!=nn->size-1)?pn[size+1]:0);	
+		if(!size)
+			nn->first=l_tmp;
+		else
+			l_prev->next=l_tmp;
+		l_prev=l_tmp;
 	}
 	NN_VERBOSE("starting to link\r\n");
-	for( l_tmp=nn->first,size=0;size!=nn->size-1;size++,l_tmp=l_tmp->next)
-		link_layers(l_tmp,l_tmp->next);
+	for( l_prev=nn->first,l_tmp=nn->first->next , size=0 ; size!=nn->size-1 ; ++size)
+	{
+		link_layers(l_prev,l_tmp);
+		l_prev=l_prev->next;
+		l_tmp=l_tmp->next;		
+	}
 	return nn;
 }
 /*----------------------------------------------------------------------------*/
@@ -483,6 +491,7 @@ int main() /* hello world */
 	backpropagate_nn(int neuronsinlastlayer,double* expected);
 	*/
 	save_nn(nn,"saved_mind.nn");
+	layer_status(nn->first);
 	free_nn(nn);
 	return 0;
 }
