@@ -45,6 +45,7 @@ fprint fingerprint_vector[] = {
 { 3199159776U, "linux 2.4b"           },
 { 3710058560U, "linux 2.4c"           },
 {  564517021U, "win98,me"	      },
+{ 1463030269U, "win98 fe"             },
 { 3158421421U, "solaris 8"	      },
 {  801825629U, "nt4"                  },
 { 2110941629U, "winxp,2k"             },
