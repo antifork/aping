@@ -381,7 +381,7 @@ receiver ()
     if (options.promisc)
 	PUTS ("<PROMISC>");
 
-    PUTS ("%s: [%s](%s/%s) with %ld bytes of %s layer.\n", ifname, multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), multi_inet_ntoa ((long) netmask), offset_dl, linktype[datalink]);
+    PUTS ("%s: [%s](%s/%s) with %ld bytes of %s(%d) layer.\n", ifname, multi_inet_ntoa ((long) ip_src), multi_inet_ntoa ((long) localnet), multi_inet_ntoa ((long) netmask), offset_dl, linktype[datalink],datalink);
 
     ENDLESS () {
 

@@ -79,7 +79,11 @@ sizeof_datalink (pcap_t * pd)
 #endif
 	 CASE (AP_DLT_FDDI,21);
 	 CASE (AP_DLT_ATM_RFC1483,8);
+#if defined (__OpenBSD__)
+	 CASE (AP_DLT_RAW,4);
+#else
 	 CASE (AP_DLT_RAW,0);		/* according to nmap 3.00 */
+#endif
 	 CASE (AP_DLT_SLIP_BSDOS,16);
 	 CASE (AP_DLT_PPP_BSDOS,4);
 	 CASE (AP_DLT_ATM_CLIP,-1);
