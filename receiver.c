@@ -254,7 +254,6 @@ process_pack(packet * p)
 	char *daddr;
 
 	saddr = gethostbyaddr_cache(IP_src(p));
-	daddr = gethostbyaddr_cache(IP_dst(p));
 
 	ip_size = ntohs(IP_len(p)); /* iphdr+payload */ 
 	icmp_size = ip_size - (IP_hl(p) << 2);
@@ -284,8 +283,8 @@ end_switch:
 		PUTS("[%s]", getmacfromdatalink(p->dl, MAC_SRC));
 
 	if (options.sniff) {
+	        daddr = gethostbyaddr_cache(IP_dst(p));
 		PUTS(" -> to %s", daddr);
-
 		if (mac_inspection)
 			PUTS("[%s]", getmacfromdatalink(p->dl, MAC_DST));
 
