@@ -72,14 +72,14 @@ sizeof_datalink (pcap_t * pd)
 
 #if defined (__FreeBSD__) || defined (__OpenBSD__) || defined (__NetBSD__)
 	 CASE (AP_DLT_PPP,4);
-#elif defined (__solaris__)
+#elif defined (__sun)
 	 CASE (AP_DLT_PPP,8);
 #else
 	 CASE (AP_DLT_PPP,24);
 #endif
-	 CASE (AP_DLT_FDDI,24);
+	 CASE (AP_DLT_FDDI,21);
 	 CASE (AP_DLT_ATM_RFC1483,8);
-	 CASE (AP_DLT_RAW,4);
+	 CASE (AP_DLT_RAW,0);		/* according to nmap 3.00 */
 	 CASE (AP_DLT_SLIP_BSDOS,16);
 	 CASE (AP_DLT_PPP_BSDOS,4);
 	 CASE (AP_DLT_ATM_CLIP,-1);

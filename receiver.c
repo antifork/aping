@@ -375,7 +375,7 @@ receiver ()
     /* set offset_dl: datalink header size */
 
     if (sizeof_datalink (in_pcap) == -1)
-	FATAL(	"the interface DLT_%s(%d) has not been configured yet to work with aping...\n"
+	FATAL(	"aping has not been configured yet to work with DLT_%s(%d) device...\n"
 		"please mailto bonelli@blackhats.it reporting the event.",linktype[datalink],datalink);
 
     if (options.promisc)
