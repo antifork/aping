@@ -457,6 +457,5 @@ receiver ()
 	    last_tstamp = curr_tstamp;
 
 	}
-
     }
 }

@@ -50,9 +50,9 @@
 
 #define ID "$Id$";
 
-extern char   pcap_version[];
+extern char pcap_version[];
 
-char          icon_set[] = "->DZL>";
+char icon_set[] = "->DZL>";
 
 __inline void
 print_icon (int t)
@@ -64,45 +64,41 @@ print_icon (int t)
 
 void
 ctrlc (i)
-     int           i;
+     int i;
 {
-    if (!options.sniff)
-	{
-	    pthread_cancel (pd_snd);
-	    pthread_cancel (pd_key);
-	}
+    if (options.sniff) {
+	PUTS ("done.\n");
+	exit (1);
 
-    else
-	{
-	    PUTS ("done.\n");
-	    exit (1);
-	}
+    }
+    pthread_cancel (pd_snd);
+    pthread_cancel (pd_key);
 }
 
 void
 discard_plugin ()
 {
-    int           k = 0;
+    int k = 0;
 
-    for (k; k < MIN (pd_pindex, MAX_CHILD); k++)
-	{
-	    kill (pd_plugin[k], SIGUSR1);
-	}
+    for (k; k < MIN (pd_pindex, MAX_CHILD); k++) {
+	kill (pd_plugin[k], SIGUSR1);
+    }
 
 }
 
 
 int
 main (argc, argv)
-     int           argc;
-     char        **argv;
+     int argc;
+     char **argv;
 {
     struct termios tty;
     struct rlimit core;
-    int           loss;
-    int           es;
-    int           major;
-    int           minor;
+    int loss;
+    int es;
+    int major;
+    int minor;
+    int wait_time;
 
     /* rlimit */
 
@@ -140,7 +136,7 @@ main (argc, argv)
     /* default pattern */
 
     {
-	int           j;
+	int j;
 
 	pattern = (char *) malloc (49);
 
@@ -153,135 +149,133 @@ main (argc, argv)
 
 
     while ((es = getopt (argc, argv, "DS:O:T:MRI:t:k:i:c:p:e:Pz:l:dnrvhbs")) != EOF)
-	switch (es)
-	    {
-	     case 'S':
-		 SET (ip_src);
-		 host_src = strdup (optarg);
-		 break;
+	switch (es) {
+	 case 'S':
+	     SET (ip_src);
+	     host_src = strdup (optarg);
+	     break;
 
-	     case 'O':
-		 if (!strcmp ("help", optarg))
-		     usage (optarg, USAGE_TOS);
+	 case 'O':
+	     if (!strcmp ("help", optarg))
+		 usage (optarg, USAGE_TOS);
 
-		 SET (ip_tos);
-		 ip_tos = ATOA (optarg);
-		 break;
+	     SET (ip_tos);
+	     ip_tos = ATOA (optarg);
+	     break;
 
-	     case 'T':
-		 SET (ip_ttl);
-		 ip_ttl = ATOA (optarg);
-		 break;
+	 case 'T':
+	     SET (ip_ttl);
+	     ip_ttl = ATOA (optarg);
+	     break;
 
-	     case 'M':
-		 SET (ip_ramp);
-		 break;
+	 case 'M':
+	     SET (ip_ramp);
+	     break;
 
-	     case 'R':
-		 SET (opt_rroute);
-		 break;
+	 case 'R':
+	     SET (opt_rroute);
+	     break;
 
-	     case 'I':
-		 if (argv[optind] == NULL && *optarg == 'd')
-		     FATAL ("option requires an argument -Id int");
+	 case 'I':
+	     if (argv[optind] == NULL && *optarg == 'd')
+		 FATAL ("option requires an argument -Id int");
 
-		 switch (*optarg)
-		     {
-		      case 'd':
-			  SET (ip_id);
-			  ip_id = ATOA (argv[optind++]);
-			  break;
-		      case 'i':
-			  SET (ip_id_incr);
-			  break;
-		      case 'r':
-			  SET (ip_id_rand);
-			  break;
-		      default:
-			  FATAL ("invalid option -I%c", *optarg);
-			  break;
-		     }
-		 break;
+	     switch (*optarg) {
+	      case 'd':
+		  SET (ip_id);
+		  ip_id = ATOA (argv[optind++]);
+		  break;
+	      case 'i':
+		  SET (ip_id_incr);
+		  break;
+	      case 'r':
+		  SET (ip_id_rand);
+		  break;
+	      default:
+		  FATAL ("invalid option -I%c", *optarg);
+		  break;
+	     }
+	     break;
 
-	     case 'b':
-		 usage (optarg, USAGE_BANDWIDTH);
-		 break;
+	 case 'b':
+	     usage (optarg, USAGE_BANDWIDTH);
+	     break;
 
-	     case 'l':
-		 if (!strcmp ("s", optarg))
-		     plugin_ls ();
+	 case 'l':
+	     if (!strcmp ("s", optarg))
+		 plugin_ls ();
 
-		 plugin_init (optarg);
+	     plugin_init (optarg);
 
-		 break;
+	     break;
 
-	     case 't':
-		 if (!strcmp ("help", optarg))
-		     usage (optarg, USAGE_ICMP_TYPE);
+	 case 't':
+	     if (!strcmp ("help", optarg))
+		 usage (optarg, USAGE_ICMP_TYPE);
 
-		 SET (icmp_type);
-		 icmp_type = ATOA (optarg);
-		 break;
+	     SET (icmp_type);
+	     icmp_type = ATOA (optarg);
+	     break;
 
-	     case 'k':
-		 if (!strcmp ("help", optarg))
-		     usage (optarg, USAGE_ICMP_CODE);
+	 case 'k':
+	     if (!strcmp ("help", optarg))
+		 usage (optarg, USAGE_ICMP_CODE);
 
-		 SET (icmp_code);
-		 icmp_code = ATOA (optarg);
-		 break;
+	     SET (icmp_code);
+	     icmp_code = ATOA (optarg);
+	     break;
 
-	     case 'i':
-		 SET (wait);
-		 tau = ATOA (optarg);
-		 break;
-	     case 'c':
-		 SET (count);
-		 count = ATOA (optarg);
-		 break;
-	     case 'p':
-		 SET (pattern);
-		 free (pattern);
-		 pattern = strdup (optarg);
-		 break;
-	     case 'e':
-		 SET (ifname);
-		 strncpy (ifname, optarg, 16);
-		 break;
-	     case 'P':
-		 SET (promisc);
-		 break;
-	     case 's':
-		 SET (sniff);
-		 break;
-	     case 'z':
-		 SET (size);
-		 mysize = ATOA (optarg);
-		 break;
-	     case 'd':
-		 SET (so_debug);
-		 break;
-	     case 'n':
-		 SET (numeric);
-		 break;
-	     case 'r':
-		 SET (droute);
-		 break;
-	     case 'D':
-		 SET (dfrag);
-		 break;
-	     case 'v':
-		 sscanf (pcap_version, "%d.%d", &major, &minor);
-		 PUTS ("aping %s (pcap version %d.%d)\n", VERSION, major, minor);
-		 exit (1);
-		 break;
-	     case '?':
-		 exit (1);
-		 break;
-	     case 'h':
-		 usage (argv[0], USAGE_CLASSIC);
-		 break;
-	    }
+	 case 'i':
+	     SET (wait);
+	     tau = ATOA (optarg);
+	     break;
+	 case 'c':
+	     SET (count);
+	     count = ATOA (optarg);
+	     break;
+	 case 'p':
+	     SET (pattern);
+	     free (pattern);
+	     pattern = strdup (optarg);
+	     break;
+	 case 'e':
+	     SET (ifname);
+	     strncpy (ifname, optarg, 16);
+	     break;
+	 case 'P':
+	     SET (promisc);
+	     break;
+	 case 's':
+	     SET (sniff);
+	     break;
+	 case 'z':
+	     SET (size);
+	     mysize = ATOA (optarg);
+	     break;
+	 case 'd':
+	     SET (so_debug);
+	     break;
+	 case 'n':
+	     SET (numeric);
+	     break;
+	 case 'r':
+	     SET (droute);
+	     break;
+	 case 'D':
+	     SET (dfrag);
+	     break;
+	 case 'v':
+	     sscanf (pcap_version, "%d.%d", &major, &minor);
+	     PUTS ("aping %s (pcap version %d.%d)\n", VERSION, major, minor);
+	     exit (1);
+	     break;
+	 case '?':
+	     exit (1);
+	     break;
+	 case 'h':
+	     usage (argv[0], USAGE_CLASSIC);
+	     break;
+	}
 
     argc -= optind;
     argv += optind;
@@ -299,28 +293,26 @@ main (argc, argv)
 
     /* destination.. */
 
-    if (*argv != NULL)
-	{
-	    host_dst = strdup (*argv);
-	    ip_dst = gethostbyname_lru (*argv);
-	}
+    if (*argv != NULL) {
+	host_dst = strdup (*argv);
+	ip_dst = gethostbyname_lru (*argv);
+    }
     else if (!options.sniff)
 	FATAL ("no destination given");
 
 
-    if (!options.ip_src)
-	{
+    if (!options.ip_src) {
 
-	    if (!options.ifname)
-		get_first_hop (ip_dst, &ip_src, ifname);
-	    else
-		ip_src = gethostbyif (ifname);
+	if (!options.ifname)
+	    get_first_hop (ip_dst, &ip_src, ifname);
+	else
+	    ip_src = gethostbyif (ifname);
 
-	}
+    }
 
     /* Catch signal */
 
-    signal (SIGINT,  ctrlc);
+    signal (SIGINT, ctrlc);
     signal (SIGTSTP, SIG_IGN);
     signal (SIGQUIT, SIG_IGN);
 
@@ -332,17 +324,14 @@ main (argc, argv)
     if (pcap_lookupnet (ifname, &localnet, &netmask, bufferr) == -1)
 	FATAL (bufferr);
 
-    if (pthread_mutex_init (&pd_mutex, NULL) != 0)	/* mutex setup */
-	FATAL ("pthread_mutex_init(): %s", strerror (errno));
-
     if (pthread_create (&pd_rcv, NULL, (void *) receiver, NULL) != 0)
 	FATAL ("pthread_create(): %s", strerror (errno));
 
     if (pthread_create (&pd_key, NULL, (void *) keystroke, NULL) != 0)
-        FATAL ("pthread_create(): %s", strerror (errno));
+	FATAL ("pthread_create(): %s", strerror (errno));
 
     /* set termios properties */
-    
+
     tcgetattr (0, &termios_p);
 
     tty = termios_p;
@@ -352,45 +341,46 @@ main (argc, argv)
 
     tcsetattr (0, TCSANOW, &tty);
 
-    if (!options.sniff)
-	{
-	    if (pthread_create (&pd_snd, NULL, (void *) sender, argv) != 0)
-		FATAL ("pthread_create(): %s", strerror (errno));
+    if (!options.sniff) {
+	if (pthread_create (&pd_snd, NULL, (void *) sender, argv) != 0)
+	    FATAL ("pthread_create(): %s", strerror (errno));
 
-	    /* waiting for pd_snd exit/cancel */
-	    pthread_join (pd_snd, NULL);
-            pthread_join (pd_key, NULL);
-	}
+	/* waiting for pd_snd exit/cancel */
+	pthread_join (pd_snd, NULL);
+    }
     else
 	pthread_join (pd_rcv, NULL);
 
     /* set saved termios */
 
     tcsetattr (0, TCSANOW, &termios_p);
- 
-    if (n_sent > 0)
-	{
-	    int           wait_time;
 
-	    wait_time = (n_tome ? 100 + rtt_mean + 2 * ISQRT (rtt_sqre - rtt_mean * rtt_mean) : 2000);
 
-	    PUTS ("--- sleeping %d ms (RTT+2 sigma) ---\n", wait_time);
-	    usleep (wait_time * 1000);
-	    pthread_cancel (pd_rcv);
-	    loss = 100 - PER_CENT (n_tome, n_sent);
-
-	    PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));
-	    if (loss < 0)
-		PUTS ("%ld packets transmitted, %ld packets received (forked responses found)\n", n_sent, n_tome);
-	    else
-		PUTS ("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);
-
-	    if (n_tome)
-		PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", rtt_min, rtt_mean, ISQRT (rtt_sqre - rtt_mean * rtt_mean), rtt_max);
-	}
-
-    else
+    if (n_sent == 0) {
 	PUTS ("done.\n");
+	exit (1);
+    }
+
+    wait_time = (n_tome ? 100 + rtt_mean + 2 * ISQRT (rtt_sqre - rtt_mean * rtt_mean) : 2000);
+
+    PUTS ("--- sleeping %d ms (RTT+2 sigma) ---\n", wait_time);
+
+    usleep (wait_time * 1000);
+
+    pthread_cancel (pd_rcv);
+
+    loss = 100 - PER_CENT (n_tome, n_sent);
+
+    PUTS ("\n--- %s aping statistics ---\n", multi_inet_ntoa (ip_dst));
+
+    if (loss < 0)
+	PUTS ("%ld packets transmitted, %ld packets received (forked responses found)\n", n_sent, n_tome);
+    else
+	PUTS ("%ld packets transmitted, %ld packets received, %d %% packets loss\n", n_sent, n_tome, loss);
+
+    if (n_tome)
+	PUTS ("round-trip min/mean/dstd/max = %ld/%ld/%ld/%ld ms\n", \
+	rtt_min, rtt_mean, ISQRT (rtt_sqre - rtt_mean * rtt_mean), rtt_max);
 
     exit (1);
 }
