@@ -121,7 +121,7 @@ dissect_destination_unreachable(packet *p)
 	PRINT_IPH_64bit(p);
 	PUTS("\n");
 
-	if ( verbose < 3 ) 
+	if ( detail < 3 ) 
 		return;
 
 	bandwidth_predictor(p);

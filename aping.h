@@ -35,10 +35,6 @@
 #ifndef APING_H
 #define APING_H
 
-#ifndef __USE_BSD
-#define __USE_BSD
-#endif
-
 #define MAX_IPHDR	sizeof(struct ip)+40
 #define MAX_ICMPHDR	16 	
 #define	MAX_PATTERN	1024

@@ -419,7 +419,7 @@ bandwidth_predictor (packet * p)
 
 	}
 	
-    if (options.differ & !rand_ip_id)
+    if (diff_ipid & !rand_ip_id)
 	{
 
 	  delta = (diff_id > 1 ? diff_id - 1 : 0);

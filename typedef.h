@@ -60,12 +60,11 @@ typedef struct {
    int  numeric:1;
    int  droute:1;
    int  so_debug:1;
-   int  verbose:1;
+   int  detail:1;
    int  dfrag:1;
    int  flood:1;
    int  sniff:1;
    int  size:1;
-   int  differ:1;
    int  promisc:1;
 
 } OPT;
@@ -93,10 +92,11 @@ typedef union {
 
 
 typedef struct {
-        struct ip      *ip;
+        u_char	       *dl; 
+     	struct ip      *ip;
         struct icmp    *icmp;
 
-        char 	       *data;
+        u_char 	       *data;
    	struct { 
         	struct timeval *tval;
         	char           *data;

@@ -63,68 +63,13 @@ print_icon (int t)
 
 
 void
-ctrl_ (i)
-     int           i;
-{
-    endian_bug++;
-    endian_bug &= 3;
-
-    out_burst = 0;
-    max_burst = 0;
-    rand_ip_id = 0;
-    fail_ip_id = 0;
-    slow_start = 1;
-
-    E (&mean_burst, 0, -1);
-
-    lp_FIR (-1, 0);		/* reset low pass filter */
-
-    PUTS ("idbug: %ld, differ: %ld\n\n", (endian_bug & 2) >> 1, endian_bug & 1);
-
-    options.differ = endian_bug & 1;
-
-    signal (SIGQUIT, ctrl_);
-}
-
-void
-ctrlz (i)
-     int           i;
-{
-
-    if (options.differ)
-	{
-
-	    out_burst = 0;
-	    max_burst = 0;
-
-	    E (&mean_burst, 0, -1);
-
-	    lp_FIR (-1, 0);	/* reset low pass filter */
-
-	    traffic_tos = (traffic_tos + 1) & 0x0f;
-
-	    PUTS ("\n%s: avrg size %ld bytes\n\n", tcpip_lenght[traffic_tos].type, tcpip_lenght[traffic_tos].lenght);
-
-	}
-    else
-	{
-	    verbose++;
-	    verbose &= 3;
-
-	    PUTS ("verbose: %ld\n", verbose);
-	}
-
-    signal (SIGTSTP, ctrlz);
-}
-
-void
 ctrlc (i)
      int           i;
 {
     if (!options.sniff)
 	{
-	    if (pthread_cancel (pd_snd) != 0)
-		FATAL ("pthread_cancel(): %s", strerror (errno));
+	    pthread_cancel (pd_snd);
+	    pthread_cancel (pd_key);
 	}
 
     else
@@ -374,10 +319,10 @@ main (argc, argv)
 	}
 
     /* Catch signal */
-    signal (SIGINT, ctrlc);
-    signal (SIGTSTP, ctrlz);
-    signal (SIGQUIT, ctrl_);
 
+    signal (SIGINT,  ctrlc);
+    signal (SIGTSTP, SIG_IGN);
+    signal (SIGQUIT, SIG_IGN);
 
     /* set myid */
     myid = getpid () & 0xffff;
@@ -397,6 +342,11 @@ main (argc, argv)
 	{
 	    if (pthread_create (&pd_snd, NULL, (void *) sender, argv) != 0)
 		FATAL ("pthread_create(): %s", strerror (errno));
+
+	    /* start keystroke thread */
+
+            if (pthread_create (&pd_key, NULL, (void *) keystroke, NULL) != 0)
+                FATAL ("pthread_create(): %s", strerror (errno));
 
 	    /* waiting for pd_snd exit/cancel */
 	    pthread_join (pd_snd, NULL);

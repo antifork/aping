@@ -295,7 +295,8 @@ sender (argv)
 
 	    usleep (tau * 1000);
 
-
+	    while (n_pause)
+		usleep(100);	
 	}
 
     pthread_exit (NULL);

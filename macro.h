@@ -74,6 +74,16 @@ if ( options.##a && !options.##b )			\
 FATAL("%s option require %s",#a,#b);			\
 } 
 
+#define SET_VAL(var,val) {              \
+var=val;                                \
+printf("%s=%d\n",#var,val);             \
+}
+
+#define SWITCH(var) {                   \
+var ^= 1;                               \
+printf("%s=%d\n",#var,var);             \
+}
+
 #define INDEX(a,b) ((a<<6)+b)
 
 #define SET(x) (options.##x=1 )

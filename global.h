@@ -35,6 +35,7 @@
 #include <pthread.h>
 
 #include "aping.h"
+#include "hardware.h"
 
 #ifdef  GLB_OWNER
 #define EXTERN
@@ -54,16 +55,19 @@ EXTERN long ip_ttl INIT(=255);		/* default ttl */
 EXTERN long icmp_type INIT(=8);		/* default echo request */
 EXTERN long icmp_code;
 
+EXTERN long datalink;			/* datalink type */
+
 EXTERN long n_sent;
 EXTERN long n_recv;
 EXTERN long n_tome;
+EXTERN long n_pause;
 
 EXTERN long myid;			/* id used to mark icmp */
 
 EXTERN long tau INIT(= 1000);        	/* msec between each packet */
 
 EXTERN long mysize;
-EXTERN long verbose;    		/* level */
+EXTERN long detail INIT (=1);		/* level */
 EXTERN long sniff;      		/* sniff option */
 EXTERN long count;      		/* max number of packets */
 EXTERN long offset_dl;
@@ -90,6 +94,7 @@ EXTERN long time_lost;  		/* due to packets lost */
 EXTERN long traffic_tos;
 
 EXTERN long endian_bug;        		/* ip_id endianess bug */
+EXTERN long diff_ipid;			/* ip_id differential */
 
 EXTERN long last_seq INIT(= -1);      	/* last icmp_seq number received */
 EXTERN long last_id  INIT(= -1);    
@@ -108,13 +113,15 @@ EXTERN long local_tau;
 EXTERN long slow_start INIT(= 1); 	/* to calc the correct value of ip_id */ 
 
 EXTERN long rand_ip_id; 
-EXTERN long fail_ip_id;
+EXTERN long ipid_failure;		/* used by agent endian bug */
 
 EXTERN bpf_u_int32 localnet;
 EXTERN bpf_u_int32 netmask;
 
 EXTERN char *host_src;
 EXTERN char *host_dst;
+EXTERN char *hw_src;
+EXTERN char *hw_dst;
 EXTERN char *pattern;
 
 EXTERN char  maturity_level[64][2];
@@ -127,6 +134,7 @@ EXTERN char ifname [16];
 
 EXTERN pthread_t       pd_rcv;
 EXTERN pthread_t       pd_snd;
+EXTERN pthread_t       pd_key;
 
 EXTERN long            pd_plugin[MAX_CHILD];
 EXTERN long	       pd_pindex;
@@ -172,6 +180,14 @@ EXTERN void  (*icmp_dissect_vector[64]) (packet *) INIT (=
         [18]=dissect_address_mask_reply,
 	[40]=dissect_security
 });
+
+EXTERN char *linktype[16]   INIT( = {
+[AP_IF_UNKNOWN]= "unknown",
+[AP_IF_ETHER  ]= "ethernet",
+[AP_IF_TOKEN  ]= "token ring",
+[AP_IF_FDDI   ]= "fddi",
+[AP_IF_80211  ]= "802.11 wireless",
+[AP_IF_PPP    ]= "ppp" } );
 
 EXTERN char *protocols[256] INIT( = {
 [0]="ip", [1]="icmp", [2]="igmp", [3]="ggp", [4]="ipencap",

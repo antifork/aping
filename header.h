@@ -34,6 +34,10 @@
 #ifndef HEADER_H
 #define HEADER_H
 
+#ifndef __USE_BSD
+#define __USE_BSD
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -63,6 +67,7 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
+
 #include <arpa/inet.h>
 #include <net/if.h>
 

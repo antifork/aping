@@ -46,6 +46,7 @@ shtool      = @SHTOOL@
 OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
 	resolver.c \
 	argscheck.o \
+	keystroke.o  \
 	plugin.o \
 	chksum.o usage.o \
 	dissect-destination.o \

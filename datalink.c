@@ -34,22 +34,25 @@
 
 #include <pcap.h>
 #include "macro.h"
+#include "hardware.h"
 
 extern int    offset_dl;
+extern int    datalink;
 
 int
 sizeof_datalink (pcap_t * pd)
 {
-    register int  datalink;
+    register int  dtl;
 
-    if ((datalink = pcap_datalink (pd)) < 0)
+    if ((dtl = pcap_datalink (pd)) < 0)
 	FATAL ("no datalink info: %s", pcap_geterr (pd));
 
-    switch (datalink)
+    switch (dtl)
 	{
 #ifdef DLT_NULL
 	 case DLT_NULL:
 	     offset_dl = 4;
+	     datalink  = AP_IF_UNKNOWN;
 	     break;
 #endif
 
@@ -59,11 +62,14 @@ sizeof_datalink (pcap_t * pd)
 #endif
 #if defined ( __FreeBSD__ ) || defined (__OpenBSD__) || defined(__NetBSD__) 
 	     offset_dl = 4;
+	     datalink  = AP_IF_UNKNOWN;
 #else
 #if defined (__solaris__)
 	     offset_dl = 8;
+	     datalink  = AP_IF_UNKNOWN;
 #else
 	     offset_dl = 24;
+	     datalink  = AP_IF_UNKNOWN;
 #endif
 #endif
 	     break;
@@ -74,8 +80,10 @@ sizeof_datalink (pcap_t * pd)
 #endif
 #if defined ( __FreeBSD__ ) || defined (__OpenBSD__) || defined(__NetBSD__)
 	     offset_dl = 16;
+	     datalink  = AP_IF_UNKNOWN;
 #else
 	     offset_dl = 24;
+	     datalink  = AP_IF_UNKNOWN;
 #endif
 	     break;
 
@@ -83,33 +91,47 @@ sizeof_datalink (pcap_t * pd)
 #ifdef  DLT_RAW
 	 case DLT_RAW:
 	     offset_dl = 0;
+	     datalink  = AP_IF_UNKNOWN;
 	     break;
 #endif
 #ifdef  DLT_LOOP
 	 case DLT_LOOP:
 	     offset_dl = 4;
+	     datalink  = AP_IF_UNKNOWN;
 	     break;
 #endif
 
 #ifdef DLT_ENC
 	 case DLT_ENC:
 	     offset_dl = 12;
+	     datalink  = AP_IF_UNKNOWN;
 	     break;
 #endif
 
 	 case DLT_FDDI:
 	     offset_dl = 21;
+	     datalink  = AP_IF_FDDI;
 	     break;
 	 case DLT_EN10MB:
 	     offset_dl = 14;
+	     datalink  = AP_IF_ETHER;
 	     break;
 	 case DLT_ATM_RFC1483:
 	     offset_dl = 8;
+	     datalink  = AP_IF_UNKNOWN; 
 	     break;
 	 case DLT_IEEE802:
+	     /* 802.5 token ring */
 	     offset_dl = 22;
+	     datalink  = AP_IF_TOKEN;
 	     break;
 
+#ifdef DLT_IEEE802_11
+	/* wireless */
+             offset_dl = 30;
+             datalink  = AP_IF_80211;
+             break;
+#endif
 	 default:
 	     FATAL ("unknown datalink type (%d)", datalink);
 	     break;

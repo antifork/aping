@@ -45,6 +45,7 @@ long    gethostbyif		(char *);
 long    gethostbyname_lru 	(const char *);
 char *  gethostbyaddr_lru 	(unsigned long );
 void	receiver		(void);
+void    keystroke		(void);
 void    sender            	(char **);
 int     sizeof_datalink   	(pcap_t *);
 int 	sizeof_icmp		(int);
