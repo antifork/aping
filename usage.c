@@ -130,8 +130,8 @@ usage (char *name, int type)
 		
 			 for (j = 0; j < 256; j++)
 			     {
-				 if (icmp_code_str[i * 256 + j] != NULL)
-				     printf ("   -k %2d  %s\n", j, icmp_code_str[i * 256 + j]);
+				 if (icmp_code_str[(i<<8)  + j] != NULL)
+				     printf ("   -k %2d  %s\n", j, icmp_code_str[(i<<8) + j]);
 
 			     }
 		     }
@@ -143,8 +143,8 @@ usage (char *name, int type)
 		     for (i = 0; i < 256; i++)
 			 for (j = 0; j < 256; j++)
 			     {
-				 if (icmp_code_str[i * 256 + j] != NULL)
-				     printf ("   -t %2d -k %2d  %s\n", i, j, icmp_code_str[i * 256 + j]);
+				 if (icmp_code_str[(i<<8) + j] != NULL)
+				     printf ("   -t %2d -k %2d  %s\n", i, j, icmp_code_str[(i<<8) + j]);
 
 			     }
 		      }

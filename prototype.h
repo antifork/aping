@@ -76,21 +76,23 @@ void   load_information_request		(packet *,char **);
 void   load_information_reply		(packet *,char **);
 void   load_address_mask_request	(packet *,char **);
 void   load_address_mask_reply		(packet *,char **);
+void   load_security			(packet *,char **);
 
-void   dissect_echo_reply                  (packet *);
-void   dissect_destination_unreachable     (packet *);
-void   dissect_source_quench               (packet *);
-void   dissect_redirect                    (packet *);
-void   dissect_echo                        (packet *);
-void   dissect_router_advertisement        (packet *);
-void   dissect_router_solicitation         (packet *);
-void   dissect_time_exceeded               (packet *);
-void   dissect_parameter_problem           (packet *);
-void   dissect_timestamp                   (packet *);
-void   dissect_timestamp_reply             (packet *);
-void   dissect_information_request         (packet *);
-void   dissect_information_reply           (packet *);
-void   dissect_address_mask_request        (packet *);
-void   dissect_address_mask_reply          (packet *);
+void   dissect_echo_reply               (packet *);
+void   dissect_destination_unreachable  (packet *);
+void   dissect_source_quench            (packet *);
+void   dissect_redirect                 (packet *);
+void   dissect_echo                     (packet *);
+void   dissect_router_advertisement     (packet *);
+void   dissect_router_solicitation      (packet *);
+void   dissect_time_exceeded            (packet *);
+void   dissect_parameter_problem        (packet *);
+void   dissect_timestamp                (packet *);
+void   dissect_timestamp_reply          (packet *);
+void   dissect_information_request      (packet *);
+void   dissect_information_reply        (packet *);
+void   dissect_address_mask_request     (packet *);
+void   dissect_address_mask_reply       (packet *);
+void   dissect_security			(packet *);
 
 #endif 

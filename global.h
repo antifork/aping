@@ -129,49 +129,43 @@ EXTERN pthread_mutex_t pd_mutex;
 EXTERN
 void  (*icmp_loader_vector[256]) (packet *, char **) INIT( =
 {
-        load_echo_reply,
-        NULL,
-        NULL,
-        load_destination_unreachable,
-        load_source_quench,
-        load_redirect,
-        NULL,
-        NULL,
-        load_echo,
-        load_router_advertisement,
-        load_router_solicitation,
-        load_time_exceeded,
-        load_parameter_problem,
-        load_timestamp,
-        load_timestamp_reply,
-        load_information_request,
-        load_information_reply,
-        load_address_mask_request,
-        load_address_mask_reply
+        [0] =load_echo_reply,
+        [3] =load_destination_unreachable,
+        [4] =load_source_quench,
+        [5] =load_redirect,
+        [8] =load_echo,
+        [9] =load_router_advertisement,
+        [10]=load_router_solicitation,
+        [11]=load_time_exceeded,
+        [12]=load_parameter_problem,
+        [13]=load_timestamp,
+        [14]=load_timestamp_reply,
+        [15]=load_information_request,
+        [16]=load_information_reply,
+        [17]=load_address_mask_request,
+        [18]=load_address_mask_reply,
+	[40]=load_security
 });
 
 EXTERN
 void  (*icmp_dissect_vector[256]) (packet *) INIT (=
 {
-        dissect_echo_reply,
-        NULL,
-        NULL,
-        dissect_destination_unreachable,
-        dissect_source_quench,
-        dissect_redirect,
-        NULL,
-        NULL,
-        dissect_echo,
-        dissect_router_advertisement,
-        dissect_router_solicitation,
-        dissect_time_exceeded,
-        dissect_parameter_problem,
-        dissect_timestamp,
-        dissect_timestamp_reply,
-        dissect_information_request,
-        dissect_information_reply,
-        dissect_address_mask_request,
-        dissect_address_mask_reply
+        [0] =dissect_echo_reply,
+        [3] =dissect_destination_unreachable,
+        [4] =dissect_source_quench,
+        [5] =dissect_redirect,
+        [8] =dissect_echo,
+        [9] =dissect_router_advertisement,
+        [10]=dissect_router_solicitation,
+        [11]=dissect_time_exceeded,
+        [12]=dissect_parameter_problem,
+        [13]=dissect_timestamp,
+        [14]=dissect_timestamp_reply,
+        [15]=dissect_information_request,
+        [16]=dissect_information_reply,
+        [17]=dissect_address_mask_request,
+        [18]=dissect_address_mask_reply,
+	[40]=dissect_security
 });
 
 EXTERN char *protocols[256] INIT( = {

@@ -56,8 +56,8 @@ OBJS    = aping.o sender.o receiver.o statistic.o fnv.o iface.o datalink.o \
 	dissect-source-quench.o \
 	dissect-time-exceeded.o \
 	dissect-timestamp-reply.o \
-	dissect-timestamp.o 
-
+	dissect-timestamp.o \
+	dissect-security.o
 .c.o:
 	$(CC) $(CFLAGS) $(DEBUG) -c $< -o $@
 all :
