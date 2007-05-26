@@ -31,6 +31,10 @@
  *
  */
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "header.h"
 #include "typedef.h"
 #include "prototype.h"
@@ -40,13 +44,14 @@
 static
 const char cvsid[] = "$Id$";
 
+static char buffer[10240];
+
 int
 get_first_hop(target, source, ifname)
 	long target;
 	long *source;
 	char *ifname;
 {
-	char buffer[10240];
 	struct sockaddr_in saddr;
 
 #ifdef __linux__
@@ -93,7 +98,8 @@ get_first_hop(target, source, ifname)
 		loopback = (unsigned long) inet_addr("127.0.0.1");
 		memcpy(&saddr.sin_addr, &loopback, sizeof(struct in_addr));
 	}
-	memset(buffer, 0, 10240);
+
+        memset(buffer, 0, sizeof(buffer)/sizeof(buffer[0]));
 
 	ipif = saddr.sin_addr.s_addr;
 	/* dummy dgram socket for ioctl */
@@ -101,7 +107,7 @@ get_first_hop(target, source, ifname)
 	if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
 		fatal(strerror(errno));
 
-	ifc.ifc_len = sizeof(buffer);
+	ifc.ifc_len = sizeof(buffer)/sizeof(buffer[0]);
 	ifc.ifc_buf = buffer;
 
 	/* getting ifs */
@@ -110,24 +116,25 @@ get_first_hop(target, source, ifname)
 
 	/* line_up ifreq structure */
 
-	ifr = (struct ifreq *) buffer;
+	ifr    = (struct ifreq *) buffer;
 	iflast = (struct ifreq *) ((char *) buffer + ifc.ifc_len);
 
 #if defined (HAVE_SOCKADDR_SA_LEN)
-	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len)
+	for (; ifr < iflast; ifr = (struct ifreq *)((char *)ifr + sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len) )
 #else
-	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + sizeof(struct sockaddr_in))
+	for (; ifr < iflast; ifr = (struct ifreq *)((char *)ifr + sizeof(struct ifreq) ))
 #endif
 	{
 
-		strncpy(ifreq_io.ifr_name, ifr->ifr_name, 16);
-
+                strncpy(ifreq_io.ifr_name, ifr->ifr_name, 16);
 
 		if (ioctl(sd, SIOCGIFFLAGS, &ifreq_io) < 0)
 			fatal("SIOCGIFFLAGS: %s", strerror(errno));
 
-		if ((ifreq_io.ifr_flags & IFF_UP) == 0)
-			continue;
+                if ((ifreq_io.ifr_flags & IFF_UP) == 0) {
+                        printf("device down..\n");
+                        continue;
+                }
 
 		local = (struct sockaddr_in *) & ifr->ifr_addr;
 
@@ -142,10 +149,11 @@ get_first_hop(target, source, ifname)
 			return 0;
 		}
 	}
-	fatal("wasn't able to guess the ifname");
 
+	fatal("wasn't able to guess the ifname");
 	return -1;
 }
+
 
 long
 gethostbyif(char *ifname)
@@ -185,7 +193,7 @@ gethostbyif(char *ifname)
 #if defined(HAVE_SOCKADDR_SA_LEN)
 	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len)
 #else
-	for (; ifr < iflast; (char *) ifr += sizeof(ifr->ifr_name) + sizeof(struct sockaddr_in))
+	for (; ifr < iflast; ifr = (struct ifreq *) ( (void *)ifr+sizeof(ifr->ifr_name) + sizeof(struct sockaddr_in)))
 #endif
 	{
 		if (*(char *) ifr == 0)
